@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -24,8 +26,10 @@ const Login = () => {
 
         try {
             // Replace with your actual API endpoint
-            const response = await axios.post('/api/login', { email, password });
-            console.log('Login successful:', response.data);
+            // const response = await axios.post('/api/login', { email, password });
+            console.log('Login successful:');
+            toast.success("Logged in");
+            navigate("/layout");
             // Handle successful login (e.g., redirect or store user info)
         } catch (err) {
             toast.error("Login failed. Please check your credentials.", {
@@ -40,16 +44,16 @@ const Login = () => {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
-            <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Login</h2>
+        <div className="flex justify-center items-center h-screen ">
+            <div className="bg-white rounded-lg shadow-black p-8 w-full max-w-md">
+                <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Welcome Back</h2>
                 <div className="mb-4">
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+                        className="w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
                 <div className="mb-4 relative">
@@ -58,7 +62,7 @@ const Login = () => {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500 pr-10"
+                        className="w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 pr-10"
                     />
                     <span
                         className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
@@ -71,11 +75,16 @@ const Login = () => {
                     </span>
                 </div>
                 <button
-                    className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline"
                     onClick={handleLogin}
                 >
                     Log In
                 </button>
+                <div className="mt-4 text-center">
+                    <a href="#" className="text-blue-500 hover:text-blue-600">
+                        Forgot Password?
+                    </a>
+                </div>
             </div>
             <ToastContainer />
         </div>
