@@ -16,7 +16,8 @@ import Setting from './Dashboard/Setting';
 import Stock from './Dashboard/Stock';
 import Busiiness from './Dashboard/Busiiness';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './components/Login';
+// import Login from './components/Login';
+import Login from './components/login';
 import Signup from './components/Signup';
 import InventoryApp from './components/InventoryApp';
 
