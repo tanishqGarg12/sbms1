@@ -6,7 +6,7 @@ import { DarkModeContext } from '../DarkModeContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Title, Tooltip, Legend);
 
-const Business = ({ items = [] }) => {
+const Busiiness = ({ items = [] }) => {
     const { darkMode } = useContext(DarkModeContext);
 
     // Dummy data for demonstration purposes
@@ -145,4 +145,4 @@ const Business = ({ items = [] }) => {
     );
 };
 
-export default Business;
+export default Busiiness;
