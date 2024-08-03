@@ -29,7 +29,7 @@ const Login = () => {
             // const response = await axios.post('/api/login', { email, password });
             console.log('Login successful:');
             toast.success("Logged in");
-            navigate("/layout");
+            navigate("/dashboard");
             // Handle successful login (e.g., redirect or store user info)
         } catch (err) {
             toast.error("Login failed. Please check your credentials.", {
