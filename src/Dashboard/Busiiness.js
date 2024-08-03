@@ -1,12 +1,12 @@
-// src/components/Busiiness.js
+// src/components/Business.js
 import React, { useContext } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line} from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Title, Tooltip, Legend } from 'chart.js';
 import { DarkModeContext } from '../DarkModeContext';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Title, Tooltip, Legend);
 
-const Busiiness = ({ items = [] }) => {
+const Business = ({ items = [] }) => {
     const { darkMode } = useContext(DarkModeContext);
 
     // Dummy data for demonstration purposes
@@ -145,4 +145,4 @@ const Busiiness = ({ items = [] }) => {
     );
 };
 
-export default Busiiness;
+export default Business;
