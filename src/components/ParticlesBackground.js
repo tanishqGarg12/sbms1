@@ -24,7 +24,7 @@ const ParticlesBackground = ({ id }) => {
         () => ({
             background: {
                 color: {
-                    value: darkMode ? "#000000" : "#ffffff", // White background in light mode
+                    value: darkMode ? "#000000" : "#ffffff", 
                 },
             },
             fpsLimit: 120,
@@ -49,7 +49,7 @@ const ParticlesBackground = ({ id }) => {
                     speed: 0.9,
                 },
                 size: {
-                    value: darkMode ? 1 : 1.75, // Increase particle size in light mode
+                    value: darkMode ? 1 : 1.75, 
                 },
                 opacity: {
                     anim: {

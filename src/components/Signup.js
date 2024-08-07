@@ -31,14 +31,7 @@ const Signup = () => {
         }
 
         if (password !== confirmPassword) {
-            toast.error("Passwords do not match!", {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.error("Passwords do not match!");
             return;
         }
 
@@ -49,14 +42,7 @@ const Signup = () => {
             console.log('Signup successful:');
             // Handle successful signup (e.g., redirect or store user info)
         } catch (err) {
-            toast.error("Signup failed. Please try again.", {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.error("Signup failed. Please try again.");
         }
     };
 
