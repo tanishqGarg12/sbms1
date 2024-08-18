@@ -1,146 +1,190 @@
-import React, { useState, useContext } from 'react';
-import { DarkModeContext } from '../DarkModeContext';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs
+import { ToastContainer, toast } from 'react-toastify'; // For toast notifications
+import 'react-toastify/dist/ReactToastify.css';
 
-const items = [
-    { id: 1, name: 'Item 1', price: 10.99 },
-    { id: 2, name: 'Item 2', price: 15.50 },
-    { id: 3, name: 'Item 3', price: 8.75 },
-    { id: 4, name: 'Item 4', price: 20.00 },
-    { id: 5, name: 'Item 5', price: 12.99 },
-];
+function CreateBill() {
+    const [senderId, setSenderId] = useState(uuidv4());
+    const [senderName, setSenderName] = useState('');
+    const [senderContact, setSenderContact] = useState('');
+    const [recipientName, setRecipientName] = useState('');
+    const [recipientContact, setRecipientContact] = useState('');
+    const [services, setServices] = useState([]);
+    const [taxRate, setTaxRate] = useState(0.07);
+    const [discountRate, setDiscountRate] = useState(0.05);
+    const [invoices, setInvoices] = useState([]);
 
-const CreateBill = () => {
-    const { darkMode } = useContext(DarkModeContext);
-    const [selectedCustomer, setSelectedCustomer] = useState('');
-    const [selectedItems, setSelectedItems] = useState([]);
-    const [quantities, setQuantities] = useState({});
-    const [discounts, setDiscounts] = useState({});
+    useEffect(() => {
+        axios.get('http://localhost:5000/api/invoices')
+            .then(response => setInvoices(response.data))
+            .catch(error => console.error(error));
+    }, []);
 
-    const handleCustomerChange = (e) => {
-        setSelectedCustomer(e.target.value);
+    const handleServiceChange = (index, field, value) => {
+        const updatedServices = [...services];
+        updatedServices[index][field] = value;
+        setServices(updatedServices);
     };
 
-    const handleItemSelect = (itemId) => {
-        setSelectedItems((prevItems) => {
-            if (prevItems.includes(itemId)) {
-                return prevItems.filter((id) => id !== itemId);
-            } else {
-                return [...prevItems, itemId];
-            }
-        });
+    const handleAddService = () => {
+        setServices([...services, { name: '', hours: 0, rate: 0 }]);
     };
 
-    const handleQuantityChange = (itemId, quantity) => {
-        setQuantities((prevQuantities) => ({
-            ...prevQuantities,
-            [itemId]: quantity,
-        }));
+    const handleSaveInvoice = () => {
+        const newInvoice = {
+            senderId,
+            senderName,
+            senderContact,
+            recipientName,
+            recipientContact,
+            services,
+            taxRate,
+            discountRate
+        };
+
+        axios.post('http://localhost:5000/api/invoices', newInvoice)
+            .then(response => {
+                setInvoices([...invoices, response.data]);
+                toast.success('Invoice saved successfully!'); // Toast notification
+                // Clear form fields
+                setSenderId(uuidv4()); // Generate a new unique ID for the next invoice
+                setSenderName('');
+                setSenderContact('');
+                setRecipientName('');
+                setRecipientContact('');
+                setServices([]);
+                setTaxRate(0.07);
+                setDiscountRate(0.05);
+            })
+            .catch(error => {
+                toast.error('Failed to save invoice.');
+                console.error(error);
+            });
     };
 
-    const handleDiscountChange = (itemId, discount) => {
-        setDiscounts((prevDiscounts) => ({
-            ...prevDiscounts,
-            [itemId]: discount,
-        }));
-    };
-
-    const calculateTotal = () => {
-        return selectedItems.reduce((total, itemId) => {
-            const item = items.find((i) => i.id === itemId);
-            const quantity = quantities[itemId] || 1;
-            const discount = discounts[itemId] || 0;
-            const itemTotal = (item.price * quantity) * (1 - discount / 100);
-            return total + itemTotal;
-        }, 0);
-    };
+    const subtotal = services.reduce((acc, service) => acc + service.hours * service.rate, 0);
+    const tax = subtotal * taxRate;
+    const discount = subtotal * discountRate;
+    const total = subtotal + tax - discount;
 
     return (
-        <div className={`min-h-screen p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-r from-blue-200 to-purple-300'}`}>
-            <div className={`max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
-                <h1 className={`text-3xl font-bold mb-4 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Create Bill</h1>
-                <div className="mb-4">
-                    <label htmlFor="customer" className={`block font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                        Select Customer
-                    </label>
+        <div className="invoice">
+            <h1>Invoice</h1>
+
+            <ToastContainer />
+
+            {/* Sender Information */}
+            <div className="sender-info">
+                <h2>Sender Information</h2>
+                <input
+                    type="text"
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    placeholder="Your Name or Company Name"
+                />
+                <input
+                    type="text"
+                    value={senderContact}
+                    onChange={(e) => setSenderContact(e.target.value)}
+                    placeholder="Your Contact Information"
+                />
+                <p><strong>Sender ID:</strong> {senderId}</p>
+            </div>
+
+            {/* Recipient Information */}
+            <div className="recipient-info">
+                <h2>Recipient Information</h2>
+                <input
+                    type="text"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Client Name"
+                />
+                <input
+                    type="text"
+                    value={recipientContact}
+                    onChange={(e) => setRecipientContact(e.target.value)}
+                    placeholder="Client Contact Information"
+                />
+            </div>
+
+            {/* Service List */}
+            <div className="service-list">
+                <h2>Services</h2>
+                {services.map((service, index) => (
+                    <div key={index} className="service-item">
+                        <input
+                            type="text"
+                            value={service.name}
+                            onChange={(e) => handleServiceChange(index, 'name', e.target.value)}
+                            placeholder="Service Name"
+                        />
+                        <input
+                            type="number"
+                            value={service.hours}
+                            onChange={(e) => handleServiceChange(index, 'hours', parseFloat(e.target.value))}
+                            placeholder="Hours"
+                        />
+                        <input
+                            type="number"
+                            value={service.rate}
+                            onChange={(e) => handleServiceChange(index, 'rate', parseFloat(e.target.value))}
+                            placeholder="Rate"
+                        />
+                    </div>
+                ))}
+                <button onClick={handleAddService}>Add Service</button>
+            </div>
+
+            {/* Tax and Discount Rate */}
+            <div className="rates">
+                <div>
+                    <label>Tax Rate: </label>
                     <input
-                        type="text"
-                        id="customer"
-                        value={selectedCustomer}
-                        onChange={handleCustomerChange}
-                        className={`w-full px-4 py-2 rounded-md border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'border-gray-300 focus:border-blue-500'}`}
+                        type="number"
+                        value={taxRate}
+                        onChange={(e) => setTaxRate(parseFloat(e.target.value))}
+                        step="0.01"
                     />
                 </div>
-                <div className="mb-4">
-                    <label className={`block font-medium mb-2 transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-                        Select Items
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {items.map((item) => (
-                            <div key={item.id} className={`bg-gray-100 p-4 rounded-md transition-colors duration-300 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'hover:bg-gray-200'}`}>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedItems.includes(item.id)}
-                                    onChange={() => handleItemSelect(item.id)}
-                                    className={`mr-2 transition-colors duration-300 ${darkMode ? 'text-blue-500' : 'text-gray-700'}`}
-                                />
-                                <label className={`font-medium transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                                    {item.name} - ₹{item.price}
-                                </label>
-                            </div>
-                        ))}
+                <div>
+                    <label>Discount Rate: </label>
+                    <input
+                        type="number"
+                        value={discountRate}
+                        onChange={(e) => setDiscountRate(parseFloat(e.target.value))}
+                        step="0.01"
+                    />
+                </div>
+            </div>
+
+            {/* Invoice Summary */}
+            <div className="invoice-details">
+                <h2>Invoice Summary</h2>
+                <p><strong>Sender:</strong> {senderName} <br /> {senderContact}</p>
+                <p><strong>Recipient:</strong> {recipientName} <br /> {recipientContact}</p>
+                <p>Subtotal: ${subtotal.toFixed(2)}</p>
+                <p>Tax: ${tax.toFixed(2)}</p>
+                <p>Discount: ${discount.toFixed(2)}</p>
+                <p>Total: ${total.toFixed(2)}</p>
+                <button onClick={handleSaveInvoice}>Save Invoice</button>
+            </div>
+
+            {/* Display Saved Invoices */}
+            <div className="saved-invoices">
+                <h2>Saved Invoices</h2>
+                {invoices.map((invoice, index) => (
+                    <div key={index}>
+                        <p><strong>Invoice {index + 1}</strong></p>
+                        <p>Sender: {invoice.senderName}</p>
+                        <p>Recipient: {invoice.recipientName}</p>
+                        <p>Total: ${subtotal.toFixed(2)}</p>
                     </div>
-                </div>
-                <div className="mb-4">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className={`bg-gray-100 transition-colors duration-300 ${darkMode ? 'bg-gray-700 text-white' : 'text-gray-800'}`}>
-                                <th className="py-2 px-4 text-left font-medium">Item</th>
-                                <th className="py-2 px-4 text-left font-medium">Quantity</th>
-                                <th className="py-2 px-4 text-left font-medium">Discount</th>
-                                <th className="py-2 px-4 text-left font-medium">Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {selectedItems.map((itemId) => {
-                                const item = items.find((i) => i.id === itemId);
-                                const quantity = quantities[itemId] || 1;
-                                const discount = discounts[itemId] || 0;
-                                const itemTotal = (item.price * quantity) * (1 - discount / 100);
-                                return (
-                                    <tr key={itemId} className={`border-b transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                                        <td className="py-2 px-4">{item.name}</td>
-                                        <td className="py-2 px-4">
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                value={quantity}
-                                                onChange={(e) => handleQuantityChange(itemId, e.target.value)}
-                                                className={`w-20 px-2 py-1 rounded-md border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'border-gray-300 focus:border-blue-500'}`}
-                                            />
-                                        </td>
-                                        <td className="py-2 px-4">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                value={discount}
-                                                onChange={(e) => handleDiscountChange(itemId, e.target.value)}
-                                                className={`w-20 px-2 py-1 rounded-md border transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500' : 'border-gray-300 focus:border-blue-500'}`}
-                                            />
-                                        </td>
-                                        <td className="py-2 px-4">₹{itemTotal.toFixed(2)}</td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-                <div className={`text-right font-medium text-2xl transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    Total: ₹{calculateTotal().toFixed(2)}
-                </div>
+                ))}
             </div>
         </div>
     );
-};
+}
 
 export default CreateBill;

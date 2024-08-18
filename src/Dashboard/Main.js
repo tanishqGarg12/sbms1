@@ -28,6 +28,26 @@ const Main = () => {
                 </li>
                 <li>
                     <Link 
+                        to="/dashboard/all-inventory" 
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/all-inventory' ? 'border-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/all-inventory')}
+                    >
+                        <FaHome className="mr-2 text-xl" />
+                        <span className="text-lg font-semibold">all invenotry</span>
+                    </Link>
+                </li>
+                <li>
+                    <Link 
+                        to="/dashboard/low-inventory" 
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/low-inventory' ? 'border-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/low-inventory')}
+                    >
+                        <FaHome className="mr-2 text-xl" />
+                        <span className="text-lg font-semibold">low invenotry</span>
+                    </Link>
+                </li>
+                <li>
+                    <Link 
                         to="/dashboard/history" 
                         className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/history' ? 'border-4 border-orange-500' : ''}`}
                         onClick={() => handleLinkClick('/history')}

@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom'; // Only import Outlet, no need for Ro
 const Layout = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
-      <Main className="sidebar" style={{ position: 'fixed', width: '250px', height: '100vh' }} />
+      <Main className="sidebar" style={{ position: 'fixed ', width: '250px', height: 'auto' }} />
       <main style={{ marginLeft: '250px', padding: '1rem', width: 'calc(100% - 250px)' }}>
         <Outlet /> {/* This will render the nested routes */}
       </main>

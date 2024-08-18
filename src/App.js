@@ -19,9 +19,12 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // import Login from './components/Login';
 // import Login from './components/login';
 // import Login from "./components/Login"
-import Login from './components/login';
+import Login from './components/Login';
 import Signup from './components/Signup';
 import InventoryApp from './components/InventoryApp';
+import AllInventory from './Dashboard/AllInventory';
+import LowStock from './Dashboard/LowStock';
+import FeedbackForm from './Dashboard/FeedbackForm';
 
 export default function App() {
   return (
@@ -35,6 +38,7 @@ export default function App() {
               {/* Homepage Routes */}
               <Route path="/" element={
                 <>
+                <FeedbackForm/>
                   <HeroSection />
                   <AboutUs />
                   <InfoCard />
@@ -56,6 +60,8 @@ export default function App() {
                 <Route path="business" element={<Busiiness />} />
                 <Route path="create-bill" element={<CreateBill />} />
                 <Route path="stock-details" element={<Stock />} />
+                <Route path="all-inventory" element={<AllInventory/>} />
+                <Route path="low-inventory" element={<LowStock/>} />
                 <Route path="settings" element={<Setting />} />
               </Route>
             </Routes>
