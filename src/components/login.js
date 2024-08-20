@@ -1,50 +1,37 @@
+// src/components/Login.js
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { login } from '../Redux/action/authActions'; // Import login action
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch(); // Get dispatch function
 
     const handleLogin = async () => {
         if (!email || !password) {
-            toast.error("Please fill in all fields!", {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.error("Please fill in all fields!");
             return;
         }
 
         try {
-            // Replace with your actual API endpoint
-            // const response = await axios.post('/api/login', { email, password });
-            console.log('Login successful:');
-            toast.success("Logged in");
-            navigate("/dashboard");
-            // Handle successful login (e.g., redirect or store user info)
+            await dispatch(login(email, password)); // Dispatch login action
+            toast.success("Logged in successfully");
+            navigate("/dashboard"); // Redirect to dashboard
         } catch (err) {
-            toast.error("Login failed. Please check your credentials.", {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.error("Login failed. Please check your credentials.");
         }
     };
 
     return (
-        <div className="flex justify-center items-center h-screen ">
+        <div className="flex justify-center items-center h-screen">
             <div className="bg-white rounded-lg shadow-black p-8 w-full max-w-md">
                 <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Welcome Back</h2>
                 <div className="mb-4">

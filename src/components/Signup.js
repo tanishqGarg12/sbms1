@@ -3,29 +3,31 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { DarkModeContext } from '../DarkModeContext'; // Import your context
+import axios from 'axios';
+import { DarkModeContext } from '../DarkModeContext';
 
 const Signup = () => {
-    const { darkMode } = useContext(DarkModeContext); // Access dark mode context
-    const [name, setName] = useState('');
+    const { darkMode } = useContext(DarkModeContext);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
-    const [state, setState] = useState('');
+    const [role, setRole] = useState(false); // Checkbox for role
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleSignup = async () => {
-        if (!name || !email || !password || !confirmPassword || !phone || !address || !state) {
+        if (!firstName || !lastName || !username || !email || !phone || !password || !confirmPassword) {
             toast.error("Please fill in all fields!", {
-                position: toast.POSITION.TOP_RIGHT,
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
+                // position: toast.POSITION.TOP_RIGHT,
+                // autoClose: 5000,
+                // hideProgressBar: false,
+                // closeOnClick: true,
+                // pauseOnHover: true,
+                // draggable: true,
             });
             return;
         }
@@ -36,27 +38,53 @@ const Signup = () => {
         }
 
         try {
-            // Replace with your actual API endpoint
-            toast.success("Account created");
-            // const response = await axios.post('/api/signup', { name, email, password, phone, address, state });
-            console.log('Signup successful:');
-            // Handle successful signup (e.g., redirect or store user info)
+            const response = await axios.post('http://localhost:4000/api/v1/auth/signup', {
+                firstName,
+                lastName,
+                username,
+                email,
+                phone,
+                password,
+                confirmPassword,
+                role: role ? 'admin' : 'user',
+            });
+            toast.success("Account created successfully!");
+            console.log('Signup successful:', response.data);
         } catch (err) {
-            toast.error("Signup failed. Please try again.");
+            toast.error(err);
+            // console.error('Error during signup:', err);
         }
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-cover bg-center ">
+        <div className="flex justify-center items-center h-screen bg-cover bg-center">
             <div className={`rounded-lg shadow-lg p-10 w-full max-w-lg ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
                 <h2 className="text-3xl font-bold mb-6 text-center">Sign Up</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="mb-4">
                         <input
                             type="text"
-                            placeholder="Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            placeholder="First Name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
                         />
                     </div>
@@ -69,6 +97,15 @@ const Signup = () => {
                             className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
                         />
                     </div>
+                </div>
+                <div className="mb-4">
+                    <input
+                        type="tel"
+                        placeholder="Phone"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
+                    />
                 </div>
                 <div className="mb-4 relative">
                     <input
@@ -107,31 +144,15 @@ const Signup = () => {
                     </span>
                 </div>
                 <div className="mb-4">
-                    <input
-                        type="tel"
-                        placeholder="Phone"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
-                    />
-                </div>
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Address"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
-                    />
-                </div>
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="State"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:border-blue-500 ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'}`}
-                    />
+                    <label className="inline-flex items-center">
+                        <input
+                            type="checkbox"
+                            checked={role}
+                            onChange={(e) => setRole(e.target.checked)}
+                            className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                        <span className="ml-2">Sign up as admin</span>
+                    </label>
                 </div>
                 <button
                     className={`w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline ${darkMode ? 'bg-blue-600' : 'bg-blue-500'}`}

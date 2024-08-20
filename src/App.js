@@ -38,7 +38,7 @@ export default function App() {
               {/* Homepage Routes */}
               <Route path="/" element={
                 <>
-                <FeedbackForm/>
+                {/* <FeedbackForm/> */}
                   <HeroSection />
                   <AboutUs />
                   <InfoCard />

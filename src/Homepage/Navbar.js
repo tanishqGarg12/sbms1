@@ -1,12 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+// import { logout } from '../Redux/'; // Assuming you have a logout action
 import { DarkModeContext } from '../DarkModeContext';
 import { Link, useNavigate } from 'react-router-dom';
-import Quick from "./Assests/Quick.jpg";
+import Quick from './Assests/Quick.jpg';
 
 const Navbar = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
     const [isOpen, setIsOpen] = useState(false);
+
+    // Get authentication state from Redux
+    const { isAuthenticated, user } = useSelector((state) => state.auth);
 
     useEffect(() => {
         document.body.classList[darkMode ? 'add' : 'remove']('bg-gray-900');
@@ -16,25 +22,30 @@ const Navbar = () => {
     }, [darkMode]);
 
     const toggleMenu = () => {
-        setIsOpen(prev => !prev);
+        setIsOpen((prev) => !prev);
     };
 
     const handleLogin = () => {
-        navigate("/login");
+        navigate('/login');
     };
 
     const handleSignUp = () => {
-        navigate("/signup");
+        navigate('/signup');
     };
 
     const handleInventory = () => {
-        navigate("/inventory");
+        navigate('/inventory');
     };
+    console.log(user)
+    // const handleLogout = () => {
+    //     dispatch(logout());
+    //     navigate('/');
+    // };
 
     return (
         <nav className={`flex items-center justify-between p-4 shadow-md transition duration-300 ease-in-out bg-transparent`}>
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                <img src={Quick} className='w-52 rounded-md' alt="Quick Logo"/>
+                <img src={Quick} className="w-52 rounded-md" alt="Quick Logo" />
             </div>
             <div className="hidden md:flex items-center space-x-4">
                 <button
@@ -55,18 +66,38 @@ const Navbar = () => {
                         </svg>
                     </button>
                 </div>
-                <button
-                    onClick={handleLogin}
-                    className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}
-                >
-                    Login
-                </button>
-                <button
-                    onClick={handleSignUp}
-                    className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}
-                >
-                    Sign Up
-                </button>
+
+                {/* Conditional rendering based on authentication status */}
+                {isAuthenticated ? (
+                    <>
+                        <span className="ml-4 p-2 text-lg font-bold">
+                            Welcome, {user.user?.firstName || 'User'}
+                        </span>
+                        <button
+                            // onClick={handleLogout}
+                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
+                            >
+                            Logout
+                        </button>
+                    </>
+                        // console.log(user)
+                ) : (   
+                    <>
+                        <button
+                            onClick={handleLogin}
+                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}
+                        >
+                            Login
+                        </button>
+                        <button
+                            onClick={handleSignUp}
+                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}
+                        >
+                            Sign Up
+                        </button>
+                    </>
+                )}
+
                 <ul className="flex space-x-6">
                     <li>
                         <Link to="/" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
@@ -82,6 +113,8 @@ const Navbar = () => {
                     </li>
                 </ul>
             </div>
+
+            {/* Mobile Menu */}
             <div className="md:hidden flex items-center">
                 <button
                     onClick={toggleMenu}
@@ -98,6 +131,7 @@ const Navbar = () => {
                     )}
                 </button>
             </div>
+
             {isOpen && (
                 <div className={`absolute top-16 right-0 w-full shadow-lg md:hidden transition duration-300 ease-in-out ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-800'}`}>
                     <ul className="flex flex-col p-4 space-y-2">
@@ -116,16 +150,36 @@ const Navbar = () => {
                         <li>
                             <Link to="/inventory" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Inventory</Link>
                         </li>
-                        <li>
-                            <button onClick={handleLogin} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}>
-                                Login
-                            </button>
-                        </li>
-                        <li>
-                            <button onClick={handleSignUp} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}>
-                                Sign Up
-                            </button>
-                        </li>
+
+                        {isAuthenticated ? (
+                            <>
+                                <li>
+                                    <span className="p-2 font-bold">
+                                        Welcome, {user?.email || 'User'}
+                                    </span>
+                                </li>
+                                <li>
+                                    <button 
+                                    // onClick={handleLogout}
+                                     className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}>
+                                        Logout
+                                    </button>
+                                </li>
+                            </>
+                        ) : (
+                            <>
+                                <li>
+                                    <button onClick={handleLogin} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}>
+                                        Login
+                                    </button>
+                                </li>
+                                <li>
+                                    <button onClick={handleSignUp} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}>
+                                        Sign Up
+                                    </button>
+                                </li>
+                            </>
+                        )}
                     </ul>
                 </div>
             )}
