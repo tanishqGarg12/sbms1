@@ -12,6 +12,7 @@ const InventoryApp = () => {
   const [itemQuantity, setItemQuantity] = useState('');
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
+  const [unit, setUnit] = useState('');
   const [editIndex, setEditIndex] = useState(null);
 
   const categories = {
@@ -20,50 +21,99 @@ const InventoryApp = () => {
     Groceries: ['Fruits', 'Vegetables', 'Dairy'],
   };
 
-  const addItem = () => {
-    if (itemName && itemPrice && itemQuantity && category && subcategory) {
-      if (editIndex !== null) {
-        const updatedItems = items.map((item, index) => (
-          index === editIndex
-            ? { name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory }
-            : item
-        ));
-        setItems(updatedItems);
-        setEditIndex(null);
-        toast.success('Item updated successfully!');
-      } else {
-        setItems([...items, { name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory }]);
-        toast.success('Item added successfully!');
+  const units = ['kg', 'g', 'pcs'];
+
+  // Function to reset form fields
+  const resetForm = () => {
+    setItemName('');
+    setItemPrice('');
+    setItemQuantity('');
+    setCategory('');
+    setSubcategory('');
+    setUnit('');
+    setEditIndex(null);
+  };
+
+  const addItem = async () => {
+    if (itemName && itemPrice && itemQuantity && category && subcategory && unit) {
+      try {
+        console.log(items[editIndex]._id)
+        const response = editIndex !== null 
+          ? 
+          await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
+            })
+          : await fetch('http://localhost:4000/api/v1/inventory/createinventory', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
+            });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          if (editIndex !== null) {
+            const updatedItems = items.map((item, index) =>
+              index === editIndex
+                ? { ...result, _id: item._id } // Preserve the MongoDB ID
+                : item
+            );
+            setItems(updatedItems);
+            toast.success('Item updated successfully!');
+          } else {
+            setItems([...items, result]); // Add the new item with MongoDB ID
+            toast.success('Item added successfully!');
+          }
+        } else {
+          toast.error(result.message || 'Failed to save item.');
+        }
+      } catch (error) {
+        toast.error('An error occurred while saving the item.');
       }
-      setItemName('');
-      setItemPrice('');
-      setItemQuantity('');
-      setCategory('');
-      setSubcategory('');
+
+      resetForm(); // Reset fields
     } else {
       toast.error('Please fill in all fields!');
     }
   };
 
-  const deleteItem = (index) => {
-    const newItems = items.filter((_, i) => i !== index);
-    setItems(newItems);
-    toast.success('Item deleted successfully!');
+  const deleteItem = async (id) => {
+    console.log(id)
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const newItems = items.filter(item => item._id !== id);
+        setItems(newItems);
+        toast.success('Item deleted successfully!');
+      } else {
+        toast.error(result.message || 'Failed to delete item.');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting the item.');
+    }
   };
 
   const startEdit = (index) => {
-    const { name, price, quantity, category, subcategory } = items[index];
+    const { name, price, quantity, category, subcategory, unit } = items[index];
     setItemName(name);
     setItemPrice(price);
     setItemQuantity(quantity);
     setCategory(category);
     setSubcategory(subcategory);
+    setUnit(unit);
     setEditIndex(index);
   };
 
   return (
     <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-      <div className={`w-2/3 w-full shadow-lg rounded-lg p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+      <div className={`w-2/3 shadow-lg rounded-lg p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
         <h1 className={`text-3xl font-bold text-center transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Inventory Management</h1>
         <div className="flex flex-col mt-6 space-y-4">
           <select
@@ -92,6 +142,17 @@ const InventoryApp = () => {
             ))}
           </select>
 
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+          >
+            <option value="">Select Unit</option>
+            {units.map((u) => (
+              <option key={u} value={u}>{u}</option>
+            ))}
+          </select>
+
           <input
             type="text"
             value={itemName}
@@ -113,7 +174,9 @@ const InventoryApp = () => {
             placeholder="Item Quantity"
             className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
           />
-          <button onClick={addItem} className={`text-white rounded-lg px-6 py-3 hover:opacity-80 transition w-full ${darkMode ? 'bg-blue-500' : 'bg-blue-600'}`}>Add Item</button>
+          <button onClick={addItem} className={`text-white rounded-lg px-6 py-3 hover:opacity-80 transition w-full ${darkMode ? 'bg-blue-500' : 'bg-blue-600'}`}>
+            {editIndex !== null ? 'Update Item' : 'Add Item'}
+          </button>
         </div>
         <div className="mt-6">
           <h2 className={`text-xl font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-700'}`}>Inventory List</h2>
@@ -128,24 +191,22 @@ const InventoryApp = () => {
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Quantity</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Category</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Actions</th>
+                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Unit</th>
+                  <th className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item, index) => (
-                  <tr key={index} className={`border-b hover:bg-gray-50 transition-colors duration-300 ${darkMode ? 'hover:bg-gray-700' : ''}`}>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{item.name}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>${item.price}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{item.quantity}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{item.category}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>{item.subcategory}</td>
-                    <td className={`border p-3 flex space-x-2 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-                      <button onClick={() => startEdit(index)} className={`hover:underline flex items-center transition-colors duration-300 ${darkMode ? 'text-yellow-400' : 'text-yellow-500'}`}>
-                        <FaEdit className="mr-1" /> Edit
-                      </button>
-                      <button onClick={() => deleteItem(index)} className={`hover:underline flex items-center transition-colors duration-300 ${darkMode ? 'text-red-400' : 'text-red-500'}`}>
-                        <FaTrash className="mr-1" /> Delete
-                      </button>
+                  <tr key={item._id} className={`transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.name}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.price}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.quantity}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.category}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.subcategory}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.unit}</td>
+                    <td className="border p-3">
+                      <button onClick={() => startEdit(index)} className="text-blue-500 mr-2"><FaEdit /></button>
+                      <button onClick={() => deleteItem(item._id)} className="text-red-500"><FaTrash /></button>
                     </td>
                   </tr>
                 ))}
@@ -153,8 +214,8 @@ const InventoryApp = () => {
             </table>
           )}
         </div>
+        <ToastContainer />
       </div>
-      <ToastContainer />
     </div>
   );
 };

@@ -1,5 +1,5 @@
-// src/LowStock.js
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux'; // Import useSelector to access the Redux store
 
 // Static product data
 const initialProducts = [
@@ -35,6 +35,7 @@ const initialProducts = [
 
 const LowStock = () => {
   const [products] = useState(initialProducts);
+  const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store
 
   // Filter products with low stock (e.g., stock less than or equal to 5)
   const lowStockProducts = products.filter(product => product.stock <= 5);
@@ -61,18 +62,30 @@ const LowStock = () => {
             <p className="text-green-600 font-bold">${product.price.toFixed(2)}</p>
             <p className="text-orange-500">In Stock: {product.stock}</p>
             <div className="mt-4">
-              <button
-                onClick={() => handleEdit(product.id)}
-                className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(product.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
+              {/* Conditionally render buttons based on the user's role */}
+              {user.user?.role === 'admin' ? (
+                <>
+                  <button
+                    onClick={() => handleEdit(product.id)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => alert(`Add functionality for product ID: ${product.id}`)}
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Add
+                </button>
+              )}
             </div>
           </div>
         ))}

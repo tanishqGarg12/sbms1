@@ -51,12 +51,12 @@ export default function App() {
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-                <Route path="inventory" element={<InventoryApp />} />
 
               {/* Dashboard Routes with common layout */}
               <Route path="/dashboard" element={<Layout />}>
                 <Route index path="history" element={<History />} />
                 {/* <Route path='Bussiness' element={<Busiiness}/> */}
+                <Route path="addinventory" element={<InventoryApp />} />
                 <Route path="business" element={<Busiiness />} />
                 <Route path="create-bill" element={<CreateBill />} />
                 <Route path="stock-details" element={<Stock />} />

@@ -1,56 +1,95 @@
-// src/components/Main.js
 import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHome, FaHistory, FaFileInvoiceDollar, FaBoxOpen, FaCog } from 'react-icons/fa';
 import { DarkModeContext } from '../DarkModeContext';
+import { useSelector } from 'react-redux'; // Assuming you're using Redux for authentication
 
 const Main = () => {
     const { darkMode } = useContext(DarkModeContext);
     const [activeLink, setActiveLink] = useState('/'); // Default active link
+    const { user } = useSelector((state) => state.auth); // Get the user from Redux store
+    console.log({user})
+    // console.log(user.role)
 
     const handleLinkClick = (path) => {
         setActiveLink(path); // Set the clicked link as active
     };
 
     return (
-        <div className={` sidebar transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`} style={{ width: '250px', position: 'fixed', height: '100%', top: 85, left: 0 }}>
+        <div className={`sidebar transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`} style={{ width: '250px', position: 'fixed', height: '100%', top: 85, left: 0 }}>
             <h2 className="text-center text-2xl font-bold mb-4">Dashboard</h2>
             <ul className="mt-4">
-                <li>
-                    <Link 
-                        to="/dashboard/business" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/' ? 'border-l-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/dashboard/Busiiness')}
-                    >
-                        <FaHome className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Business Overview</span>
-                    </Link>
-                </li>
+                {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}
+                {user.user?.role === 'admin' && (
+                    <>
+                        <li>
+                            <Link 
+                                to="/dashboard/business" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/business' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/business')}
+                            >
+                                <FaHome className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">Business Overview</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                to="/dashboard/addinventory" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/business' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/addinventory')}
+                            >
+                                <FaHome className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">add stock</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                to="/dashboard/stock-details" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/stock-details' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/stock-details')}
+                            >
+                                <FaBoxOpen className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">Stock Details</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                to="/dashboard/settings" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/settings')}
+                            >
+                                <FaCog className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">Settings</span>
+                            </Link>
+                        </li>
+                    </>
+                )}
+                {/* These menu items will be shown to all users */}
                 <li>
                     <Link 
                         to="/dashboard/all-inventory" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/all-inventory' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/all-inventory')}
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/all-inventory' ? 'border-l-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/dashboard/all-inventory')}
                     >
-                        <FaHome className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">all invenotry</span>
+                        <FaBoxOpen className="mr-2 text-xl" />
+                        <span className="text-lg font-semibold">All Inventory</span>
                     </Link>
                 </li>
                 <li>
                     <Link 
                         to="/dashboard/low-inventory" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/low-inventory' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/low-inventory')}
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/low-inventory' ? 'border-l-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/dashboard/low-inventory')}
                     >
-                        <FaHome className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">low invenotry</span>
+                        <FaFileInvoiceDollar className="mr-2 text-xl" />
+                        <span className="text-lg font-semibold">Low Inventory</span>
                     </Link>
                 </li>
                 <li>
                     <Link 
                         to="/dashboard/history" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/history' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/history')}
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/history' ? 'border-l-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/dashboard/history')}
                     >
                         <FaHistory className="mr-2 text-xl" />
                         <span className="text-lg font-semibold">History</span>
@@ -59,31 +98,11 @@ const Main = () => {
                 <li>
                     <Link 
                         to="/dashboard/create-bill" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/create-bill' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/create-bill')}
+                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/create-bill' ? 'border-l-4 border-orange-500' : ''}`}
+                        onClick={() => handleLinkClick('/dashboard/create-bill')}
                     >
                         <FaFileInvoiceDollar className="mr-2 text-xl" />
                         <span className="text-lg font-semibold">Create Bill</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        to="/dashboard/stock-details" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/stock-details' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/stock-details')}
-                    >
-                        <FaBoxOpen className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Stock Details</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        to="/dashboard/settings" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/settings' ? 'border-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/settings')}
-                    >
-                        <FaCog className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Settings</span>
                     </Link>
                 </li>
             </ul>

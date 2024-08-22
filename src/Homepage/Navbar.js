@@ -33,9 +33,7 @@ const Navbar = () => {
         navigate('/signup');
     };
 
-    const handleInventory = () => {
-        navigate('/inventory');
-    };
+
     console.log(user)
     // const handleLogout = () => {
     //     dispatch(logout());
@@ -108,9 +106,7 @@ const Navbar = () => {
                     <li>
                         <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
                     </li>
-                    <li>
-                        <Link to="/inventory" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Inventory</Link>
-                    </li>
+                    
                 </ul>
             </div>
 
@@ -147,9 +143,7 @@ const Navbar = () => {
                         <li>
                             <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
                         </li>
-                        <li>
-                            <Link to="/inventory" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Inventory</Link>
-                        </li>
+                        
 
                         {isAuthenticated ? (
                             <>
