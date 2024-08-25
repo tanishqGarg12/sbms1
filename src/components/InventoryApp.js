@@ -1,83 +1,34 @@
-import React, { useState, useContext } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { DarkModeContext } from '../DarkModeContext';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux'; // Import useSelector to access the Redux store
+import { toast } from 'react-toastify'; // Import toast for notifications
 
-const InventoryApp = () => {
-  const { darkMode } = useContext(DarkModeContext);
-  const [items, setItems] = useState([]);
-  const [itemName, setItemName] = useState('');
-  const [itemPrice, setItemPrice] = useState('');
-  const [itemQuantity, setItemQuantity] = useState('');
-  const [category, setCategory] = useState('');
-  const [subcategory, setSubcategory] = useState('');
-  const [unit, setUnit] = useState('');
-  const [editIndex, setEditIndex] = useState(null);
+const AllInventory = () => {
+  const [products, setProducts] = useState([]); // Initially, products are empty
+  const [loading, setLoading] = useState(true); // Loading state to show a spinner or message
+  const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store
 
-  const categories = {
-    Electronics: ['Mobile', 'Laptop', 'Tablet'],
-    Clothing: ['Men', 'Women', 'Kids'],
-    Groceries: ['Fruits', 'Vegetables', 'Dairy'],
-  };
-
-  const units = ['kg', 'g', 'pcs'];
-
-  // Function to reset form fields
-  const resetForm = () => {
-    setItemName('');
-    setItemPrice('');
-    setItemQuantity('');
-    setCategory('');
-    setSubcategory('');
-    setUnit('');
-    setEditIndex(null);
-  };
-
-  const addItem = async () => {
-    if (itemName && itemPrice && itemQuantity && category && subcategory && unit) {
+  // Fetch the inventory data from the backend
+  useEffect(() => {
+    const fetchInventory = async () => {
       try {
-        console.log(items[editIndex]._id)
-        const response = editIndex !== null 
-          ? 
-          await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
-            })
-          : await fetch('http://localhost:4000/api/v1/inventory/createinventory', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
-            });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          if (editIndex !== null) {
-            const updatedItems = items.map((item, index) =>
-              index === editIndex
-                ? { ...result, _id: item._id } // Preserve the MongoDB ID
-                : item
-            );
-            setItems(updatedItems);
-            toast.success('Item updated successfully!');
-          } else {
-            setItems([...items, result]); // Add the new item with MongoDB ID
-            toast.success('Item added successfully!');
-          }
-        } else {
-          toast.error(result.message || 'Failed to save item.');
+        const response = await fetch('http://localhost:4000/api/v1/inventory/getallinventory');
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
-      } catch (error) {
-        toast.error('An error occurred while saving the item.');
-      }
 
-      resetForm(); // Reset fields
-    } else {
-      toast.error('Please fill in all fields!');
-    }
-  };
+        const data = await response.json();
+        setProducts(data || []); // Ensure products is always an array
+      } catch (error) {
+        console.error('Error fetching inventory:', error);
+        setProducts([]); // Set products to an empty array if there's an error
+      } finally {
+        setLoading(false); // Set loading to false after the data is fetched
+      }
+    };
+
+    fetchInventory();
+  }, []); // Empty dependency array to run once on component mount
 
   const deleteItem = async (id) => {
     console.log(id)
@@ -89,8 +40,8 @@ const InventoryApp = () => {
       const result = await response.json();
 
       if (response.ok) {
-        const newItems = items.filter(item => item._id !== id);
-        setItems(newItems);
+        const newItems = products.filter(item => item._id !== id);
+        setProducts(newItems);
         toast.success('Item deleted successfully!');
       } else {
         toast.error(result.message || 'Failed to delete item.');
@@ -100,124 +51,69 @@ const InventoryApp = () => {
     }
   };
 
-  const startEdit = (index) => {
-    const { name, price, quantity, category, subcategory, unit } = items[index];
-    setItemName(name);
-    setItemPrice(price);
-    setItemQuantity(quantity);
-    setCategory(category);
-    setSubcategory(subcategory);
-    setUnit(unit);
-    setEditIndex(index);
+  const handleEdit = (id) => {
+    alert(`Edit functionality not implemented for product ID: ${id}`);
   };
 
+  const handleDelete = (id) => {
+    console.log("dwdxwcws cws dx sd xs cs c ed w")
+    console.log(id)
+    deleteItem(id);
+    // if (window.confirm(`Are you sure you want to delete product with ID: ${id}?`)) {
+    // }
+  };
+
+  if (loading) {
+    return <p>Loading inventory...</p>; // Show loading message while fetching data
+  }
+
   return (
-    <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-      <div className={`w-2/3 shadow-lg rounded-lg p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
-        <h1 className={`text-3xl font-bold text-center transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Inventory Management</h1>
-        <div className="flex flex-col mt-6 space-y-4">
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setSubcategory('');
-            }}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-          >
-            <option value="">Select Category</option>
-            {Object.keys(categories).map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-
-          <select
-            value={subcategory}
-            onChange={(e) => setSubcategory(e.target.value)}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-            disabled={!category}
-          >
-            <option value="">Select Subcategory</option>
-            {category && categories[category].map((sub) => (
-              <option key={sub} value={sub}>{sub}</option>
-            ))}
-          </select>
-
-          <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-          >
-            <option value="">Select Unit</option>
-            {units.map((u) => (
-              <option key={u} value={u}>{u}</option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            value={itemName}
-            onChange={(e) => setItemName(e.target.value)}
-            placeholder="Item Name"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-          />
-          <input
-            type="number"
-            value={itemPrice}
-            onChange={(e) => setItemPrice(e.target.value)}
-            placeholder="Item Price"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-          />
-          <input
-            type="number"
-            value={itemQuantity}
-            onChange={(e) => setItemQuantity(e.target.value)}
-            placeholder="Item Quantity"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
-          />
-          <button onClick={addItem} className={`text-white rounded-lg px-6 py-3 hover:opacity-80 transition w-full ${darkMode ? 'bg-blue-500' : 'bg-blue-600'}`}>
-            {editIndex !== null ? 'Update Item' : 'Add Item'}
-          </button>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Inventory</h1>
+      {products.length === 0 ? (
+        <p>No inventory data available.</p> // Display this if there are no products
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products.map((product) => (
+            <div key={product._id} className="bg-white border rounded-lg shadow-md p-4">
+              <img src={product.image || 'https://via.placeholder.com/150'} alt={product.name} className="w-full h-32 object-cover rounded-md mb-4" />
+              <h2 className="text-lg font-semibold">{product.name}</h2>
+              <p className="text-green-600 font-bold">${product.price.toFixed(2)}</p>
+              <p className="text-orange-500">In Stock: {product.quantity}</p>
+              <div className="mt-4">
+                {/* Conditionally render buttons based on the user's role */}
+                {user.user?.role === 'admin' ? (
+                  <>
+                    <button
+                      onClick={() => handleEdit(product._id)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteItem(product._id)
+                      
+                      }
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => alert(`Add functionality for product ID: ${product._id}`)}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  >
+                    Add
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="mt-6">
-          <h2 className={`text-xl font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-700'}`}>Inventory List</h2>
-          {items.length === 0 ? (
-            <p className={`transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>No items in inventory.</p>
-          ) : (
-            <table className={`min-w-full border-collapse mt-4 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
-              <thead>
-                <tr className={`transition-colors duration-300 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'}`}>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Name</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Price</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Quantity</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Category</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Unit</th>
-                  <th className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={item._id} className={`transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.name}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.price}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.quantity}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.category}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.subcategory}</td>
-                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.unit}</td>
-                    <td className="border p-3">
-                      <button onClick={() => startEdit(index)} className="text-blue-500 mr-2"><FaEdit /></button>
-                      <button onClick={() => deleteItem(item._id)} className="text-red-500"><FaTrash /></button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-        <ToastContainer />
-      </div>
+      )}
     </div>
   );
 };
 
-export default InventoryApp;
+export default AllInventory;
