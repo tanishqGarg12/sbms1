@@ -22,12 +22,7 @@ const Signup = () => {
     const handleSignup = async () => {
         if (!firstName || !lastName || !username || !email || !phone || !password || !confirmPassword) {
             toast.error("Please fill in all fields!", {
-                // position: toast.POSITION.TOP_RIGHT,
-                // autoClose: 5000,
-                // hideProgressBar: false,
-                // closeOnClick: true,
-                // pauseOnHover: true,
-                // draggable: true,
+
             });
             return;
         }
