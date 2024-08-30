@@ -132,6 +132,31 @@ const AllInventory = () => {
       price: 0
     });
   };
+  const addToCart = async (productId, quantity) => {
+    try {
+        console.log(`Product ID: ${productId}, Quantity:2`);
+        const response = await fetch(`http://localhost:4000/api/v1/cart/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, quantity }), // Pass both productId and quantity
+            credentials: 'include', // Send cookies with the request
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        if (response.ok) {
+            toast.success('Item added to cart successfully!');
+        } else {
+            toast.error(result.message || 'Failed to add item to cart.');
+        }
+    } catch (error) {
+        toast.error('An error occurred while adding the item to the cart.');
+    }
+};
+
 
   if (loading) {
     return <p>Loading inventory...</p>; // Show loading message while fetching data
@@ -248,7 +273,7 @@ const AllInventory = () => {
                   </>
                 ) : (
                   <button
-                    onClick={() => alert(`Add functionality for product ID: ${product._id}`)}
+                    onClick={() => addToCart(product._id)} // Handle adding to cart
                     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                   >
                     Add

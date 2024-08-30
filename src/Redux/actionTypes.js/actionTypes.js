@@ -1,5 +1,4 @@
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAILURE';   
-export const FETCH_INVENTORY_SUCCESS = 'FETCH_INVENTORY_SUCCESS';
-export const ADD_TO_BILL = 'ADD_TO_BILL';
-export const UPDATE_INVENTORY = 'UPDATE_INVENTORY'; 
+export const ADD_ITEM = 'ADD_ITEM';
+export const CLEAR_ITEMS = 'CLEAR_ITEMS';

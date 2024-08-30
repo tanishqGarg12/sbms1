@@ -1,4 +1,4 @@
-// src/redux/reducers/authReducer.js
+
 import { LOGIN_SUCCESS, LOGIN_FAIL } from '../actionTypes.js/actionTypes';
 
 const initialState = {
