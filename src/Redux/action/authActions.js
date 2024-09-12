@@ -15,7 +15,7 @@ export const login = (email, password) => async (dispatch) => {
                 type: LOGIN_SUCCESS,
                 payload: userData,
             });
-
+            console.log("user data is "+userData.user.token);
             return userData; // Optionally return the user data
         }
     } catch (error) {
