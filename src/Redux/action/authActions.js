@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { LOGIN_SUCCESS, LOGIN_FAIL } from '../actionTypes.js/actionTypes';
+import { LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT } from '../actionTypes.js/actionTypes';
 
 // Action to login the user
 export const login = (email, password) => async (dispatch) => {
     try {
         const response = await axios.post('http://localhost:4000/api/v1/auth/login', { email, password });
 
-        if (response.status == 200) {
+        if (response.status === 200) {
             // Assuming the response contains user data
             const userData = response.data;
 
@@ -29,4 +29,14 @@ export const login = (email, password) => async (dispatch) => {
 
         throw error; // Throw error if needed for further handling
     }
+};
+
+// Action to logout the user
+export const logout = () => (dispatch) => {
+    // Perform any necessary cleanup like removing tokens from localStorage if needed
+
+    // Dispatch logout action to reset auth state
+    dispatch({
+        type: LOGOUT,
+    });
 };

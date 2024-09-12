@@ -1,4 +1,3 @@
-// src/components/Login.js
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -28,6 +27,10 @@ const Login = () => {
         } catch (err) {
             toast.error("Login failed. Please check your credentials.");
         }
+    };
+
+    const handleForgotPassword = () => {
+        navigate("/forgot-password"); // Navigate to forgot password page
     };
 
     return (
@@ -68,7 +71,11 @@ const Login = () => {
                     Log In
                 </button>
                 <div className="mt-4 text-center">
-                    <a href="#" className="text-blue-500 hover:text-blue-600">
+                    <a
+                        href="#"
+                        className="text-blue-500 hover:text-blue-600"
+                        onClick={handleForgotPassword}
+                    >
                         Forgot Password?
                     </a>
                 </div>

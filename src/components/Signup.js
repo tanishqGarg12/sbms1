@@ -15,24 +15,26 @@ const Signup = () => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [role, setRole] = useState(false); // Checkbox for role
+    const [role, setRole] = useState(false); // Checkbox for role (admin/user)
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // Handle signup submission
     const handleSignup = async () => {
+        // Validate form fields
         if (!firstName || !lastName || !username || !email || !phone || !password || !confirmPassword) {
-            toast.error("Please fill in all fields!", {
-
-            });
+            toast.error('Please fill in all fields!');
             return;
         }
 
+        // Check if passwords match
         if (password !== confirmPassword) {
-            toast.error("Passwords do not match!");
+            toast.error('Passwords do not match!');
             return;
         }
 
         try {
+            // Post request to backend API
             const response = await axios.post('http://localhost:4000/api/v1/auth/signup', {
                 firstName,
                 lastName,
@@ -43,11 +45,27 @@ const Signup = () => {
                 confirmPassword,
                 role: role ? 'admin' : 'user',
             });
-            toast.success("Account created successfully!");
+
+            // On success
+            toast.success('Account created successfully!');
             console.log('Signup successful:', response.data);
+
+            // Optional: Redirect or clear form here
         } catch (err) {
-            toast.error(err);
-            // console.error('Error during signup:', err);
+            // Handle error and show detailed message
+            if (err.response) {
+                // Server responded with a status other than 2xx
+                toast.error(err.response.data.message || 'Signup failed');
+                console.error('Signup error:', err.response.data);
+            } else if (err.request) {
+                // No response was received
+                toast.error('No response from server');
+                console.error('No response received:', err.request);
+            } else {
+                // Something else happened
+                toast.error('An error occurred during signup');
+                console.error('Error during signup:', err.message);
+            }
         }
     };
 
@@ -114,10 +132,7 @@ const Signup = () => {
                         className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                         onClick={() => setShowPassword(!showPassword)}
                     >
-                        <FontAwesomeIcon
-                            icon={showPassword ? faEyeSlash : faEye}
-                            className="text-blue-500"
-                        />
+                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className="text-blue-500" />
                     </span>
                 </div>
                 <div className="mb-4 relative">
@@ -132,10 +147,7 @@ const Signup = () => {
                         className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
-                        <FontAwesomeIcon
-                            icon={showConfirmPassword ? faEyeSlash : faEye}
-                            className="text-blue-500"
-                        />
+                        <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} className="text-blue-500" />
                     </span>
                 </div>
                 <div className="mb-4">
@@ -144,19 +156,19 @@ const Signup = () => {
                             type="checkbox"
                             checked={role}
                             onChange={(e) => setRole(e.target.checked)}
-                            className="form-checkbox h-5 w-5 text-blue-600"
+                            className="form-checkbox text-blue-500 h-5 w-5"
                         />
-                        <span className="ml-2">Sign up as admin</span>
+                        <span className="ml-2">Sign up as Admin</span>
                     </label>
                 </div>
                 <button
-                    className={`w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline ${darkMode ? 'bg-blue-600' : 'bg-blue-500'}`}
                     onClick={handleSignup}
+                    className="w-full bg-blue-500 text-white py-3 rounded-md hover:bg-blue-600"
                 >
                     Sign Up
                 </button>
-                <ToastContainer />
             </div>
+            <ToastContainer />
         </div>
     );
 };
