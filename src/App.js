@@ -19,7 +19,9 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // import Login from './components/Login';
 // import Login from './components/login';
 // import Login from "./components/Login"
-import Login from './components/Login';
+import Login from './components/login';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Signup from './components/Signup';
 import InventoryApp from './components/InventoryApp';
 import AllInventory from './Dashboard/AllInventory';
@@ -50,6 +52,8 @@ export default function App() {
 
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/signup" element={<Signup />} />
 
               {/* Dashboard Routes with common layout */}

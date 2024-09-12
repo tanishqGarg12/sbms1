@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-// import { logout } from '../Redux/'; // Assuming you have a logout action
+import { logout } from '../Redux/action/authActions'; // Import the logout action
 import { DarkModeContext } from '../DarkModeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Quick from './Assests/Quick.jpg';
@@ -33,12 +33,10 @@ const Navbar = () => {
         navigate('/signup');
     };
 
-
-    console.log(user)
-    // const handleLogout = () => {
-    //     dispatch(logout());
-    //     navigate('/');
-    // };
+    const handleLogout = () => {
+        dispatch(logout()); // Dispatch the logout action
+        navigate('/'); // Redirect to home after logout
+    };
 
     return (
         <nav className={`flex items-center justify-between p-4 shadow-md transition duration-300 ease-in-out bg-transparent`}>
@@ -72,14 +70,13 @@ const Navbar = () => {
                             Welcome, {user.user?.firstName || 'User'}
                         </span>
                         <button
-                            // onClick={handleLogout}
+                            onClick={handleLogout}
                             className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
-                            >
+                        >
                             Logout
                         </button>
                     </>
-                        // console.log(user)
-                ) : (   
+                ) : (
                     <>
                         <button
                             onClick={handleLogin}
@@ -106,7 +103,6 @@ const Navbar = () => {
                     <li>
                         <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
                     </li>
-                    
                 </ul>
             </div>
 
@@ -143,7 +139,6 @@ const Navbar = () => {
                         <li>
                             <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
                         </li>
-                        
 
                         {isAuthenticated ? (
                             <>
@@ -154,8 +149,9 @@ const Navbar = () => {
                                 </li>
                                 <li>
                                     <button 
-                                    // onClick={handleLogout}
-                                     className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}>
+                                        onClick={handleLogout}
+                                        className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
+                                    >
                                         Logout
                                     </button>
                                 </li>
