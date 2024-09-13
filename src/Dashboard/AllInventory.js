@@ -14,9 +14,10 @@ const AllInventory = () => {
     unit: '',
     price: 0
   }); // Form data for editing
-  const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store  
-  console.log("user from the redux is "+user.user.token);
-  const token=user.user.token;
+  const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store 
+  const a=user 
+  console.log("user from the redux is "+a);
+  const token=user.token;
   console.log("tokennnnnnnnnnn "+token);
   // Fetch the inventory data from the backend
   useEffect(() => {

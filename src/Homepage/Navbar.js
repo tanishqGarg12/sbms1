@@ -35,7 +35,8 @@ const Navbar = () => {
 
     const handleLogout = () => {
         dispatch(logout()); // Dispatch the logout action
-        navigate('/'); // Redirect to home after logout
+        navigate('/');
+        console.log("logout done"); // Redirect to home after logout
     };
 
     return (
