@@ -11,6 +11,7 @@ const ForgotPassword = () => {
             const res = await axios.post('http://localhost:4000/api/v1/auth/forgot-password', { email });
             toast.success(res.data.message);
         } catch (err) {
+            console.log(err)
             toast.error(err.response.data.message || 'Error sending password reset email.');
         }
     };

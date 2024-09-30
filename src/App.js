@@ -27,6 +27,8 @@ import InventoryApp from './components/InventoryApp';
 import AllInventory from './Dashboard/AllInventory';
 import LowStock from './Dashboard/LowStock';
 import FeedbackForm from './Dashboard/FeedbackForm';
+import CategoryForm from './Dashboard/CategoryForm';
+import SubcategoryForm from './Dashboard/SubcategoryForm';
 
 export default function App() {
   return (
@@ -67,6 +69,8 @@ export default function App() {
                 <Route path="all-inventory" element={<AllInventory/>} />
                 <Route path="low-inventory" element={<LowStock/>} />
                 <Route path="settings" element={<Setting />} />
+                <Route path="create-category" element={<CategoryForm/>} />
+                <Route path="create_sub-category" element={<SubcategoryForm/>} />
               </Route>
             </Routes>
           </div>

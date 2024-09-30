@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext,useEffect } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 import { DarkModeContext } from '../DarkModeContext';
 
 const InventoryApp = () => {
@@ -16,12 +17,41 @@ const InventoryApp = () => {
   const [unit, setUnit] = useState('');
   const [editIndex, setEditIndex] = useState(null);
 
-  const categories = {
-    Electronics: ['Mobile', 'Laptop', 'Tablet'],
-    Clothing: ['Men', 'Women', 'Kids'],
-    Groceries: ['Fruits', 'Vegetables', 'Dairy'],
+  const [categories, setCategories] = useState({});  // Categories with subcategories
+  const [selectedCategory, setSelectedCategory] = useState(''); // To store selected category
+  const [subcategories, setSubcategories] = useState([]); // To store subcategories for the selected category
+
+  // Fetch all categories and their subcategories from API
+  const fetchCategoriesAndSubcategories = async () => {
+    try {
+      const categoryResponse = await axios.get('http://localhost:4000/api/v1/categoryy/categories');
+      const subcategoryResponse = await axios.get('http://localhost:4000/api/v1/categoryy/subcategories');
+      
+      const categoryData = {};
+      
+      // Organize categories and their corresponding subcategories
+      categoryResponse.data.forEach(category => {
+        categoryData[category.name] = [];
+        subcategoryResponse.data.forEach(subcategory => {
+          console.log(subcategory)
+          console.log("id1"+subcategory.categoryId)
+          console.log("id2"+category._id)
+          if (subcategory.categoryId._id === category._id) {
+            categoryData[category.name].push(subcategory.name);
+          }
+        });
+      }); 
+      console.log(categoryData)
+
+      setCategories(categoryData); // Set categories with respective subcategories
+    } catch (error) {
+      console.error('Error fetching categories and subcategories:', error);
+    }
   };
 
+  useEffect(() => {
+    fetchCategoriesAndSubcategories();
+  }, []);
   const units = ['kg', 'g', 'pcs'];
 
   const resetForm = () => {

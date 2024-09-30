@@ -62,6 +62,26 @@ const Main = () => {
                                 <span className="text-lg font-semibold">Settings</span>
                             </Link>
                         </li>
+                        <li>
+                            <Link 
+                                to="/dashboard/create-category" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/create-category')}
+                            >
+                                <FaCog className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">Create Category</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link 
+                                to="/dashboard/create_sub-category" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
+                                onClick={() => handleLinkClick('/dashboard/create_sub-category')}
+                            >
+                                <FaCog className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">Add Subcategories</span>
+                            </Link>
+                        </li>
                     </>
                 )}
                 {/* These menu items will be shown to all users */}
