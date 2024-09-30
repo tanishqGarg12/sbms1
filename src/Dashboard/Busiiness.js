@@ -1,12 +1,13 @@
 // src/components/Business.js
 import React, { useContext } from 'react';
-import { Line} from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Title, Tooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { DarkModeContext } from '../DarkModeContext';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Title, Tooltip, Legend);
+// Registering Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
-const Busiiness = ({ items = [] }) => {
+const Business = ({ items = [] }) => {
     const { darkMode } = useContext(DarkModeContext);
 
     // Dummy data for demonstration purposes
@@ -17,10 +18,11 @@ const Busiiness = ({ items = [] }) => {
     const salesValue = 50000;
     const totalStock = 15;
 
-    // Different data for sales and purchases charts
+    // Sample data for the charts
     const salesData = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
     const purchasesData = [35, 55, 50, 45, 85, 95, 105, 115, 125, 100, 120, 110];
 
+    // Sales chart configuration
     const salesChartData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [
@@ -44,6 +46,7 @@ const Busiiness = ({ items = [] }) => {
         ],
     };
 
+    // Purchases chart configuration
     const purchasesChartData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [
@@ -67,6 +70,7 @@ const Busiiness = ({ items = [] }) => {
         ],
     };
 
+    // Chart display options
     const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -101,6 +105,8 @@ const Busiiness = ({ items = [] }) => {
     return (
         <div className={`transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
             <h2 className="text-xl font-semibold mb-4 text-center">BUSINESS ANALYSIS</h2>
+
+            {/* Business metrics overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-blue-700' : 'bg-blue-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">New Items</h2>
@@ -116,6 +122,7 @@ const Busiiness = ({ items = [] }) => {
                 </div>
             </div>
 
+            {/* Financial overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-indigo-700' : 'bg-indigo-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">Purchased Value</h2>
@@ -131,6 +138,7 @@ const Busiiness = ({ items = [] }) => {
                 </div>
             </div>
 
+            {/* Charts for sales and purchases */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
                 <div style={{ height: '400px' }}>
                     <h2 className={`text-lg font-semibold mb-4 text-center ${darkMode ? 'text-white' : 'text-gray-700'}`}>Yearly Sales</h2>
@@ -145,4 +153,4 @@ const Busiiness = ({ items = [] }) => {
     );
 };
 
-export default Busiiness;
+export default Business;

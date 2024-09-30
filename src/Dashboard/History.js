@@ -18,6 +18,7 @@ function History() {
     const [discountRate, setDiscountRate] = useState(0.05);
     const [cartItems, setCartItems] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
 
     const { user } = useSelector((state) => state.auth);
     const token = user?.token;
@@ -28,23 +29,24 @@ function History() {
 
     // Fetch inventory items based on search query
     useEffect(() => {
-        if (searchQuery && token) {
-            console.log("search query"+searchQuery)
-            axios.get(`http://localhost:4000/api/v1/inventory/search?query=${searchQuery}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                console.log(response);
-                const items = response.data.results || [];
-                console.log("ans  is "+items);
-                setCartItems(items);
-            })
-            .catch(error => console.error('Error fetching inventory items:', error));
+        if (searchQuery) {
+            // Fetch search results if there is a search query
+            if (token) {
+                axios.get(`http://localhost:4000/api/v1/inventory/search?query=${searchQuery}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    const items = response.data.results || [];
+                    setSearchResults(items); // Store search results separately
+                })
+                .catch(error => console.error('Error fetching inventory items:', error));
+            }
         } else {
-            // Fetch all cart items when no search query is present
+            // If the search query is empty, reset search results and fetch all cart items
+            setSearchResults([]); // Clear search results
             if (token) {
                 axios.get('http://localhost:4000/api/v1/cart', {
                     headers: {
@@ -54,13 +56,13 @@ function History() {
                 })
                 .then(response => {
                     const items = response.data.items || [];
-                    console.log("ans  is "+items);
-                    setCartItems(items);
+                    setCartItems(items); // Store cart items separately
                 })
                 .catch(error => console.error('Error fetching cart items:', error));
             }
         }
     }, [searchQuery, token]);
+    
 
     // Add item to the cart
     const addToCart = (productId, quantity) => {
@@ -68,9 +70,9 @@ function History() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`, // assuming `token` is available in the current scope
+                'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ productId, quantity,id })
+            body: JSON.stringify({ productId, quantity, id })
         })
         .then(response => {
             if (!response.ok) {
@@ -78,15 +80,15 @@ function History() {
             }
             return response.json();
         })
-        .then(data => {
+        .then(() => {
             toast.success('Item added to cart successfully!');
-            // Optionally update the cartItems state if necessary
         })
         .catch(error => {
-            toast.error('Failed to add item to cart.');
+            toast.error('Item already added.');
             console.error('Error adding item to cart:', error);
         });
     };
+
     
 
     const handleServiceChange = (index, field, value) => {
@@ -132,7 +134,54 @@ function History() {
             toast.error('Failed to save invoice.');
         });
     };
+    const deleteItem = async (id) => {
+        try {
+            // Assuming you have a way to retrieve the token, e.g., from local storage or context
+            // const token = localStorage.getItem('token'); // Adjust this line based on how you're managing tokens
+    
+            const response = await fetch(`http://localhost:4000/api/v1/cart/remove`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', // Set the content type to JSON
+                    'Authorization': `Bearer ${token}`, // Pass the token in the headers
+                },
+                body: JSON.stringify({ id }), // Pass the ID in the body
+            });
+            console.log("===========================ssss")
 
+            console.log("toek from the produt is"+token)
+            console.log("===========================")
+            console.log("id of product is"+id);
+            console.log(id)
+    
+            const result = await response.json();
+            console.log(result);
+    
+            if (response.ok) {
+                const newItems = cartItems.filter(item => item._id !== id);
+                setCartItems(newItems);
+                toast.success('Item deleted successfully!');
+            } else {
+                console.log(result.message);
+                toast.error(result.message || 'Failed to delete item.');
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error('An error occurred while deleting the item.');
+        }
+    };
+    
+// Manage quantity for each product locally in the frontend
+const [quantities, setQuantities] = useState({});
+
+const handleQuantityChange = (productId, change,x) => {
+  setQuantities((prevQuantities) => ({
+    ...prevQuantities,
+    [productId]: Math.max(0, (prevQuantities[productId] || x) + change),
+  }));
+  console.log(quantities)
+};
+    
     const handleGeneratePDF = () => {
         const doc = new jsPDF();
         doc.text('Invoice', 10, 10);
@@ -153,10 +202,66 @@ function History() {
         doc.save('invoice.pdf');
     };
 
-    const subtotal = services.reduce((acc, service) => acc + service.quantity * service.price, 0);
+    const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
+    console.log("the total is",subtotal)
     const tax = subtotal * taxRate;
     const discount = subtotal * discountRate;
     const total = subtotal + tax - discount;
+
+
+    const handleCheckout = async () => {
+        // const { subtotal } = calculateInvoiceTotals(); // Get the subtotal
+        const amount = subtotal; // Use the subtotal for the payment amount
+
+        try {
+            // Create an order on the server
+            const response = await axios.post('http://localhost:4000/api/v1/checkout', {
+                amount,
+                currency: 'INR',
+            });
+
+            const { order } = response.data;
+
+            // Initialize Razorpay payment
+            const options = {
+                key: 'YOUR_RAZORPAY_KEY_ID',
+                amount: order.amount, // Amount in paise
+                currency: order.currency,
+                name: 'Your Company Name',
+                description: 'Invoice Payment',
+                order_id: order.id,
+                handler: async function (response) {
+                    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+                    toast.success('Payment successful!');
+
+                    // Send payment details to your server for verification
+                    await axios.post('http://localhost:4000/api/v1/paymentverification', {
+                        order_id: razorpay_order_id,
+                        payment_id: razorpay_payment_id,
+                        signature: razorpay_signature,
+                    });
+
+                    // Save invoice or perform any further action after payment confirmation
+                },
+                prefill: {
+                    name: 'Customer Name', // Replace with customer details if needed
+                    email: 'customer@example.com',
+                    contact: '9999999999',
+                },
+                notes: {
+                    address: 'Customer Address', // Add any additional notes
+                },
+                theme: {
+                    color: '#F37254', // Customize your theme color
+                },
+            };
+
+            const razorpay = new window.Razorpay(options);
+            razorpay.open();
+        } catch (error) {
+            toast.error('Payment failed: ' + error.message);
+        }
+    };
 
     return (
         <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg">
@@ -216,10 +321,40 @@ function History() {
                     placeholder="Search by item name..."
                 />
             </div>
+            <div>
+            </div>
 
             {/* Cart Items */}
+            {searchResults.length > 0 && (
+                <div className="mb-6">
+                    <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+                    <div>
+                        <div className="grid grid-cols-4 gap-4 font-semibold bg-gray-100 p-2 rounded-md mb-4">
+                            <div>Name</div>
+                            <div>Quantity</div>
+                            <div>Price</div>
+                            <div>Total</div>
+                        </div>
+
+                        {searchResults.map((item, index) => (
+                            <div
+                                key={index}
+                                className="grid grid-cols-4 gap-4 p-2 border border-gray-300 rounded bg-gray-50 mb-4 cursor-pointer hover:bg-gray-200"
+                                onClick={() => addToCart(item._id, 1)}
+                            >
+                                <div>{item.name}</div>
+                                <div>{item.quantity}</div>
+                                <div>${item.price.toFixed(2)}</div>
+                                <div>${(item.quantity * item.price).toFixed(2)}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Cart Items Section */}
             <div>
-                <h2 className="text-xl font-semibold mb-4">Inventory Items</h2>
+                <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
                 {cartItems.length === 0 ? (
                     <p>No items found</p>
                 ) : (
@@ -230,52 +365,44 @@ function History() {
                             <div>Price</div>
                             <div>Total</div>
                         </div>
-
                         {cartItems.map((item, index) => (
-                            <div 
-                                key={index} 
-                                className="grid grid-cols-4 gap-4 p-2 border border-gray-300 rounded bg-gray-50 mb-4 cursor-pointer hover:bg-gray-200"
-                                onClick={() => addToCart(item._id,2)} // Add onClick handler
-                            >
-                                <div>{item.name}</div>
-                                <div>{item.quantity}</div>
-                                <div>${item.price.toFixed(2)}</div>
-                                <div>${(item.quantity * item.price).toFixed(2)}</div>
-                            </div>
-                        ))}
+    <div
+        key={item.id} // Use a unique id for the key
+        className="grid grid-cols-4 gap-4 p-2 border border-gray-300 rounded bg-gray-50 mb-4"
+    >
+        <div>{item.name}</div>
+        <div className="flex items-center">
+        <div className="flex items-center">
+                  <button
+                    onClick={() => handleQuantityChange(item._id, -1)}
+                    className="bg-red-500 text-white px-3 py-1 rounded-l hover:bg-red-600"
+                  >
+                    -
+                  </button>
+                  {/* <span className="mx-2">{item.quantity}</span> */}
+                  <span className="px-4 py-1 bg-gray-200 border border-gray-300">{quantities[item._id] || item.quantity }</span>
+                  <button
+                    onClick={() => handleQuantityChange(item._id, 1,item.quantity)}
+                    className="bg-green-500 text-white px-3 py-1 rounded-r hover:bg-green-600"
+                  >
+                    +
+                  </button>
+                </div>
+        </div>
+        <div>${item.price.toFixed(2)}</div>
+        <div>${((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div> {/* Total price */}
+          <button
+              onClick={() => deleteItem(item._id)} // Call deleteItem with the item ID
+              className="bg-red-500 text-white px-2 rounded"
+          >
+              Delete
+          </button>
+      
+    </div>
+))}
+
                     </div>
                 )}
-            </div>
-
-            {/* Services */}
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Services</h2>
-                {services.map((service, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 mb-4">
-                        <input
-                            type="text"
-                            className="p-2 border border-gray-300 rounded"
-                            placeholder="Service Name"
-                            value={service.name}
-                            onChange={(e) => handleServiceChange(index, 'name', e.target.value)}
-                        />
-                        <input
-                            type="number"
-                            className="p-2 border border-gray-300 rounded"
-                            placeholder="Quantity"
-                            value={service.quantity}
-                            onChange={(e) => handleServiceChange(index, 'quantity', e.target.value)}
-                        />
-                        <input
-                            type="number"
-                            className="p-2 border border-gray-300 rounded"
-                            placeholder="Price"
-                            value={service.price}
-                            onChange={(e) => handleServiceChange(index, 'price', e.target.value)}
-                        />
-                    </div>
-                ))}
-                <button className="px-4 py-2 bg-blue-500 text-white rounded" onClick={handleAddService}>Add Service</button>
             </div>
 
             {/* Invoice Summary */}
@@ -294,6 +421,12 @@ function History() {
                     onClick={handleSaveInvoice}
                 >
                     Save Invoice
+                </button>
+                <button
+                    className="px-20 py-2 bg-yellow-500 text-white rounded"
+                    onClick={handleCheckout}
+                >
+                    BUY
                 </button>
                 <button
                     className="px-4 py-2 bg-red-500 text-white rounded"

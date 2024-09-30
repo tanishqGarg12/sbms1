@@ -15,8 +15,8 @@ const Main = () => {
         setActiveLink(path); // Set the clicked link as active
     };
 
-    return (
-        <div className={`sidebar transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`} style={{ width: '250px', position: 'fixed', height: '100%', top: 85, left: 0 }}>
+    return (    
+        <div className={`sidebar transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`} style={{ width: '250px', position: 'absolute', height: '100%', top: 85, left: 0 }}>
             <h2 className="text-center text-2xl font-bold mb-4">Dashboard</h2>
             <ul className="mt-4">
                 {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}

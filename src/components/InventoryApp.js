@@ -9,6 +9,7 @@ const InventoryApp = () => {
   const [items, setItems] = useState([]);
   const [itemName, setItemName] = useState('');
   const [itemPrice, setItemPrice] = useState('');
+  const [itemPricep, setItemPricep] = useState('');
   const [itemQuantity, setItemQuantity] = useState('');
   const [category, setCategory] = useState('');
   const [subcategory, setSubcategory] = useState('');
@@ -26,6 +27,7 @@ const InventoryApp = () => {
   const resetForm = () => {
     setItemName('');
     setItemPrice('');
+    setItemPricep('');
     setItemQuantity('');
     setCategory('');
     setSubcategory('');
@@ -41,12 +43,12 @@ const InventoryApp = () => {
           await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
+              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep , quantity: itemQuantity, category, subcategory, unit })
             })
           : await fetch('http://localhost:4000/api/v1/inventory/createinventory', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, quantity: itemQuantity, category, subcategory, unit })
+              body: JSON.stringify({ name: itemName, price: itemPrice,purchasedprice: itemPricep , quantity: itemQuantity, category, subcategory, unit })
             });
 
         const result = await response.json();
@@ -103,6 +105,7 @@ const InventoryApp = () => {
     setItemPrice(price);
     setItemQuantity(quantity);
     setCategory(category);
+    setItemPricep()
     setSubcategory(subcategory);
     setUnit(unit);
     setEditIndex(index);
@@ -166,6 +169,13 @@ const InventoryApp = () => {
           />
           <input
             type="number"
+            value={itemPricep}
+            onChange={(e) => setItemPricep(e.target.value)}
+            placeholder="Item purchased Price"
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+          />
+          <input
+            type="number"
             value={itemQuantity}
             onChange={(e) => setItemQuantity(e.target.value)}
             placeholder="Item Quantity"
@@ -187,7 +197,7 @@ const InventoryApp = () => {
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Price</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Quantity</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Category</th>
-                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
+                  <th className={`border p-3 text-left transition-colors dur  ation-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Unit</th>
                   <th className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Actions</th>
                 </tr>
@@ -197,6 +207,7 @@ const InventoryApp = () => {
                   <tr key={item._id} className={`transition-colors duration-300 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
                     <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.name}</td>
                     <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.price}</td>
+                    <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.purchasedprice}</td>
                     <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.quantity}</td>
                     <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.category}</td>
                     <td className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600 text-white' : 'border-gray-300 text-gray-800'}`}>{item.subcategory}</td>

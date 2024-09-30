@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux'; // Import useSelector to access the Redux store
-import { toast } from 'react-toastify'; // Import toast for notifications
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const AllInventory = () => {
-  const [products, setProducts] = useState([]); // Initially, products are empty
-  const [loading, setLoading] = useState(true); // Loading state to show a spinner or message
-  const [editingProduct, setEditingProduct] = useState(null); // State for editing
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -13,35 +13,37 @@ const AllInventory = () => {
     quantity: 0,
     unit: '',
     price: 0
-  }); // Form data for editing
-  const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store 
-  const a=user 
-  console.log("user from the redux is "+a);
-  const token=user.token;
-  console.log("tokennnnnnnnnnn "+token);
-  // Fetch the inventory data from the backend
+  });
+  const { user } = useSelector((state) => state.auth);
+  const token = user.token;
+
+  // Search term state
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Fetch inventory data
   useEffect(() => {
     const fetchInventory = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/v1/inventory/getallinventory');
-        
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
 
         const data = await response.json();
-        setProducts(data || []); // Ensure products is always an array
+        setProducts(data || []);
       } catch (error) {
         console.error('Error fetching inventory:', error);
-        setProducts([]); // Set products to an empty array if there's an error
+        setProducts([]);
       } finally {
-        setLoading(false); // Set loading to false after the data is fetched
+        setLoading(false);
       }
     };
 
     fetchInventory();
-  }, []); // Empty dependency array to run once on component mount
+  }, []);
 
+  // Delete an item
   const deleteItem = async (id) => {
     try {
       const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
@@ -62,6 +64,7 @@ const AllInventory = () => {
     }
   };
 
+  // Edit an item
   const editItem = async (id) => {
     try {
       const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
@@ -97,6 +100,7 @@ const AllInventory = () => {
     }
   };
 
+  // Handle edit button click
   const handleEditClick = (product) => {
     setEditingProduct(product._id);
     setFormData({
@@ -109,6 +113,7 @@ const AllInventory = () => {
     });
   };
 
+  // Handle form field changes during editing
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -117,6 +122,7 @@ const AllInventory = () => {
     }));
   };
 
+  // Handle edit form submission
   const handleEditSubmit = (e) => {
     e.preventDefault();
     if (editingProduct) {
@@ -124,6 +130,7 @@ const AllInventory = () => {
     }
   };
 
+  // Handle cancel editing
   const handleEditCancel = () => {
     setEditingProduct(null);
     setFormData({
@@ -135,23 +142,22 @@ const AllInventory = () => {
       price: 0
     });
   };
-  const id=user.user._id;
+
+  // Add item to cart
   const addToCart = async (productId, quantity) => {
     try {
-      console.log(`Product ID: ${productId}, Quantity: ${quantity}`);
       const response = await fetch(`http://localhost:4000/api/v1/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ productId, quantity,id}), // Pass both productId and quantity
-        credentials: 'include', // Send cookies with the request (optional if you're using cookies)
+        body: JSON.stringify({ productId, quantity, id: user.user._id }),
+        credentials: 'include',
       });
-  
+
       const result = await response.json();
-      console.log(result);
-  
+
       if (response.ok) {
         toast.success('Item added to cart successfully!');
       } else {
@@ -161,79 +167,102 @@ const AllInventory = () => {
       toast.error('An error occurred while adding the item to the cart.');
     }
   };
-  
+
+  // Manage quantity for each product locally in the frontend
+  const [quantities, setQuantities] = useState({});
+
+  const handleQuantityChange = (productId, change) => {
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [productId]: Math.max(0, (prevQuantities[productId] || 0) + change),
+    }));
+  };
+
+  // Filter products based on search term
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) || // Match by product name
+    product.category.toLowerCase().includes(searchTerm.toLowerCase()) // Match by category
+  );
 
   if (loading) {
-    return <p>Loading inventory...</p>; // Show loading message while fetching data
+    return <p>Loading inventory...</p>;
   }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Inventory</h1>
+      <div className="flex border-blue-950 font-bold mb-4">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+          <button className="border-red-700 bg-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-800 "fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />
+                        </svg>
+          </button>
+      </div>
+
       {editingProduct && (
         <form onSubmit={handleEditSubmit} className="bg-gray-100 p-4 mb-4 rounded">
           <h2 className="text-xl font-bold mb-2">Edit Product</h2>
-          <label className="block mb-2">
-            Name:
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
-          <label className="block mb-2">
-            Category:
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
-          <label className="block mb-2">
-            Subcategory:
-            <input
-              type="text"
-              name="subcategory"
-              value={formData.subcategory}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
-          <label className="block mb-2">
-            Quantity:
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
-          <label className="block mb-2">
-            Unit:
-            <input
-              type="text"
-              name="unit"
-              value={formData.unit}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
-          <label className="block mb-2">
-            Price:
-            <input
-              type="number"
-              step="0.01"
-              name="price"
-              value={formData.price}
-              onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
-            />
-          </label>
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            value={formData.name}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
+          <input
+            type="text"
+            name="category"
+            placeholder="Category"
+            value={formData.category}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
+          <input
+            type="text"
+            name="subcategory"
+            placeholder="Subcategory"
+            value={formData.subcategory}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
+          <input
+            type="number"
+            name="quantity"
+            placeholder="Quantity"
+            value={formData.quantity}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
+          <input
+            type="text"
+            name="unit"
+            placeholder="Unit"
+            value={formData.unit}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={formData.price}
+            onChange={handleEditChange}
+            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            required
+          />
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
@@ -249,41 +278,60 @@ const AllInventory = () => {
           </button>
         </form>
       )}
-      {products.length === 0 ? (
-        <p>No inventory data available.</p> // Display this if there are no products
+
+      {filteredProducts.length === 0 ? (
+        <p>No inventory data available.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div key={product._id} className="bg-white border rounded-lg shadow-md p-4">
               <img src={product.image || 'https://via.placeholder.com/150'} alt={product.name} className="w-full h-32 object-cover rounded-md mb-4" />
               <h2 className="text-lg font-semibold">{product.name}</h2>
               <p className="text-green-600 font-bold">${Number(product.price).toFixed(2)}</p>
-              <p className="text-orange-500">In Stock: {product.quantity}</p>
-              <div className="mt-4">
-                {/* Conditionally render buttons based on the user's role */}
-                {user.user?.role === 'admin' ? (
-                  <>
-                    <button
-                      onClick={() => handleEditClick(product)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => deleteItem(product._id)}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </>
-                ) : (
+              <p className="text-gray-600">Quantity: {product.quantity} {product.unit}</p>
+              <p className="text-gray-600">Category: {product.category}</p>
+              <p className="text-gray-600">Subcategory: {product.subcategory}</p>
+
+              <div className="flex mt-4">
+                <button
+                  onClick={() => handleQuantityChange(product._id, -1)}
+                  className="bg-red-700 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-500"
+                  disabled={quantities[product._id] <= 0}
+                >
+                  -
+                </button>
+                <span className="text-lg">{quantities[product._id] || 0}</span>
+                <button
+                  onClick={() => handleQuantityChange(product._id, 1)}
+                  className="bg-yellow-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
+                >
+                  +
+                </button>
+              </div>
+
+              <div className="mt-2">
+                <button
+                  onClick={() => addToCart(product._id, quantities[product._id] || 1)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
+                >
+                  Add to Cart
+                </button>
+                {user.user.role === 'admin' && (
+                <>
                   <button
-                    onClick={() => addToCart(product._id,product.quantity)} // Handle adding to cart
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                    onClick={() => handleEditClick(product)}
+                    className="mt-2 ml-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
                   >
-                    Add
+                    Edit
                   </button>
-                )}
+                  <button
+                    onClick={() => deleteItem(product._id)}
+                    className="mt-2 ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
               </div>
             </div>
           ))}
