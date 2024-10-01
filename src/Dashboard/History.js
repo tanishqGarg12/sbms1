@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import jsPDF from 'jspdf';
 import { useSelector } from 'react-redux'; 
 import 'jspdf-autotable';
-
+import { useNavigate } from 'react-router-dom';
 function History() {
     const [senderId, setSenderId] = useState(uuidv4());
     const [senderName, setSenderName] = useState('');
@@ -19,6 +19,7 @@ function History() {
     const [cartItems, setCartItems] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const navigate=useNavigate();
 
     const { user } = useSelector((state) => state.auth);
     const token = user?.token;
@@ -182,86 +183,130 @@ const handleQuantityChange = (productId, change,x) => {
   console.log(quantities)
 };
     
-    const handleGeneratePDF = () => {
-        const doc = new jsPDF();
-        doc.text('Invoice', 10, 10);
-        doc.text(`Sender: ${senderName}`, 10, 20);
-        doc.text(`Recipient: ${recipientName}`, 10, 30);
-        doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 10, 40);
-        doc.text(`Tax: $${tax.toFixed(2)}`, 10, 50);
-        doc.text(`Discount: $${discount.toFixed(2)}`, 10, 60);
-        doc.text(`Total: $${total.toFixed(2)}`, 10, 70);
+const handleGeneratePDF = () => {
+    const doc = new jsPDF();
+    doc.text('Invoice', 10, 10);
+    doc.text(`Sender: ${senderName}`, 10, 20);
+    doc.text(`Recipient: ${recipientName}`, 10, 30);
+    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 10, 40);
+    doc.text(`Tax: $${tax.toFixed(2)}`, 10, 50);
+    doc.text(`Discount: $${discount.toFixed(2)}`, 10, 60);
+    doc.text(`Total: $${total.toFixed(2)}`, 10, 70);
 
-        const tableData = services.map(service => [service.name, service.quantity, service.price, (service.quantity * service.price).toFixed(2)]);
-        doc.autoTable({
-            head: [['Service Name', 'Quantity', 'Price', 'Amount']],
-            body: tableData,
-            startY: 80,
-        });
+    const tableData = services.map(service => [
+        service.name,
+        service.quantity,
+        service.price,
+        (service.quantity * service.price).toFixed(2),
+    ]);
+    
+    doc.autoTable({
+        head: [['Service Name', 'Quantity', 'Price', 'Amount']],
+        body: tableData,
+        startY: 80,
+    });
 
-        doc.save('invoice.pdf');
-    };
+    doc.save('invoice.pdf');
+};
 
-    const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
-    console.log("the total is",subtotal)
-    const tax = subtotal * taxRate;
-    const discount = subtotal * discountRate;
-    const total = subtotal + tax - discount;
+const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
+const tax = subtotal * taxRate; // Assuming taxRate is already defined
+const discount = subtotal * discountRate; // Assuming discountRate is already defined
+const total = subtotal + tax - discount;
+const handleCheckout = async () => {
+    const amount = subtotal; // Use the subtotal for the payment amount
 
-
-    const handleCheckout = async () => {
-        // const { subtotal } = calculateInvoiceTotals(); // Get the subtotal
-        const amount = subtotal; // Use the subtotal for the payment amount
-
-        try {
-            // Create an order on the server
-            const response = await axios.post('http://localhost:4000/api/v1/checkout', {
+    try {
+        // Create an order on the server
+        const response = await fetch('http://localhost:4000/api/v1/pay/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
                 amount,
                 currency: 'INR',
-            });
+            }),
+        });
 
-            const { order } = response.data;
+        const data = await response.json();
+        const { order } = data;
 
-            // Initialize Razorpay payment
-            const options = {
-                key: 'YOUR_RAZORPAY_KEY_ID',
-                amount: order.amount, // Amount in paise
-                currency: order.currency,
-                name: 'Your Company Name',
-                description: 'Invoice Payment',
-                order_id: order.id,
-                handler: async function (response) {
-                    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+        // Initialize Razorpay payment
+        const options = {
+            key: 'rzp_test_XaigqT7nptLPme', // Replace with your Razorpay API key
+            amount: order.amount, // Amount in paise
+            currency: order.currency,
+            name: 'sbms', // Your company or website name
+            description: 'Invoice Payment', // A brief description
+            order_id: order.id, // The Razorpay order ID created on the server
+            handler: async function (response) {
+                // Log the response to ensure you're getting the correct data
+                console.log("start")
+                console.log("Razorpay Response: ", response);
+
+                const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+
+                if (razorpay_payment_id && razorpay_order_id && razorpay_signature) {
                     toast.success('Payment successful!');
 
-                    // Send payment details to your server for verification
-                    await axios.post('http://localhost:4000/api/v1/paymentverification', {
-                        order_id: razorpay_order_id,
-                        payment_id: razorpay_payment_id,
-                        signature: razorpay_signature,
-                    });
+                    // Send payment details to your server for verification using fetch
+                    try {
+                        const verificationResponse = await fetch(
+                            'http://localhost:4000/api/v1/pay/paymentverification',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id, // Razorpay field names must match
+                                    razorpay_payment_id,
+                                    razorpay_signature,
+                                }),
+                            }
+                        );
 
-                    // Save invoice or perform any further action after payment confirmation
-                },
-                prefill: {
-                    name: 'Customer Name', // Replace with customer details if needed
-                    email: 'customer@example.com',
-                    contact: '9999999999',
-                },
-                notes: {
-                    address: 'Customer Address', // Add any additional notes
-                },
-                theme: {
-                    color: '#F37254', // Customize your theme color
-                },
-            };
+                        const verificationData = await verificationResponse.json();
+                        console.log('Payment verification response:', verificationData);
 
-            const razorpay = new window.Razorpay(options);
-            razorpay.open();
-        } catch (error) {
-            toast.error('Payment failed: ' + error.message);
-        }
-    };
+                        if (verificationData.success) {
+                            // Further action (e.g., save invoice)
+                            navigate("pay-success")
+                            console.log("doneeeeeeeeeeeeeeeeeeee")
+                        } else {
+                            toast.error('Payment verification failed!');
+                        }
+                    } catch (error) {
+                        console.error('Error verifying payment:', error);
+                        toast.error('Payment verification failed!');
+                    }
+                } else {
+                    console.error('Payment failed or incomplete response.');
+                    toast.error('Payment failed or incomplete response.');
+                }
+            },
+            prefill: {
+                name: 'Customer Name', // Prefilled customer name
+                email: 'customer@example.com', // Prefilled customer email
+                contact: '9999999999', // Prefilled customer contact number
+            },
+            notes: {
+                address: 'Customer Address', // Any additional notes you want to send
+            },
+            theme: {
+                color: '#F37254', // Customize your Razorpay payment popup's color
+            },
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+    } catch (error) {
+        console.error('Payment Error:', error);
+        toast.error('Payment failed. Please try again.');
+    }
+};
+
 
     return (
         <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg">

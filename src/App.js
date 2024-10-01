@@ -21,6 +21,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 // import Login from "./components/Login"
 import Login from './components/login';
 import ForgotPassword from './components/ForgotPassword';
+import PaymentSuccess from "./components/PaymentSuccess"
 import ResetPassword from './components/ResetPassword';
 import Signup from './components/Signup';
 import InventoryApp from './components/InventoryApp';
@@ -51,6 +52,7 @@ export default function App() {
                   <Footer />
                 </>
               } />
+              {/* <Route path="pay-success" element={<PaymentSuccess/>}/> */}
 
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
@@ -69,6 +71,7 @@ export default function App() {
                 <Route path="all-inventory" element={<AllInventory/>} />
                 <Route path="low-inventory" element={<LowStock/>} />
                 <Route path="settings" element={<Setting />} />
+                <Route path="history/pay-success" element={<PaymentSuccess/>}/>
                 <Route path="create-category" element={<CategoryForm/>} />
                 <Route path="create_sub-category" element={<SubcategoryForm/>} />
               </Route>
