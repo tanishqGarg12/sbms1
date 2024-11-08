@@ -157,7 +157,7 @@ function History() {
     
             const result = await response.json();
             console.log(result);
-    
+           
             if (response.ok) {
                 const newItems = cartItems.filter(item => item._id !== id);
                 setCartItems(newItems);
@@ -183,31 +183,95 @@ const handleQuantityChange = (productId, change,x) => {
   console.log(quantities)
 };
     
+
+
 const handleGeneratePDF = () => {
     const doc = new jsPDF();
-    doc.text('Invoice', 10, 10);
-    doc.text(`Sender: ${senderName}`, 10, 20);
-    doc.text(`Recipient: ${recipientName}`, 10, 30);
-    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 10, 40);
-    doc.text(`Tax: $${tax.toFixed(2)}`, 10, 50);
-    doc.text(`Discount: $${discount.toFixed(2)}`, 10, 60);
-    doc.text(`Total: $${total.toFixed(2)}`, 10, 70);
+    
+    // Add a logo (if you have a base64 image URL for it)
+    // const logoUrl = 'https://cdn5.vectorstock.com/i/1000x1000/79/59/billing-stamp-on-white-vector-24357959.jpg'; // Add your base64-encoded logo URL here
+    // if (logoUrl) {
+    //     doc.addImage(logoUrl, 'PNG', 14, 10, 30, 15);
+    // }
+    
+    // Title styling with a background bar
+    doc.setFillColor(52, 58, 64); // Dark color for title bar
+    doc.rect(0, 30, 210, 15, 'F'); // Full-width background for title
+    doc.setFontSize(24);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Invoice', 105, 40, { align: 'center' });
 
-    const tableData = services.map(service => [
+    // Add sender and recipient details with labels
+    doc.setFontSize(12);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Sender:`, 14, 55);
+    doc.setTextColor(0, 0, 0);
+    doc.text(senderName, 35, 55);
+    
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Recipient:`, 14, 65);
+    doc.setTextColor(0, 0, 0);
+    doc.text(recipientName, 35, 65);
+
+    // Invoice summary section with a bordered box for subtotal, tax, discount, and total
+    doc.setFillColor(240, 240, 240);
+    doc.roundedRect(14, 75, 180, 20, 3, 3, 'F');
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 20, 85);
+    doc.text(`Tax: $${tax.toFixed(2)}`, 70, 85);
+    doc.text(`Discount: $${discount.toFixed(2)}`, 120, 85);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 128); // Darker color for total
+    doc.text(`Total: $${total.toFixed(2)}`, 160, 85);
+    doc.setFont('helvetica', 'normal');
+
+    // Prepare table data with styled header and rows
+    const tableData = cartItems.map(service => [
         service.name,
         service.quantity,
-        service.price,
-        (service.quantity * service.price).toFixed(2),
+        `$${service.price.toFixed(2)}`,
+        `$${(service.quantity * service.price).toFixed(2)}`
     ]);
-    
+
     doc.autoTable({
         head: [['Service Name', 'Quantity', 'Price', 'Amount']],
         body: tableData,
-        startY: 80,
+        startY: 100,
+        headStyles: {
+            fillColor: [52, 58, 64],
+            textColor: [255, 255, 255],
+            fontSize: 12,
+            halign: 'center'
+        },
+        bodyStyles: { textColor: [0, 0, 0], fontSize: 11 },
+        styles: { cellPadding: 5, halign: 'center', lineColor: [200, 200, 200], lineWidth: 0.5 },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
     });
 
+    // Footer with thank you message and page number
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Page ${i} of ${pageCount}`, 200, 290, { align: 'right' });
+        
+        // Thank you message only on the last page
+        if (i === pageCount) {
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Thank you for your business!', 14, 280);
+            doc.setTextColor(60, 60, 60);
+            doc.text('Please make the payment by the due date.', 14, 285);
+        }
+    }
+
+    // Save the generated PDF
     doc.save('invoice.pdf');
 };
+
 
 const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
 const tax = subtotal * taxRate; // Assuming taxRate is already defined
@@ -215,7 +279,7 @@ const discount = subtotal * discountRate; // Assuming discountRate is already de
 const total = subtotal + tax - discount;
 const handleCheckout = async () => {
     const amount = subtotal; // Use the subtotal for the payment amount
-
+    console.log("outside try")
     try {
         // Create an order on the server
         const response = await fetch('http://localhost:4000/api/v1/pay/checkout', {
@@ -228,10 +292,12 @@ const handleCheckout = async () => {
                 currency: 'INR',
             }),
         });
-
+        console.log(response)
+        
         const data = await response.json();
+        console.log(data)
         const { order } = data;
-
+        console.log("insdie try2")
         // Initialize Razorpay payment
         const options = {
             key: 'rzp_test_XaigqT7nptLPme', // Replace with your Razorpay API key
@@ -241,6 +307,7 @@ const handleCheckout = async () => {
             description: 'Invoice Payment', // A brief description
             order_id: order.id, // The Razorpay order ID created on the server
             handler: async function (response) {
+                console.log("sdcvfewsxdcv dswdcfv"+response)
                 // Log the response to ensure you're getting the correct data
                 console.log("start")
                 console.log("Razorpay Response: ", response);
@@ -252,6 +319,7 @@ const handleCheckout = async () => {
 
                     // Send payment details to your server for verification using fetch
                     try {
+                        console.log("dcswdxcdxccfvdwecf")
                         const verificationResponse = await fetch(
                             'http://localhost:4000/api/v1/pay/paymentverification',
                             {
@@ -263,6 +331,8 @@ const handleCheckout = async () => {
                                     razorpay_order_id, // Razorpay field names must match
                                     razorpay_payment_id,
                                     razorpay_signature,
+                                    id,
+                                    amount
                                 }),
                             }
                         );
@@ -272,8 +342,12 @@ const handleCheckout = async () => {
 
                         if (verificationData.success) {
                             // Further action (e.g., save invoice)
+                            handleGeneratePDF()
                             navigate("pay-success")
                             console.log("doneeeeeeeeeeeeeeeeeeee")
+                            setCartItems("")
+                            console.log(cartItems)
+                            console.log("he above after the cart items ");
                         } else {
                             toast.error('Payment verification failed!');
                         }
@@ -298,10 +372,14 @@ const handleCheckout = async () => {
                 color: '#F37254', // Customize your Razorpay payment popup's color
             },
         };
-
+        console.log(options)
+        console.log("insdie try3")
+        setCartItems([])
+        console.log(cartItems)
         const razorpay = new window.Razorpay(options);
         razorpay.open();
     } catch (error) {
+        console.log("insdie error")
         console.error('Payment Error:', error);
         toast.error('Payment failed. Please try again.');
     }

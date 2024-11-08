@@ -16,8 +16,8 @@ const Main = () => {
     };
 
     return (    
-        <div className={`sidebar transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`} style={{ width: '250px', position: 'absolute', height: '100%', top: 85, left: 0 }}>
-            <h2 className="text-center text-2xl font-bold mb-4">Dashboard</h2>
+        <div className={`sidebar transition-colors mt-10 duration-300 ${darkMode ? ' text-white' : 'bg-[#029c78] text-gray-800'}`} style={{ width: '250px', position: 'absolute', height: '100%', top: 85, left: 0 }}>
+            <h2 className="text-center text-2xl text-[#029c78] font-extrabold mb-4">Dashboard</h2>
             <ul className="mt-4">
                 {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}
                 {user.user?.role === 'admin' && (

@@ -40,10 +40,24 @@ const Navbar = () => {
     };
 
     return (
-        <nav className={`flex items-center justify-between p-4 shadow-md transition duration-300 ease-in-out bg-transparent`}>
+        <nav className={`flex items-center justify-between bg-[#029C78]  pb-4 h-32 shadow-md transition duration-300 ease-in-out  border-b-2 ` }>
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 <img src={Quick} className="w-52 rounded-md" alt="Quick Logo" />
             </div>
+            <ul className="flex space-x-6">
+                    <li>
+                        <Link to="/" className={`hover:text-blue-500 text-3xl text-white font-semibold transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/about" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>About</Link>
+                    </li>
+                    <li>
+                        <Link to="/Contact" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
+                    </li>
+                    <li>
+                        <Link to="/contact" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
+                    </li>
+                </ul>
             <div className="hidden md:flex items-center space-x-4">
                 <button
                     onClick={toggleDarkMode}
@@ -63,6 +77,7 @@ const Navbar = () => {
                         </svg>
                     </button>
                 </div>
+                
 
                 {/* Conditional rendering based on authentication status */}
                 {isAuthenticated ? (
@@ -94,7 +109,7 @@ const Navbar = () => {
                     </>
                 )}
 
-                <ul className="flex space-x-6">
+                {/* <ul className="flex space-x-6">
                     <li>
                         <Link to="/" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
                     </li>
@@ -104,7 +119,7 @@ const Navbar = () => {
                     <li>
                         <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
                     </li>
-                </ul>
+                </ul> */}
             </div>
 
             {/* Mobile Menu */}

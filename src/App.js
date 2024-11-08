@@ -8,6 +8,7 @@ import Organizers from './Homepage/Organizers';
 import Partners from './Homepage/Partners';
 import Footer from './Homepage/Footer';
 import AboutUs from './Homepage/About';
+import DonutChartSection from './Homepage/DonutChartSection';
 import { DarkModeProvider } from './DarkModeContext';
 import Layout from './Layout';
 import History from './Dashboard/History';
@@ -16,9 +17,6 @@ import Setting from './Dashboard/Setting';
 import Stock from './Dashboard/Stock';
 import Busiiness from './Dashboard/Busiiness';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import Login from './components/Login';
-// import Login from './components/login';
-// import Login from "./components/Login"
 import Login from './components/login';
 import ForgotPassword from './components/ForgotPassword';
 import PaymentSuccess from "./components/PaymentSuccess"
@@ -30,6 +28,10 @@ import LowStock from './Dashboard/LowStock';
 import FeedbackForm from './Dashboard/FeedbackForm';
 import CategoryForm from './Dashboard/CategoryForm';
 import SubcategoryForm from './Dashboard/SubcategoryForm';
+import Green from './Homepage/Green';
+import PricingPlans from './Homepage/PricingPlans';
+import ContactForm from './Homepage/ContactForm';
+
 
 export default function App() {
   return (
@@ -46,8 +48,11 @@ export default function App() {
                 {/* <FeedbackForm/> */}
                   <HeroSection />
                   <AboutUs />
-                  <InfoCard />
+                  <PricingPlans/>
                   <Organizers />
+                  <Green/>
+                  <DonutChartSection/>
+                  <InfoCard />
                   <Partners />
                   <Footer />
                 </>
@@ -56,6 +61,7 @@ export default function App() {
 
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/Contact" element={<ContactForm />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/signup" element={<Signup />} />

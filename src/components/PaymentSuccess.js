@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
 import successImage from '../../src/Homepage/Assests/success.png'; // Ensure you have a success image in your assets
-
+import { Link } from 'react-router-dom';
+import { FaBoxOpen } from 'react-icons/fa';
+import Sugeestion from './Sugeestion';
 const PaymentSuccess = () => {
     const { darkMode } = useContext(DarkModeContext);
 
@@ -30,11 +32,18 @@ const PaymentSuccess = () => {
                             If you have any questions or need further assistance, feel free to contact our support team.
                         </p>
                         <button className={`mt-6 px-6 py-2 rounded-lg font-semibold transition duration-300 ${darkMode ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-green-600 text-white hover:bg-green-700'}`}>
-                            Continue purchasing
+                                <Link 
+                                to="/dashboard/all-inventory" 
+                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-green-600'} p-4 rounded transition-colors duration-300`}
+                            >
+                                <FaBoxOpen className="mr-2 text-xl" />
+                                <span className="text-lg font-semibold">All Inventory</span>
+                            </Link>
                         </button>
                     </div>
                 </div>
             </div>
+            <Sugeestion/>
         </section>
     );
 };

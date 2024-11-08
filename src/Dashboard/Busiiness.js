@@ -1,5 +1,5 @@
 // src/components/Business.js
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { DarkModeContext } from '../DarkModeContext';
@@ -10,17 +10,73 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 const Business = ({ items = [] }) => {
     const { darkMode } = useContext(DarkModeContext);
 
-    // Dummy data for demonstration purposes
-    const newItems = 5;
+    // State variables to store API data
+    const [newItems, setNewItems] = useState(0);
+    const [purchasedValue, setPurchasedValue] = useState(0);
+    const [totalStock, setTotalStock] = useState(0);
+    const [salesValue,setValue]=useState(0);
+
+    // Dummy data for other metrics
     const purchasedItems = 12;
     const soldItems = 8;
-    const purchasedValue = 30000;
-    const salesValue = 50000;
-    const totalStock = 15;
+    // const salesValue = 50000;
 
     // Sample data for the charts
     const salesData = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
     const purchasesData = [35, 55, 50, 45, 85, 95, 105, 115, 125, 100, 120, 110];
+
+    // Fetch data from backend APIs
+    useEffect(() => {
+        const fetchNewItems = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/api/v1/inventory/getnewitems');
+                const data = await response.json();
+                // console.log(data.data.length)
+                setNewItems(data.data.length || 0);
+            } catch (error) {
+                console.error('Error fetching new items:', error);
+            }
+        };
+
+        const fetchPurchasedValue = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/api/v1/inventory/getpurchasedprice');
+                const data = await response.json();
+                console.log("sddsxc"+data.data.length   )
+                setPurchasedValue(data.data.length || 0);
+            } catch (error) {
+                console.error('Error fetching purchased value:', error);
+            }
+        };
+
+        const fetchTotalStock = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/api/v1/inventory/getAllInventory');
+                const data = await response.json();
+                console.log("ddxs"+data.length)
+                setTotalStock(data.length || 0);
+            } catch (error) {
+                console.error('Error fetching total stock:', error);
+            }
+        };
+        const fetchTotal = async () => {
+            try {
+                const response = await fetch('http://localhost:4000/api/v1/pay/getTotall');
+                const data = await response.json();
+                console.log(data)
+                setValue(data.totalAmount || 0);
+            } catch (error) {
+                console.error('Error fetching total stock:', error);
+            }
+        };
+
+        // Call all the functions to fetch data
+        fetchNewItems();
+        fetchPurchasedValue();
+        fetchTotalStock();
+        fetchTotal();
+    }, []);
+    console.log("edwscdw"+ newItems)
 
     // Sales chart configuration
     const salesChartData = {
@@ -30,8 +86,8 @@ const Business = ({ items = [] }) => {
                 type: 'line',
                 label: 'Sales',
                 data: salesData,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: 'bg-[#029C78] ',
+                backgroundColor: '#029C78',
                 fill: true,
                 yAxisID: 'y',
             },
@@ -40,7 +96,7 @@ const Business = ({ items = [] }) => {
                 label: 'Monthly Sales',
                 data: salesData,
                 borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                backgroundColor: '#029C78',
                 yAxisID: 'y',
             },
         ],
@@ -130,7 +186,7 @@ const Business = ({ items = [] }) => {
                 </div>
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-gray-700' : 'bg-red-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">Sales Value</h2>
-                    <p className="text-xl font-bold text-white">${salesValue.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-white">₹{salesValue.toFixed(2)}</p>
                 </div>
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-teal-700' : 'bg-teal-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">Total Stock</h2>

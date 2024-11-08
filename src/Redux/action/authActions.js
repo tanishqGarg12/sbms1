@@ -9,13 +9,14 @@ export const login = (email, password) => async (dispatch) => {
         if (response.status === 200) {
             // Assuming the response contains user data
             const userData = response.data;
-
+            localStorage.setItem('token', userData.token);
             // Dispatch success action with user data
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: userData,
             });
-            console.log("user data is "+userData.token);
+            var a=localStorage.getItem('token')
+            console.log("user data is "+a);
             return userData; // Optionally return the user data
         }
     } catch (error) {
