@@ -5,10 +5,12 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
+    const text= "THANK YOU FOR LOGIN TO THE SMART MANAGMENT BILLING SYSTEM."
 
     const handleForgotPassword = async () => {
         try {
-            const res = await axios.post('http://localhost:4000/api/v1/auth/forgot-password', { email });
+            const res = await axios.post('http://localhost:4000/api/v1/auth/forgot-password', { email,text });
+            console.log(res)
             toast.success(res.data.message);
         } catch (err) {
             console.log(err)

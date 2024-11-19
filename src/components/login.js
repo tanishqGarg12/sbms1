@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../Redux/action/authActions';
+import axios from 'axios'
 import rupee from "./Assets/LOGIN.png";  // Adjust path if necessary
 
 const Login = () => {
@@ -14,7 +15,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const text= "THANK YOU FOR LOGIN TO THE SMART MANAGMENT BILLING SYSTEM."
     const handleLogin = async () => {
         if (!email || !password) {
             toast.error("Please fill in all fields!");
@@ -23,8 +24,11 @@ const Login = () => {
 
         try {
             await dispatch(login(email, password));
+            const res = await axios.post('http://localhost:4000/api/v1/auth/forgot-password', { email,text });
+            console.log(res)
+            toast.success(res.data.message);
             toast.success("Logged in successfully");
-            navigate("/dashboard");
+            navigate("/dashboard/all-inventory");
         } catch (err) {
             toast.error("Login failed. Please check your credentials.");
         }

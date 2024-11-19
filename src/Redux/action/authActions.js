@@ -35,7 +35,7 @@ export const login = (email, password) => async (dispatch) => {
 // Action to logout the user
 export const logout = () => (dispatch) => {
     // Perform any necessary cleanup like removing tokens from localStorage if needed
-
+    localStorage.removeItem('token')
     // Dispatch logout action to reset auth state
     dispatch({
         type: LOGOUT,
