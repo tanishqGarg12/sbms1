@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faEnvelope, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { faTwitter, faInstagram, faDiscord, faFacebook } from '@fortawesome/free-brands-svg-icons';
 import axios from 'axios';
+import { DarkModeContext } from '../DarkModeContext';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const ContactForm = () => {
   });
 
   const [statusMessage, setStatusMessage] = useState('');
+  const { darkMode } = useContext(DarkModeContext);
 
   // Handle form data change
   const handleInputChange = (e) => {
@@ -39,10 +41,10 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-transparent p-5">
-      <div className=" shadow-lg rounded-lg p-10 max-w-6xl w-full flex flex-col md:flex-row h-[90vh]">
+    <div className={`min-h-screen flex items-center justify-center p-5 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className={`shadow-lg rounded-lg p-10 max-w-6xl w-full flex flex-col md:flex-row h-auto transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-green-500' : 'bg-white text-gray-900'}`}>
         {/* Contact Information Section */}
-        <div className="bg-black text-white p-8 rounded-lg md:w-1/2 flex flex-col justify-between">
+        <div className={`p-8 rounded-lg md:w-1/2 flex flex-col justify-between ${darkMode ? 'bg-gray-700 text-green-500' : 'bg-black text-white'}`}>
           <div>
             <h2 className="text-3xl font-semibold mb-4">Contact Information</h2>
             <p className="mb-8">Say something to start a live chat!</p>
@@ -81,53 +83,53 @@ const ContactForm = () => {
         {/* Form Section */}
         <div className="p-8 md:w-1/2 flex flex-col justify-between">
           <div>
-            <h2 className="text-3xl font-semibold mb-4 text-gray-900">Contact Us</h2>
-            <p className="mb-6 text-gray-600">Any question or remarks? Just write us a message!</p>
+            <h2 className="text-3xl font-semibold mb-4">Contact Us</h2>
+            <p className="mb-6">Any question or remarks? Just write us a message!</p>
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="flex space-x-4">
+              <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div className="flex-1">
-                  <label className="block text-gray-600">First Name</label>
+                  <label className="block">First Name</label>
                   <input
                     type="text"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
+                    className={`w-full border rounded px-3 py-2 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-gray-600">Last Name</label>
+                  <label className="block">Last Name</label>
                   <input
                     type="text"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
+                    className={`w-full border rounded px-3 py-2 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-gray-600">Email</label>
+                <label className="block">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
+                  className={`w-full border rounded px-3 py-2 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
                 />
               </div>
               <div>
-                <label className="block text-gray-600">Phone Number</label>
+                <label className="block">Phone Number</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
+                  className={`w-full border rounded px-3 py-2 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
                 />
               </div>
               <div>
-                <label className="block text-gray-600">Select Subject</label>
+                <label className="block">Select Subject</label>
                 <div className="flex flex-wrap gap-4">
                   <label className="flex items-center space-x-2">
                     <input type="radio" name="subject" value="General Inquiry" onChange={handleInputChange} />
@@ -148,24 +150,24 @@ const ContactForm = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-gray-600">Message</label>
+                <label className="block">Message</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none"
+                  className={`w-full border rounded px-3 py-2 focus:outline-none transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
                   rows="4"
                 ></textarea>
               </div>
               <button
                 type="submit"
-                className="w-full bg-black text-white py-3 rounded hover:bg-gray-800 transition duration-200"
+                className={`w-full py-3 rounded hover:bg-gray-800 transition duration-200 ${darkMode ? 'bg-green-600 text-white' : 'bg-black text-white'}`}
               >
                 Send Message
               </button>
             </form>
           </div>
-          {statusMessage && <div className="mt-4 text-center text-gray-600">{statusMessage}</div>}
+          {statusMessage && <div className="mt-4 text-center">{statusMessage}</div>}
         </div>
       </div>
     </div>

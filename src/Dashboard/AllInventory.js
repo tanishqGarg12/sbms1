@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { DarkModeContext } from '../DarkModeContext';
 
 const AllInventory = () => {
   const [products, setProducts] = useState([]);
@@ -16,11 +18,10 @@ const AllInventory = () => {
   });
   const { user } = useSelector((state) => state.auth);
   const token = user.token;
-
-  // Search term state
+  const { darkMode } = useContext(DarkModeContext);
   const [searchTerm, setSearchTerm] = useState('');
+  const [quantities, setQuantities] = useState({});
 
-  // Fetch inventory data
   useEffect(() => {
     const fetchInventory = async () => {
       try {
@@ -43,7 +44,6 @@ const AllInventory = () => {
     fetchInventory();
   }, []);
 
-  // Delete an item
   const deleteItem = async (id) => {
     try {
       const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
@@ -64,7 +64,6 @@ const AllInventory = () => {
     }
   };
 
-  // Edit an item
   const editItem = async (id) => {
     try {
       const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
@@ -100,7 +99,6 @@ const AllInventory = () => {
     }
   };
 
-  // Handle edit button click
   const handleEditClick = (product) => {
     setEditingProduct(product._id);
     setFormData({
@@ -113,7 +111,6 @@ const AllInventory = () => {
     });
   };
 
-  // Handle form field changes during editing
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -122,7 +119,6 @@ const AllInventory = () => {
     }));
   };
 
-  // Handle edit form submission
   const handleEditSubmit = (e) => {
     e.preventDefault();
     if (editingProduct) {
@@ -130,7 +126,6 @@ const AllInventory = () => {
     }
   };
 
-  // Handle cancel editing
   const handleEditCancel = () => {
     setEditingProduct(null);
     setFormData({
@@ -143,7 +138,6 @@ const AllInventory = () => {
     });
   };
 
-  // Add item to cart
   const addToCart = async (productId, quantity) => {
     try {
       const response = await fetch(`http://localhost:4000/api/v1/cart/add`, {
@@ -157,10 +151,9 @@ const AllInventory = () => {
       });
 
       const result = await response.json();
+      toast.success('Item added to cart successfully!');
 
-      if (response.ok) {
-        toast.success('Item added to cart successfully!');
-      } else {
+      if (!response.ok) {
         toast.error(result.message || 'Failed to add item to cart.');
       }
     } catch (error) {
@@ -168,46 +161,52 @@ const AllInventory = () => {
     }
   };
 
-  // Manage quantity for each product locally in the frontend
-  const [quantities, setQuantities] = useState({});
-
-  const handleQuantityChange = (productId, change) => {
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: Math.max(0, (prevQuantities[productId] || 0) + change),
-    }));
+  const handleQuantityChange = (productId, change, maxQuantity, isGrocery) => {
+    setQuantities((prevQuantities) => {
+      const increment = isGrocery ? 0.5 : 1;
+      const newQuantity = (prevQuantities[productId] || 1) + change * increment;
+      if (newQuantity < 0.5 || newQuantity > maxQuantity) return prevQuantities;
+      return { ...prevQuantities, [productId]: newQuantity };
+    });
   };
 
-  // Filter products based on search term
   const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) || // Match by product name
-    product.category.toLowerCase().includes(searchTerm.toLowerCase()) // Match by category
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
+    if (!acc[product.category]) {
+      acc[product.category] = [];
+    }
+    acc[product.category].push(product);
+    return acc;
+  }, {});
 
   if (loading) {
     return <p>Loading inventory...</p>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Inventory</h1>
-      <div className="flex border-blue-950 font-bold mb-4">
+    <div className={`container mx-auto p-4 transition-colors duration-300 ${darkMode ? 'bg-transparent text-green-500' : 'bg-white text-gray-900'}`}>
+      <h1 className="text-2xl font-bold mb-4 text-center">Inventory</h1>
+      <div className="flex items-center mb-4">
         <input
           type="text"
           placeholder="Search products..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`border rounded-md p-2 w-full max-w-lg focus:outline-none ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
         />
-          <button className="border-red-700 bg-slate-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-800 "fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />
-                        </svg>
-          </button>
+        <button className="ml-2 p-2 rounded bg-blue-500 text-white hover:bg-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />
+          </svg>
+        </button>
       </div>
 
       {editingProduct && (
-        <form onSubmit={handleEditSubmit} className="bg-gray-100 p-4 mb-4 rounded">
+        <form onSubmit={handleEditSubmit} className={`p-4 mb-4 rounded ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
           <h2 className="text-xl font-bold mb-2">Edit Product</h2>
           <input
             type="text"
@@ -215,7 +214,7 @@ const AllInventory = () => {
             placeholder="Product Name"
             value={formData.name}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <input
@@ -224,7 +223,7 @@ const AllInventory = () => {
             placeholder="Category"
             value={formData.category}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <input
@@ -233,7 +232,7 @@ const AllInventory = () => {
             placeholder="Subcategory"
             value={formData.subcategory}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <input
@@ -242,7 +241,7 @@ const AllInventory = () => {
             placeholder="Quantity"
             value={formData.quantity}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <input
@@ -251,7 +250,7 @@ const AllInventory = () => {
             placeholder="Unit"
             value={formData.unit}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <input
@@ -260,7 +259,7 @@ const AllInventory = () => {
             placeholder="Price"
             value={formData.price}
             onChange={handleEditChange}
-            className="border border-gray-300 rounded-md p-2 mb-2 w-full"
+            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             required
           />
           <button
@@ -279,64 +278,71 @@ const AllInventory = () => {
         </form>
       )}
 
-      {filteredProducts.length === 0 ? (
-        <p>No inventory data available.</p>
+      {Object.keys(groupedProducts).length === 0 ? (
+        <p className="text-center">No inventory data available.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredProducts.map((product) => (
-            <div key={product._id} className="bg-white border rounded-lg shadow-md p-4">
-              <img src={product.image || 'https://via.placeholder.com/150'} alt={product.name} className="w-full h-32 object-cover rounded-md mb-4" />
-              <h2 className="text-lg font-semibold">{product.name}</h2>
-              <p className="text-green-600 font-bold">${Number(product.price).toFixed(2)}</p>
-              <p className="text-gray-600">Quantity: {product.quantity} {product.unit}</p>
-              <p className="text-gray-600">Category: {product.category}</p>
-              <p className="text-gray-600">Subcategory: {product.subcategory}</p>
+        Object.keys(groupedProducts).map((category) => (
+          <div key={category} className="mb-8">
+            <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-500' : 'text-gray-900'}`}>{category}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {groupedProducts[category].map((product) => (
+                <div key={product._id} className={`border rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}>
+                  <img src={product.file || 'https://via.placeholder.com/150'} alt={product.name} className="w-full h-32 object-cover rounded-md mb-4" />
+                  <h2 className="text-lg font-semibold">{product.name}</h2>
+                  <p className="text-green-600 font-bold">₹{Number(product.price).toFixed(2)}</p>
+                  <p className="text-green-500">Quantity: {product.quantity} {product.unit}</p>
+                  <p className="text-gray-600">Category: {product.category}</p>
+                  <p className="text-gray-600">Subcategory: {product.subcategory}</p>
 
-              <div className="flex mt-4">
-                <button
-                  onClick={() => handleQuantityChange(product._id, -1)}
-                  className="bg-red-700 text-white px-2 py-1 rounded mr-2 hover:bg-yellow-500"
-                  disabled={quantities[product._id] <= 0}
-                >
-                  -
-                </button>
-                <span className="text-lg">{quantities[product._id] || 0}</span>
-                <button
-                  onClick={() => handleQuantityChange(product._id, 1)}
-                  className="bg-yellow-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
-                >
-                  +
-                </button>
-              </div>
+                  <div className="flex mt-4">
+                    <button
+                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'grocery')}
+                      className="bg-red-700 text-white px-2 py-1 rounded mr-2 hover:bg-red-600"
+                      disabled={quantities[product._id] <= (category === 'Grocery' ? 0.5 : 1)}
+                    >
+                      -
+                    </button>
+                    <span className="text-lg">{quantities[product._id] || 1}</span>
+                    <button
+                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'grocery')}
+                      className="bg-yellow-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
+                      disabled={quantities[product._id] >= product.quantity}
+                    >
+                      +
+                    </button>
+                  </div>
 
-              <div className="mt-2">
-                <button
-                  onClick={() => addToCart(product._id, quantities[product._id] || 1)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
-                >
-                  Add to Cart
-                </button>
-                {user.user.role === 'admin' && (
-                <>
-                  <button
-                    onClick={() => handleEditClick(product)}
-                    className="mt-2 ml-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteItem(product._id)}
-                    className="mt-2 ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </>
-              )}
-              </div>
+                  <div className="mt-2">
+                    <button
+                      onClick={() => addToCart(product._id, quantities[product._id] || 1)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
+                    >
+                      Add to Cart
+                    </button>
+                    {user.user.role === 'admin' && (
+                      <>
+                        <button
+                          onClick={() => handleEditClick(product)}
+                          className="mt-2 ml-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteItem(product._id)}
+                          className="mt-2 ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
+      <ToastContainer />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../Redux/action/authActions'; // Import the logout action
+import { logout } from '../Redux/action/authActions';
 import { DarkModeContext } from '../DarkModeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Quick from './Assests/Quick.jpg';
@@ -11,12 +11,12 @@ const Navbar = () => {
     const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
     const [isOpen, setIsOpen] = useState(false);
 
-    // Get authentication state from Redux
     const { isAuthenticated, user } = useSelector((state) => state.auth);
+    console.log(user)
 
     useEffect(() => {
         document.body.classList[darkMode ? 'add' : 'remove']('bg-gray-900');
-        document.body.classList[darkMode ? 'add' : 'remove']('text-white');
+        document.body.classList[darkMode ? 'add' : 'remove']('text-green-500');
         document.body.classList[!darkMode ? 'add' : 'remove']('bg-gray-100');
         document.body.classList[!darkMode ? 'add' : 'remove']('text-gray-900');
     }, [darkMode]);
@@ -29,190 +29,126 @@ const Navbar = () => {
         navigate('/login');
     };
 
-    const handleSignUp = () => {
-        navigate('/signup');
-    };
-
     const handleLogout = () => {
-        dispatch(logout()); // Dispatch the logout action
+        dispatch(logout());
         navigate('/');
-        console.log("logout done"); // Redirect to home after logout
+    };
+    const getUserInitials = (name) => {
+        const initials = name.split(' ').map((n) => n[0]).join('');
+        return initials.toUpperCase();
     };
 
     return (
-        <nav className={`flex items-center justify-between bg-[#029C78]  pb-4 h-32 shadow-md transition duration-300 ease-in-out  border-b-2 ` }>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <nav
+            className={`flex items-center justify-between p-4 h-32 shadow-md transition duration-300 ease-in-out border-b-2 ${
+                darkMode ? 'bg-transparent' : 'bg-[#029C78]'
+            }`}
+        >
+            <div className="text-2xl font-bold ml-8 mt-3">
                 <img src={Quick} className="w-52 rounded-md" alt="Quick Logo" />
             </div>
-            <ul className="flex space-x-6">
-                    <li>
-                        <Link to="/" className={`hover:text-blue-500 text-3xl text-white font-semibold transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/about" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>About</Link>
-                    </li>
-                    <li>
-                        <Link to="/Contact" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
-                    </li>
-                    <li>
-                        <Link to="/contact" className={`hover:text-blue-500 transition text-3xl text-white font-semibold duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
-                    </li>
-                </ul>
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="md:hidden">
+                <button
+                    onClick={toggleMenu}
+                    className={`p-2 rounded-md focus:outline-none ${darkMode ? 'text-green-500' : 'text-white'}`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+            <ul className={`md:flex space-x-6 ${isOpen ? 'block' : 'hidden'} md:block`}>
+                <li>
+                    <Link
+                        to="/"
+                        className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
+                            darkMode ? 'text-green-500' : 'text-white'
+                        }`}
+                    >
+                        Home
+                    </Link>
+                </li>
+                <li>
+                    <Link
+                        to="/about"
+                        className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
+                            darkMode ? 'text-green-500' : 'text-white'
+                        }`}
+                    >
+                        About
+                    </Link>
+                </li>
+                <li>
+                    <Link
+                        to="/contact"
+                        className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
+                            darkMode ? 'text-green-500' : 'text-white'
+                        }`}
+                    >
+                        Contact
+                    </Link>
+                </li>
+                <li>
+                    <Link
+                        to="/pricing"
+                        className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
+                            darkMode ? 'text-green-500' : 'text-white'
+                        }`}
+                    >
+                        Pricing
+                    </Link>
+                </li>
+            </ul>
+            <div className={`md:flex items-center space-x-4 ${isOpen ? 'block' : 'hidden'} md:block`}>
                 <button
                     onClick={toggleDarkMode}
-                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}
+                    className={`ml-4 p-3 w-56 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${
+                        darkMode
+                            ? 'bg-transparent border-4 border-white text-green-500 hover:bg-green-700'
+                            : 'bg-transparent border-4 border-white text-white hover:bg-green-600'
+                    }`}
                 >
                     {darkMode ? 'Light Mode' : 'Dark Mode'}
                 </button>
-                <div className="relative mx-4">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        className={`p-2 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white text-gray-900 border-gray-300'}`}
-                    />
-                    <button className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-800'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />
-                        </svg>
-                    </button>
-                </div>
-                
 
-                {/* Conditional rendering based on authentication status */}
                 {isAuthenticated ? (
                     <>
-                        <span className="ml-4 p-2 text-lg font-bold">
-                            Welcome, {user.user?.firstName || 'User'}
-                        </span>
                         <button
                             onClick={handleLogout}
-                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
+                            className={`mr-28 p-3 w-56 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${
+                                darkMode
+                                    ? 'bg-transparent border-4 border-white text-green-500 hover:bg-green-700'
+                                    : 'bg-transparent border-4 border-white text-white hover:bg-green-600'
+                            }`}
                         >
                             Logout
                         </button>
+                         <div className="flex flex-col items-center mt-1">
+                            <div
+                                className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
+                                    darkMode ? 'bg-green-500 text-gray-900' : 'bg-white text-green-500'
+                                }`}
+                            >
+                                {getUserInitials(user?.user?.firstName || 'User')}
+                            </div>
+                            <span className={`text-lg font-bold ${darkMode ? 'text-green-500' : 'text-white'}`}>{user?.user?.firstName || 'User'}</span>
+                        </div>
                     </>
                 ) : (
-                    <>
-                        <button
-                            onClick={handleLogin}
-                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={handleSignUp}
-                            className={`ml-4 p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}
-                        >
-                            Sign Up
-                        </button>
-                    </>
+                    <button
+                        onClick={handleLogin}
+                        className={`mr-28 p-3 w-56 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${
+                            darkMode
+                                ? 'bg-transparent border-4 border-white text-green-500 hover:bg-green-700'
+                                : 'bg-transparent border-4 border-white text-white hover:bg-green-600'
+                        }`}
+                    >
+                        Login
+                    </button>
                 )}
-
-                {/* <ul className="flex space-x-6">
-                    <li>
-                        <Link to="/" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/about" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>About</Link>
-                    </li>
-                    <li>
-                        <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
-                    </li>
-                </ul> */}
             </div>
-
-            {/* Mobile Menu */}
-            <div className="md:hidden flex items-center">
-                <button
-                    onClick={toggleMenu}
-                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}
-                >
-                    {isOpen ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                    )}
-                </button>
-            </div>
-
-            {isOpen && (
-                <div className={`absolute top-16 right-0 w-full shadow-lg md:hidden transition duration-300 ease-in-out ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-800'}`}>
-                    <ul className="flex flex-col p-4 space-y-2">
-                        <li>
-                            <Link to="/" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/about" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>About</Link>
-                        </li>
-                        <li>
-                            <Link to="/events" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Events</Link>
-                        </li>
-                        <li>
-                            <Link to="/contact" className={`hover:text-blue-500 transition duration-300 ease-in-out ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>Contact</Link>
-                        </li>
-
-                        {isAuthenticated ? (
-                            <>
-                                <li>
-                                    <span className="p-2 font-bold">
-                                        Welcome, {user?.email || 'User'}
-                                    </span>
-                                </li>
-                                <li>
-                                    <button 
-                                        onClick={handleLogout}
-                                        className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-red-600 text-white' : 'bg-red-500 text-white'}`}
-                                    >
-                                        Logout
-                                    </button>
-                                </li>
-                            </>
-                        ) : (
-                            <>
-                                <li>
-                                    <button onClick={handleLogin} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'}`}>
-                                        Login
-                                    </button>
-                                </li>
-                                <li>
-                                    <button onClick={handleSignUp} className={`w-full text-left p-2 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ease-in-out ${darkMode ? 'bg-green-600 text-white' : 'bg-green-500 text-white'}`}>
-                                        Sign Up
-                                    </button>
-                                </li>
-                            </>
-                        )}
-                    </ul>
-                </div>
-            )}
         </nav>
     );
 };
 
 export default Navbar;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

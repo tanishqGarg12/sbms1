@@ -16,7 +16,7 @@ const Main = () => {
     };
 
     return (    
-        <div className={`sidebar transition-colors mt-10 duration-300 ${darkMode ? ' text-white' : 'bg-[#029c78] text-gray-800'}`} style={{ width: '250px', position: 'absolute', height: '100%', top: 85, left: 0 }}>
+        <div className={`sidebar transition-colors fixed h-screen mt-10 duration-300 ${darkMode ? ' text-white' : 'bg-[#029c78] text-gray-800'}`} style={{ width: '250px',  position: 'absolute', top: 85, left: 0 , }}>
             <h2 className="text-center text-2xl text-[#029c78] font-extrabold mb-4">Dashboard</h2>
             <ul className="mt-4">
                 {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}
@@ -50,16 +50,6 @@ const Main = () => {
                             >
                                 <FaBoxOpen className="mr-2 text-xl" />
                                 <span className="text-lg font-semibold">Stock Details</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to="/dashboard/settings" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/settings')}
-                            >
-                                <FaCog className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">Settings</span>
                             </Link>
                         </li>
                         <li>
@@ -112,7 +102,7 @@ const Main = () => {
                         onClick={() => handleLinkClick('/dashboard/history')}
                     >
                         <FaHistory className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">History</span>
+                        <span className="text-lg font-semibold">Create Bill</span>
                     </Link>
                 </li>
                 <li>
@@ -122,7 +112,7 @@ const Main = () => {
                         onClick={() => handleLinkClick('/dashboard/create-bill')}
                     >
                         <FaFileInvoiceDollar className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Create Bill</span>
+                        <span className="text-lg font-semibold">History</span>
                     </Link>
                 </li>
             </ul>

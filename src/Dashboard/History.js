@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
@@ -7,7 +7,9 @@ import jsPDF from 'jspdf';
 import { useSelector } from 'react-redux'; 
 import 'jspdf-autotable';
 import { useNavigate } from 'react-router-dom';
+import { DarkModeContext } from '../DarkModeContext';
 function History() {
+    const { darkMode } = useContext(DarkModeContext);
     const [senderId, setSenderId] = useState(uuidv4());
     const [senderName, setSenderName] = useState('');
     const [senderContact, setSenderContact] = useState('');
@@ -273,20 +275,22 @@ const handleGeneratePDF = () => {
 };
 
 
+
+
 const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
 const tax = subtotal * taxRate; // Assuming taxRate is already defined
 const discount = subtotal * discountRate; // Assuming discountRate is already defined
-const total = subtotal + tax - discount;
+const total = parseInt( subtotal + tax - discount);
 const handleCheckout = async () => {
-    const amount = subtotal; // Use the subtotal for the payment amount
-    console.log("outside try")
+    const amount = total*100; // Use the subtotal for the payment amount
+    console.log("outside try"+amount)
     try {
         // Create an order on the server
         const response = await fetch('http://localhost:4000/api/v1/pay/checkout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            },
+            },  
             body: JSON.stringify({
                 amount,
                 currency: 'INR',
@@ -297,7 +301,8 @@ const handleCheckout = async () => {
         const data = await response.json();
         console.log(data)
         const { order } = data;
-        console.log("insdie try2")
+        console.log("inside try2")
+
         // Initialize Razorpay payment
         const options = {
             key: 'rzp_test_XaigqT7nptLPme', // Replace with your Razorpay API key
@@ -307,9 +312,6 @@ const handleCheckout = async () => {
             description: 'Invoice Payment', // A brief description
             order_id: order.id, // The Razorpay order ID created on the server
             handler: async function (response) {
-                console.log("sdcvfewsxdcv dswdcfv"+response)
-                // Log the response to ensure you're getting the correct data
-                console.log("start")
                 console.log("Razorpay Response: ", response);
 
                 const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
@@ -319,7 +321,8 @@ const handleCheckout = async () => {
 
                     // Send payment details to your server for verification using fetch
                     try {
-                        console.log("dcswdxcdxccfvdwecf")
+                        console.log("Verifying payment...");
+
                         const verificationResponse = await fetch(
                             'http://localhost:4000/api/v1/pay/paymentverification',
                             {
@@ -328,10 +331,10 @@ const handleCheckout = async () => {
                                     'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({
-                                    razorpay_order_id, // Razorpay field names must match
+                                    razorpay_order_id,
                                     razorpay_payment_id,
                                     razorpay_signature,
-                                    id,
+                                    id, // Ensure 'id' is properly defined or passed
                                     amount
                                 }),
                             }
@@ -341,13 +344,27 @@ const handleCheckout = async () => {
                         console.log('Payment verification response:', verificationData);
 
                         if (verificationData.success) {
-                            // Further action (e.g., save invoice)
-                            handleGeneratePDF()
-                            navigate("pay-success")
-                            console.log("doneeeeeeeeeeeeeeeeeeee")
-                            setCartItems("")
-                            console.log(cartItems)
-                            console.log("he above after the cart items ");
+                            // Verification passed, now call the checkout logic
+                            console.log("Verification successful, proceeding to next step");
+
+                            // Call your next steps (e.g., generating PDF, navigating, clearing cart)
+                            handleGeneratePDF();
+                            navigate("pay-success");
+                            console.log("Payment verification complete");
+
+                            // Clear cart from backend
+                            await fetch('http://localhost:4000/api/v1/cart/clear', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    // Include any authentication token if necessary
+                                    'Authorization': `Bearer ${token}`,
+                                }
+                            });
+
+                            // After clearing the cart on the backend, clear it from the frontend state
+                            setCartItems([]);
+                            console.log("Cart items cleared:", cartItems);
                         } else {
                             toast.error('Payment verification failed!');
                         }
@@ -372,194 +389,190 @@ const handleCheckout = async () => {
                 color: '#F37254', // Customize your Razorpay payment popup's color
             },
         };
-        console.log(options)
-        console.log("insdie try3")
-        setCartItems([])
-        console.log(cartItems)
+
+        console.log("Opening Razorpay payment popup...");
+        setCartItems([]); // Clear cart items before opening the Razorpay window
+        console.log("Cart items cleared:", cartItems); // Ensure cart items are cleared
         const razorpay = new window.Razorpay(options);
-        razorpay.open();
+        razorpay.open();    
     } catch (error) {
-        console.log("insdie error")
+        console.log("inside error")
         console.error('Payment Error:', error);
         toast.error('Payment failed. Please try again.');
     }
 };
 
 
-    return (
-        <div className="p-6 max-w-6xl mx-auto bg-white shadow-md rounded-lg">
-            <h1 className="text-3xl font-bold mb-6 text-center">Invoice</h1>
 
-            <ToastContainer />
+return (
+    <div className={`p-6 max-w-6xl mx-auto shadow-md rounded-lg transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
+      <h1 className="text-3xl font-bold mb-6 text-center">Invoice</h1>
 
-            {/* Sender Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="p-4 border border-gray-300 rounded bg-gray-50">
-                    <h2 className="text-xl font-semibold mb-4">Sender Information</h2>
-                    <input
-                        type="text"
-                        className="w-full p-2 mb-2 border border-gray-300 rounded"
-                        value={senderName}
-                        onChange={(e) => setSenderName(e.target.value)}
-                        placeholder="Your Name or Company Name"
-                    />
-                    <input
-                        type="text"
-                        className="w-full p-2 mb-2 border border-gray-300 rounded"
-                        value={senderContact}
-                        onChange={(e) => setSenderContact(e.target.value)}
-                        placeholder="Your Contact Information"
-                    />
-                    <p><strong>Sender ID:</strong> {senderId}</p>
-                </div>
+      <ToastContainer />
 
-                {/* Recipient Information */}
-                <div className="p-4 border border-gray-300 rounded bg-gray-50">
-                    <h2 className="text-xl font-semibold mb-4">Recipient Information</h2>
-                    <input
-                        type="text"
-                        className="w-full p-2 mb-2 border border-gray-300 rounded"
-                        value={recipientName}
-                        onChange={(e) => setRecipientName(e.target.value)}
-                        placeholder="Client Name"
-                    />
-                    <input
-                        type="text"
-                        className="w-full p-2 mb-2 border border-gray-300 rounded"
-                        value={recipientContact}
-                        onChange={(e) => setRecipientContact(e.target.value)}
-                        placeholder="Client Contact Information"
-                    />
-                </div>
+      {/* Sender Information */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className={`p-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
+          <h2 className="text-xl font-semibold mb-4">Sender Information</h2>
+          <input
+            type="text"
+            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+            value={senderName}
+            onChange={(e) => setSenderName(e.target.value)}
+            placeholder="Your Name or Company Name"
+          />
+          <input
+            type="text"
+            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+            value={senderContact}
+            onChange={(e) => setSenderContact(e.target.value)}
+            placeholder="Your Contact Information"
+          />
+          <p><strong>Sender ID:</strong> {senderId}</p>
+        </div>
+
+        {/* Recipient Information */}
+        <div className={`p-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
+          <h2 className="text-xl font-semibold mb-4">Recipient Information</h2>
+          <input
+            type="text"
+            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+            value={recipientName}
+            onChange={(e) => setRecipientName(e.target.value)}
+            placeholder="Client Name"
+          />
+          <input
+            type="text"
+            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+            value={recipientContact}
+            onChange={(e) => setRecipientContact(e.target.value)}
+            placeholder="Client Contact Information"
+          />
+        </div>
+      </div>
+
+      {/* Cart Items Search */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Search Inventory Items</h2>
+        <input
+          type="text"
+          className={`w-full p-2 mb-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by item name..."
+        />
+      </div>
+
+      {/* Cart Items */}
+      {searchResults.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+          <div>
+            <div className={`grid grid-cols-4 gap-4 font-semibold p-2 rounded-md mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+              <div>Name</div>
+              <div>Quantity</div>
+              <div>Price</div>
+              <div>Total</div>
             </div>
 
-            {/* Cart Items Search */}
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-4">Search Inventory Items</h2>
-                <input
-                    type="text"
-                    className="w-full p-2 mb-4 border border-gray-300 rounded"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by item name..."
-                />
+            {searchResults.map((item, index) => (
+              <div
+                key={index}
+                className={`grid grid-cols-4 gap-4 p-2 border rounded mb-4 cursor-pointer ${darkMode ? 'border-gray-600 bg-gray-800 hover:bg-gray-700' : 'border-gray-300 bg-gray-50 hover:bg-gray-200'}`}
+                onClick={() => addToCart(item._id, 1)}
+              >
+                <div>{item.name}</div>
+                <div>{item.quantity}</div>
+                <div>${item.price.toFixed(2)}</div>
+                <div>${(item.quantity * item.price).toFixed(2)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Cart Items Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
+        {cartItems.length === 0 ? (
+          <p>No items found</p>
+        ) : (
+          <div>
+            <div className={`grid grid-cols-4 gap-4 font-semibold p-2 rounded-md mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+              <div>Name</div>
+              <div>Quantity</div>
+              <div>Price</div>
+              <div>Total</div>
             </div>
-            <div>
-            </div>
-
-            {/* Cart Items */}
-            {searchResults.length > 0 && (
-                <div className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-                    <div>
-                        <div className="grid grid-cols-4 gap-4 font-semibold bg-gray-100 p-2 rounded-md mb-4">
-                            <div>Name</div>
-                            <div>Quantity</div>
-                            <div>Price</div>
-                            <div>Total</div>
-                        </div>
-
-                        {searchResults.map((item, index) => (
-                            <div
-                                key={index}
-                                className="grid grid-cols-4 gap-4 p-2 border border-gray-300 rounded bg-gray-50 mb-4 cursor-pointer hover:bg-gray-200"
-                                onClick={() => addToCart(item._id, 1)}
-                            >
-                                <div>{item.name}</div>
-                                <div>{item.quantity}</div>
-                                <div>${item.price.toFixed(2)}</div>
-                                <div>${(item.quantity * item.price).toFixed(2)}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Cart Items Section */}
-            <div>
-                <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
-                {cartItems.length === 0 ? (
-                    <p>No items found</p>
-                ) : (
-                    <div>
-                        <div className="grid grid-cols-4 gap-4 font-semibold bg-gray-100 p-2 rounded-md mb-4">
-                            <div>Name</div>
-                            <div>Quantity</div>
-                            <div>Price</div>
-                            <div>Total</div>
-                        </div>
-                        {cartItems.map((item, index) => (
-    <div
-        key={item.id} // Use a unique id for the key
-        className="grid grid-cols-4 gap-4 p-2 border border-gray-300 rounded bg-gray-50 mb-4"
-    >
-        <div>{item.name}</div>
-        <div className="flex items-center">
-        <div className="flex items-center">
+            {cartItems.map((item, index) => (
+              <div
+                key={item.id}
+                className={`grid grid-cols-4 gap-4 p-2 border rounded mb-4 ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}
+              >
+                <div>{item.name}</div>
+                <div className="flex items-center">
                   <button
-                    onClick={() => handleQuantityChange(item._id, -1)}
+                    onClick={() => handleQuantityChange(item._id, -1, item.quantity)}
                     className="bg-red-500 text-white px-3 py-1 rounded-l hover:bg-red-600"
                   >
                     -
                   </button>
-                  {/* <span className="mx-2">{item.quantity}</span> */}
-                  <span className="px-4 py-1 bg-gray-200 border border-gray-300">{quantities[item._id] || item.quantity }</span>
+                  <span className={`px-4 py-1 border ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-200 border-gray-300 text-gray-900'}`}>
+                    {quantities[item._id] || item.quantity}
+                  </span>
                   <button
-                    onClick={() => handleQuantityChange(item._id, 1,item.quantity)}
+                    onClick={() => handleQuantityChange(item._id, 1, item.quantity)}
                     className="bg-green-500 text-white px-3 py-1 rounded-r hover:bg-green-600"
                   >
                     +
                   </button>
                 </div>
-        </div>
-        <div>${item.price.toFixed(2)}</div>
-        <div>${((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div> {/* Total price */}
-          <button
-              onClick={() => deleteItem(item._id)} // Call deleteItem with the item ID
-              className="bg-red-500 text-white px-2 rounded"
-          >
-              Delete
-          </button>
-      
+                <div>${item.price.toFixed(2)}</div>
+                <div>${((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div>
+                <button
+                  onClick={() => deleteItem(item._id)}
+                  className="bg-red-500 text-white px-2 rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Invoice Summary */}
+      <div className={`p-4 border rounded mb-6 ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
+        <h2 className="text-xl font-semibold mb-4">Invoice Summary</h2>
+        <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
+        <p><strong>Tax:</strong> ${tax.toFixed(2)}</p>
+        <p><strong>Discount:</strong> ${discount.toFixed(2)}</p>
+        <p><strong>Total:</strong> ${total.toFixed(2)}</p>
+      </div>
+
+      {/* Save and Generate PDF Buttons */}
+      <div className="flex justify-between">
+        <button
+          className="px-4 py-2 bg-green-500 text-white rounded"
+          onClick={handleSaveInvoice}
+        >
+          Save Invoice
+        </button>
+        <button
+          className="px-20 py-2 bg-yellow-500 text-white rounded"
+          onClick={handleCheckout}
+        >
+          BUY
+        </button>
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded"
+          onClick={handleGeneratePDF}
+        >
+          Generate PDF
+        </button>
+      </div>
     </div>
-))}
-
-                    </div>
-                )}
-            </div>
-
-            {/* Invoice Summary */}
-            <div className="p-4 border border-gray-300 rounded bg-gray-50 mb-6">
-                <h2 className="text-xl font-semibold mb-4">Invoice Summary</h2>
-                <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-                <p><strong>Tax:</strong> ${tax.toFixed(2)}</p>
-                <p><strong>Discount:</strong> ${discount.toFixed(2)}</p>
-                <p><strong>Total:</strong> ${total.toFixed(2)}</p>
-            </div>
-
-            {/* Save and Generate PDF Buttons */}
-            <div className="flex justify-between">
-                <button
-                    className="px-4 py-2 bg-green-500 text-white rounded"
-                    onClick={handleSaveInvoice}
-                >
-                    Save Invoice
-                </button>
-                <button
-                    className="px-20 py-2 bg-yellow-500 text-white rounded"
-                    onClick={handleCheckout}
-                >
-                    BUY
-                </button>
-                <button
-                    className="px-4 py-2 bg-red-500 text-white rounded"
-                    onClick={handleGeneratePDF}
-                >
-                    Generate PDF
-                </button>
-            </div>
-        </div>
-    );
+  );
 }
 
 export default History;

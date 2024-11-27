@@ -3,11 +3,13 @@ import './App.css';
 import ParticlesBackground from './components/ParticlesBackground';
 import Navbar from './Homepage/Navbar';
 import HeroSection from './Homepage/HeroSection';
+import AboutUs from "./Homepage/AboutUs"
+import About from "./Homepage/About"
 import InfoCard from './Homepage/InfoCard';
 import Organizers from './Homepage/Organizers';
 import Partners from './Homepage/Partners';
 import Footer from './Homepage/Footer';
-import AboutUs from './Homepage/About';
+// import AboutUs from './Homepage/About';
 import DonutChartSection from './Homepage/DonutChartSection';
 import { DarkModeProvider } from './DarkModeContext';
 import Layout from './Layout';
@@ -47,13 +49,13 @@ export default function App() {
                 <>
                 {/* <FeedbackForm/> */}
                   <HeroSection />
-                  <AboutUs />
+                  <About />
                   <PricingPlans/>
                   <Organizers />
                   <Green/>
                   <DonutChartSection/>
                   <InfoCard />
-                  <Partners />
+                  {/* <Partners /> */}
                   <Footer />
                 </>
               } />
@@ -61,6 +63,7 @@ export default function App() {
 
               {/* Authentication Routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/Contact" element={<ContactForm />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />

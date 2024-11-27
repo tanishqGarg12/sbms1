@@ -1,4 +1,4 @@
-import React, { useState, useContext,useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,12 +16,24 @@ const InventoryApp = () => {
   const [subcategory, setSubcategory] = useState('');
   const [unit, setUnit] = useState('');
   const [editIndex, setEditIndex] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [categories, setCategories] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [subcategories, setSubcategories] = useState([]);
 
-  const [categories, setCategories] = useState({});  // Categories with subcategories
-  const [selectedCategory, setSelectedCategory] = useState(''); // To store selected category
-  const [subcategories, setSubcategories] = useState([]); // To store subcategories for the selected category
+  const handleFileChange = (e) => {
+    const f = e.target.files[0];
+    if (f) {
+      setFile(f);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(f);
+    }
+  };
 
-  // Fetch all categories and their subcategories from API
   const fetchCategoriesAndSubcategories = async () => {
     try {
       const categoryResponse = await axios.get('http://localhost:4000/api/v1/categoryy/categories');
@@ -29,21 +41,16 @@ const InventoryApp = () => {
       
       const categoryData = {};
       
-      // Organize categories and their corresponding subcategories
       categoryResponse.data.forEach(category => {
         categoryData[category.name] = [];
         subcategoryResponse.data.forEach(subcategory => {
-          console.log(subcategory)
-          console.log("id1"+subcategory.categoryId)
-          console.log("id2"+category._id)
           if (subcategory.categoryId._id === category._id) {
             categoryData[category.name].push(subcategory.name);
           }
         });
-      }); 
-      console.log(categoryData)
+      });
 
-      setCategories(categoryData); // Set categories with respective subcategories
+      setCategories(categoryData);
     } catch (error) {
       console.error('Error fetching categories and subcategories:', error);
     }
@@ -52,6 +59,7 @@ const InventoryApp = () => {
   useEffect(() => {
     fetchCategoriesAndSubcategories();
   }, []);
+
   const units = ['kg', 'g', 'pcs'];
 
   const resetForm = () => {
@@ -62,6 +70,8 @@ const InventoryApp = () => {
     setCategory('');
     setSubcategory('');
     setUnit('');
+    setFile(null);
+    setImagePreview('');
     setEditIndex(null);
   };
 
@@ -69,16 +79,15 @@ const InventoryApp = () => {
     if (itemName && itemPrice && itemQuantity && category && subcategory && unit) {
       try {
         const response = editIndex !== null 
-          ? 
-          await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
+          ? await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep , quantity: itemQuantity, category, subcategory, unit })
+              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep, quantity: itemQuantity, category, subcategory, unit, file: imagePreview })
             })
           : await fetch('http://localhost:4000/api/v1/inventory/createinventory', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice,purchasedprice: itemPricep , quantity: itemQuantity, category, subcategory, unit })
+              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep, quantity: itemQuantity, category, subcategory, unit, file: imagePreview })
             });
 
         const result = await response.json();
@@ -130,14 +139,15 @@ const InventoryApp = () => {
   };
 
   const startEdit = (index) => {
-    const { name, price, quantity, category, subcategory, unit } = items[index];
+    const { name, price, purchasedprice, quantity, category, subcategory, unit, file } = items[index];
     setItemName(name);
     setItemPrice(price);
+    setItemPricep(purchasedprice);
     setItemQuantity(quantity);
     setCategory(category);
-    setItemPricep()
     setSubcategory(subcategory);
     setUnit(unit);
+    setImagePreview(file);
     setEditIndex(index);
   };
 
@@ -145,6 +155,7 @@ const InventoryApp = () => {
     <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
       <div className={`w-2/3 shadow-lg rounded-lg p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
         <h1 className={`text-3xl font-bold text-center transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Inventory Management</h1>
+        
         <div className="flex flex-col mt-6 space-y-4">
           <select
             value={category}
@@ -190,6 +201,18 @@ const InventoryApp = () => {
             placeholder="Item Name"
             className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
           />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full py-2 text-sm text-gray-700"
+          />
+
+          {imagePreview && (
+            <img src={imagePreview} alt="Preview" className="w-full h-64 object-cover mt-4 rounded-lg" />
+          )}
+
           <input
             type="number"
             value={itemPrice}
@@ -201,7 +224,7 @@ const InventoryApp = () => {
             type="number"
             value={itemPricep}
             onChange={(e) => setItemPricep(e.target.value)}
-            placeholder="Item purchased Price"
+            placeholder="Item Purchased Price"
             className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
           />
           <input
@@ -225,9 +248,10 @@ const InventoryApp = () => {
                 <tr className={`transition-colors duration-300 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'}`}>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Name</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Price</th>
+                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Purchased Price</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Quantity</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Category</th>
-                  <th className={`border p-3 text-left transition-colors dur  ation-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
+                  <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Subcategory</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Unit</th>
                   <th className={`border p-3 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Actions</th>
                 </tr>

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useSelector } from 'react-redux'; // Import useSelector to access the Redux store
 import { toast } from 'react-toastify'; // Import toast for notifications
+import { DarkModeContext } from '../DarkModeContext';
 
 const LowStock = () => {
   const [lowStockProducts, setLowStockProducts] = useState([]);
@@ -14,6 +15,7 @@ const LowStock = () => {
     price: 0
   }); // Form data for editing
   const { user } = useSelector((state) => state.auth); // Get the user object from the Redux store
+  const { darkMode } = useContext(DarkModeContext);
 
   useEffect(() => {
     const fetchLowStockProducts = async () => {
@@ -129,10 +131,10 @@ const LowStock = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Low Stock Products</h1>
+    <div className={`container mx-auto p-4 transition-colors duration-300 ${darkMode ? 'bg-transparent text-green-500' : 'bg-white text-gray-900'}`}>
+      <h1 className="text-2xl font-bold mb-4 text-center">Low Stock Products</h1>
       {editingProduct && (
-        <form onSubmit={handleEditSubmit} className="bg-gray-100 p-4 mb-4 rounded">
+        <form onSubmit={handleEditSubmit} className={`p-4 mb-4 rounded ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
           <h2 className="text-xl font-bold mb-2">Edit Product</h2>
           <label className="block mb-2">
             Name:
@@ -141,7 +143,7 @@ const LowStock = () => {
               name="name"
               value={formData.name}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <label className="block mb-2">
@@ -151,7 +153,7 @@ const LowStock = () => {
               name="category"
               value={formData.category}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <label className="block mb-2">
@@ -161,7 +163,7 @@ const LowStock = () => {
               name="subcategory"
               value={formData.subcategory}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <label className="block mb-2">
@@ -171,7 +173,7 @@ const LowStock = () => {
               name="quantity"
               value={formData.quantity}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <label className="block mb-2">
@@ -181,7 +183,7 @@ const LowStock = () => {
               name="unit"
               value={formData.unit}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <label className="block mb-2">
@@ -192,7 +194,7 @@ const LowStock = () => {
               name="price"
               value={formData.price}
               onChange={handleEditChange}
-              className="border border-gray-300 p-2 w-full"
+              className={`border p-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
             />
           </label>
           <button
@@ -215,15 +217,15 @@ const LowStock = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {lowStockProducts.map((product) => (
-            <div key={product._id} className="bg-white border border-red-500 rounded-lg shadow-md p-4">
-              <div className="bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded mb-2">Low Stock</div>
+            <div key={product._id} className={`border rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 border-red-500' : 'bg-white border-red-500'}`}>
+              <div className={`text-sm font-bold px-2 py-1 rounded mb-2 ${darkMode ? 'bg-red-900 text-red-500' : 'bg-red-100 text-red-600'}`}>Low Stock</div>
               <img
-                src={product.image || 'https://via.placeholder.com/150'}
+                src={product.file || 'https://via.placeholder.com/150'}
                 alt={product.name}
                 className="w-full h-32 object-cover rounded-md mb-4"
               />
               <h2 className="text-lg font-semibold">{product.name}</h2>
-              <p className="text-green-600 font-bold">${Number(product.price).toFixed(2)}</p>
+              <p className="text-green-600 font-bold">₹{Number(product.price).toFixed(2)}</p>
               <p className="text-orange-500">In Stock: {product.quantity}</p>
               <div className="mt-4">
                 {/* Conditionally render buttons based on the user's role */}
@@ -243,12 +245,7 @@ const LowStock = () => {
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => alert(`Add functionality for product ID: ${product._id}`)}
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                  >
-                    Add
-                  </button>
+                  <p className="text-red-500">Low stock</p>
                 )}
               </div>
             </div>
