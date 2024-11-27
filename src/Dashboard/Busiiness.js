@@ -61,7 +61,7 @@ const Business = ({ items = [] }) => {
         };
         const fetchTotal = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/pay/getTotall');
+                const response = await fetch('http://localhost:4000/api/v1/pay/gettotal');
                 const data = await response.json();
                 console.log(data)
                 setValue(data.totalAmount || 0);
@@ -182,7 +182,7 @@ const Business = ({ items = [] }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-indigo-700' : 'bg-indigo-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">Purchased Value</h2>
-                    <p className="text-xl font-bold text-white">${purchasedValue.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-white">₹{purchasedValue.toFixed(2)}</p>
                 </div>
                 <div className={`rounded-lg shadow p-4 flex flex-col items-center ${darkMode ? 'bg-gray-700' : 'bg-red-500'}`}>
                     <h2 className="text-lg font-bold text-white mb-2">Sales Value</h2>

@@ -16,6 +16,8 @@ const CreateBill = () => {
   };
 
   const { user } = useSelector((state) => state.auth); // Get the user from Redux store
+  console.log("------")
+  console.log(user.user.role)
   const [userPayments, setUserPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const { darkMode } = useContext(DarkModeContext);
@@ -24,7 +26,11 @@ const CreateBill = () => {
     // Fetch user payments from the backend
     const fetchUserPayments = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/v1/pay/getspe/${user.user._id}`);
+        const apiUrl = user.user.role === 'admin'
+          ? 'http://localhost:4000/api/v1/pay/getAllUserPayments'
+          : `http://localhost:4000/api/v1/pay/getspe/${user.user._id}`;
+
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -38,7 +44,7 @@ const CreateBill = () => {
     };
 
     fetchUserPayments();
-  }, [user.user._id]);
+  }, [user.user.role, user.user._id]);
 
   if (loading) {
     return <div className="text-center text-lg">Loading...</div>;
