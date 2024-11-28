@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { DarkModeContext } from "../DarkModeContext";
+
 const plans = [
   {
     title: "Enterprise",
@@ -49,10 +50,10 @@ const PricingPlans = () => {
   const { darkMode } = useContext(DarkModeContext);
 
   return (
-    <div
+    <div id="pricing"
       className={`flex flex-col items-center py-16 px-4 md:px-8 ${
         darkMode ? "bg-transparent" : "bg-transparent"
-      }`}
+      }` }
     >
       <h2 className={`text-4xl font-bold ${darkMode ? "text-green-500" : "text-gray-800"}`}>
         Choose Your Plan

@@ -190,13 +190,6 @@ const handleQuantityChange = (productId, change,x) => {
 const handleGeneratePDF = () => {
     const doc = new jsPDF();
     
-    // Add a logo (if you have a base64 image URL for it)
-    // const logoUrl = 'https://cdn5.vectorstock.com/i/1000x1000/79/59/billing-stamp-on-white-vector-24357959.jpg'; // Add your base64-encoded logo URL here
-    // if (logoUrl) {
-    //     doc.addImage(logoUrl, 'PNG', 14, 10, 30, 15);
-    // }
-    
-    // Title styling with a background bar
     doc.setFillColor(52, 58, 64); // Dark color for title bar
     doc.rect(0, 30, 210, 15, 'F'); // Full-width background for title
     doc.setFontSize(24);
@@ -220,21 +213,21 @@ const handleGeneratePDF = () => {
     doc.roundedRect(14, 75, 180, 20, 3, 3, 'F');
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Subtotal: $${subtotal.toFixed(2)}`, 20, 85);
-    doc.text(`Tax: $${tax.toFixed(2)}`, 70, 85);
-    doc.text(`Discount: $${discount.toFixed(2)}`, 120, 85);
+    doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 20, 85);
+    doc.text(`Tax: ₹${tax.toFixed(2)}`, 70, 85);
+    doc.text(`Discount: ₹${discount.toFixed(2)}`, 120, 85);
     
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 128); // Darker color for total
-    doc.text(`Total: $${total.toFixed(2)}`, 160, 85);
+    doc.text(`Total: ₹${total.toFixed(2)}`, 160, 85);
     doc.setFont('helvetica', 'normal');
 
     // Prepare table data with styled header and rows
     const tableData = cartItems.map(service => [
         service.name,
         service.quantity,
-        `$${service.price.toFixed(2)}`,
-        `$${(service.quantity * service.price).toFixed(2)}`
+        `₹${service.price.toFixed(2)}`,
+        `₹${(service.quantity * service.price).toFixed(2)}`
     ]);
 
     doc.autoTable({
@@ -483,8 +476,8 @@ return (
               >
                 <div>{item.name}</div>
                 <div>{item.quantity}</div>
-                <div>${item.price.toFixed(2)}</div>
-                <div>${(item.quantity * item.price).toFixed(2)}</div>
+                <div>₹{item.price.toFixed(2)}</div>
+                <div>₹{(item.quantity * item.price).toFixed(2)}</div>
               </div>
             ))}
           </div>
@@ -527,8 +520,8 @@ return (
                     +
                   </button>
                 </div>
-                <div>${item.price.toFixed(2)}</div>
-                <div>${((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div>
+                <div>₹{item.price.toFixed(2)}</div>
+                <div>₹{((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div>
                 <button
                   onClick={() => deleteItem(item._id)}
                   className="bg-red-500 text-white px-2 rounded"
@@ -544,10 +537,10 @@ return (
       {/* Invoice Summary */}
       <div className={`p-4 border rounded mb-6 ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
         <h2 className="text-xl font-semibold mb-4">Invoice Summary</h2>
-        <p><strong>Subtotal:</strong> ${subtotal.toFixed(2)}</p>
-        <p><strong>Tax:</strong> ${tax.toFixed(2)}</p>
-        <p><strong>Discount:</strong> ${discount.toFixed(2)}</p>
-        <p><strong>Total:</strong> ${total.toFixed(2)}</p>
+        <p><strong>Subtotal:</strong> ₹{subtotal.toFixed(2)}</p>
+        <p><strong>Tax:</strong> ₹{tax.toFixed(2)}</p>
+        <p><strong>Discount:</strong> ₹{discount.toFixed(2)}</p>
+        <p><strong>Total:</strong> ₹{total.toFixed(2)}</p>
       </div>
 
       {/* Save and Generate PDF Buttons */}

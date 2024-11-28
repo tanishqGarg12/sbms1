@@ -296,7 +296,7 @@ const AllInventory = () => {
 
                   <div className="flex mt-4">
                     <button
-                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'grocery')}
+                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'Grocery')}
                       className="bg-red-700 text-white px-2 py-1 rounded mr-2 hover:bg-red-600"
                       disabled={quantities[product._id] <= (category === 'Grocery' ? 0.5 : 1)}
                     >
@@ -304,7 +304,7 @@ const AllInventory = () => {
                     </button>
                     <span className="text-lg">{quantities[product._id] || 1}</span>
                     <button
-                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'grocery')}
+                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'Grocery')}
                       className="bg-yellow-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
                       disabled={quantities[product._id] >= product.quantity}
                     >

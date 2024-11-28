@@ -6,7 +6,7 @@ const Green = () => {
 
   return (
     <div
-      className={`h-screen rounded-2xl w-full flex items-center justify-between p-8 ${
+      className={`h-screen rounded-2xl overflow-hidden w-full flex items-center justify-between p-8 ${
         darkMode ? "bg-transparent" : "bg-[#029c78]"
       }`}
     >
@@ -36,11 +36,11 @@ const Green = () => {
           className="h-1/2 w-auto object-cover ml-1"
         />
         <img
-          decoding="async"
+          decoding="async "
           loading="lazy"
           src="https://saasplate.themepreview.xyz/invoice-app/wp-content/uploads/sites/6/2022/10/Group-20429.svg"
           alt="Illustration"
-          className="h-full w-auto object-cover"
+          className="h-full overflow-hidden w-auto object-cover"
         />
       </div>
     </div>

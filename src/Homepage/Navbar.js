@@ -4,6 +4,7 @@ import { logout } from '../Redux/action/authActions';
 import { DarkModeContext } from '../DarkModeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Quick from './Assests/Quick.jpg';
+import { Link as ScroolLink } from 'react-scroll';
 
 const Navbar = () => {
     const dispatch = useDispatch();
@@ -89,14 +90,14 @@ const Navbar = () => {
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        to="/pricing"
+                    <ScroolLink
+                        to="pricing"
                         className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
                             darkMode ? 'text-green-500' : 'text-white'
                         }`}
                     >
                         Pricing
-                    </Link>
+                    </ScroolLink>
                 </li>
             </ul>
             <div className={`md:flex items-center space-x-4 ${isOpen ? 'block' : 'hidden'} md:block`}>
