@@ -15,24 +15,18 @@ const Business = ({ items = [] }) => {
     const [purchasedValue, setPurchasedValue] = useState(0);
     const [totalStock, setTotalStock] = useState(0);
     const [salesValue,setValue]=useState(0);
-
-    // Dummy data for other metrics
-    const purchasedItems = 12;
+    const [purchasedItems,setpurchasedItems]=useState(0);
     const soldItems = 8;
-    // const salesValue = 50000;
-
-    // Sample data for the charts
-    const salesData = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
-    const purchasesData = [35, 55, 50, 45, 85, 95, 105, 115, 125, 100, 120, 110];
-
-    // Fetch data from backend APIs
+    // const salesData = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
+    const [purchasesData, setPurchasesData] = useState([]);
+    const [salesData, setSalesData] = useState([]);
     useEffect(() => {
         const fetchNewItems = async () => {
             try {
                 const response = await fetch('http://localhost:4000/api/v1/inventory/getnewitems');
                 const data = await response.json();
-                // console.log(data.data.length)
-                setNewItems(data.data.length || 0);
+                // console.log(data)
+                setNewItems(data.data);
             } catch (error) {
                 console.error('Error fetching new items:', error);
             }
@@ -42,8 +36,10 @@ const Business = ({ items = [] }) => {
             try {
                 const response = await fetch('http://localhost:4000/api/v1/inventory/getpurchasedprice');
                 const data = await response.json();
-                console.log("sddsxc"+data.data.length   )
-                setPurchasedValue(data.data.length || 0);
+                // console.log(data)
+                // console.log(data.data[0])
+                setPurchasedValue(data.data[0].totalPurchasedValue || 0);
+                setpurchasedItems(data.data.length);
             } catch (error) {
                 console.error('Error fetching purchased value:', error);
             }
@@ -53,7 +49,7 @@ const Business = ({ items = [] }) => {
             try {
                 const response = await fetch('http://localhost:4000/api/v1/inventory/getAllInventory');
                 const data = await response.json();
-                console.log("ddxs"+data.length)
+                // console.log("ddxs"+data.length)
                 setTotalStock(data.length || 0);
             } catch (error) {
                 console.error('Error fetching total stock:', error);
@@ -63,18 +59,71 @@ const Business = ({ items = [] }) => {
             try {
                 const response = await fetch('http://localhost:4000/api/v1/pay/gettotal');
                 const data = await response.json();
-                console.log(data)
+                // console.log(data)
                 setValue(data.totalAmount || 0);
             } catch (error) {
                 console.error('Error fetching total stock:', error);
             }
         };
+        
+          // Fetch data from the API
+          const fetchMonthlyPurchaseData = async () => {
+            try {
+              console.log("-------------------");
+              const response = await fetch('http://localhost:4000/api/v1/inventory/getmonthwise');
+              if (!response.ok) {
+                throw new Error('Failed to fetch purchase data');
+              }
+              const data = await response.json();
+              console.log(data);
+          
+              // Check if the response has the expected format
+              if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                // Get the 'totalPurchasedPrice' for each month
+                const monthlyData = data.data.map(item => item.totalPurchasedPrice);
+                console.log("Fetched data: ", monthlyData);
+                setPurchasesData(monthlyData); // Update the state with the fetched data
+                console.log(purchasesData);
+              } else {
+                console.error('Invalid data structure');
+              }
+            } catch (error) {
+              console.error('Error fetching monthly purchase data:', error.message);
+            }
+          };
 
+          const fetchSalesData = async () => {
+            try {
+              const response = await fetch('http://localhost:4000/api/v1/pay/allsell');
+              if (!response.ok) {
+                throw new Error('Failed to fetch sales data');
+              }
+              const data = await response.json();
+              console.log(data);
+        
+              // Check if the response has the expected format
+              if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+                // Get the 'totalSellingAmount' for each month
+                const monthlySalesData = data.data.map(item => item.totalSellingAmount);
+                console.log("Fetched sales data: ", monthlySalesData);
+                setSalesData(monthlySalesData); // Update the state with the fetched data
+                console.log(salesData);
+              } else {
+                console.error('Invalid data structure');
+              }
+            } catch (error) {
+              console.error('Error fetching sales data:', error.message);
+            }
+          };
+          
+        
         // Call all the functions to fetch data
         fetchNewItems();
         fetchPurchasedValue();
         fetchTotalStock();
         fetchTotal();
+        fetchMonthlyPurchaseData(); 
+        fetchSalesData();
     }, []);
     console.log("edwscdw"+ newItems)
 

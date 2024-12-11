@@ -161,7 +161,7 @@ const ContactForm = () => {
               </div>
               <button
                 type="submit"
-                className={`w-full py-3 rounded hover:bg-gray-800 transition duration-200 ${darkMode ? 'bg-green-600 text-white' : 'bg-black text-white'}`}
+                className={`w-full py-3 rounded hover:bg-gray-800 transition duration-200 ${darkMode ? 'bg-green-600 text-white' : ' text-white'}`}
               >
                 Send Message
               </button>

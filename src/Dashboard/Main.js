@@ -17,7 +17,9 @@ const Main = () => {
 
     return (    
         <div className={`sidebar transition-colors fixed h-screen mt-10 duration-300 ${darkMode ? ' text-white' : 'bg-[#029c78] text-gray-800'}`} style={{ width: '250px',  position: 'absolute', top: 85, left: 0 , }}>
-            <h2 className="text-center text-2xl text-[#029c78] font-extrabold mb-4">Dashboard</h2>
+               <h2 className={`text-center text-2xl font-extrabold mb-4 ${darkMode ? 'text-[#00FF00]' : 'text-[#05120f]'}`}>
+      Dashboard
+    </h2>
             <ul className="mt-4">
                 {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}
                 {user.user?.role === 'admin' && (

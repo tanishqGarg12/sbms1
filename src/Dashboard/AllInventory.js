@@ -18,6 +18,9 @@ const AllInventory = () => {
   });
   const { user } = useSelector((state) => state.auth);
   const token = user.token;
+  if(!user){
+    toast.error("please log in")
+  }
   const { darkMode } = useContext(DarkModeContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [quantities, setQuantities] = useState({});
@@ -32,6 +35,7 @@ const AllInventory = () => {
         }
 
         const data = await response.json();
+        console.log(data)
         setProducts(data || []);
       } catch (error) {
         console.error('Error fetching inventory:', error);
@@ -188,7 +192,7 @@ const AllInventory = () => {
   }
 
   return (
-    <div className={`container mx-auto p-4 transition-colors duration-300 ${darkMode ? 'bg-transparent text-green-500' : 'bg-white text-gray-900'}`}>
+    <div className={`container mx-auto p-4 transition-colors duration-300 ${darkMode ? 'bg-transparent text-green-500' : 'bg-transparent text-gray-900'}`}>
       <h1 className="text-2xl font-bold mb-4 text-center">Inventory</h1>
       <div className="flex items-center mb-4">
         <input
@@ -287,25 +291,29 @@ const AllInventory = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {groupedProducts[category].map((product) => (
                 <div key={product._id} className={`border rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}>
-                  <img src={product.file || 'https://via.placeholder.com/150'} alt={product.name} className="w-full h-32 object-cover rounded-md mb-4" />
-                  <h2 className="text-lg font-semibold">{product.name}</h2>
-                  <p className="text-green-600 font-bold">₹{Number(product.price).toFixed(2)}</p>
-                  <p className="text-green-500">Quantity: {product.quantity} {product.unit}</p>
-                  <p className="text-gray-600">Category: {product.category}</p>
-                  <p className="text-gray-600">Subcategory: {product.subcategory}</p>
+                 <img 
+                  src={product.file ? `http://localhost:4000${product.file}` : 'WWWW'} 
+                   
+                  className="w-full h-32 object-cover rounded-md mb-4" 
+                />
+                <h2 className="text-lg font-semibold">{product.name}</h2>
+                <p className="text-green-600 font-bold">₹{Number(product.price).toFixed(2)}</p>
+                <p className="text-green-500">Quantity: {product.quantity} {product.unit}</p>
+                <p className="text-gray-600">Category: {product.category}</p>
+                <p className="text-gray-600">Subcategory: {product.subcategory}</p>
 
                   <div className="flex mt-4">
                     <button
-                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'Grocery')}
-                      className="bg-red-700 text-white px-2 py-1 rounded mr-2 hover:bg-red-600"
+                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'grocery')}
+                      className="bg-green-700 text-white px-2 py-1 rounded mr-2 hover:bg-red-600"
                       disabled={quantities[product._id] <= (category === 'Grocery' ? 0.5 : 1)}
                     >
                       -
                     </button>
                     <span className="text-lg">{quantities[product._id] || 1}</span>
                     <button
-                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'Grocery')}
-                      className="bg-yellow-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
+                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'grocery')}
+                      className=  "bg-green-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
                       disabled={quantities[product._id] >= product.quantity}
                     >
                       +
@@ -315,7 +323,7 @@ const AllInventory = () => {
                   <div className="mt-2">
                     <button
                       onClick={() => addToCart(product._id, quantities[product._id] || 1)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
+                      className="bg-green-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
                     >
                       Add to Cart
                     </button>

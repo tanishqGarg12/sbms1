@@ -1,38 +1,73 @@
-// src/components/SubcategoryForm.js
-
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { DarkModeContext } from '../DarkModeContext';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const SubcategoryForm = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [editingSubcategory, setEditingSubcategory] = useState(null);
   const { darkMode } = useContext(DarkModeContext);
 
   const fetchCategories = async () => {
-    const response = await axios.get('http://localhost:4000/api/v1/categoryy/categories');
-    setCategories(response.data);
+    try {
+      const response = await axios.get('http://localhost:4000/api/v1/categoryy/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Failed to fetch categories', error);
+      toast.error('Failed to fetch categories');
+    }
   };
 
   const fetchSubcategories = async () => {
-    const response = await axios.get('http://localhost:4000/api/v1/categoryy/subcategories');
-    setSubcategories(response.data);
+    try {
+      const response = await axios.get('http://localhost:4000/api/v1/categoryy/subcategories');
+      setSubcategories(response.data);
+
+    } catch (error) {
+      console.error('Failed to fetch subcategories', error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:4000/api/v1/categoryy/subcategories', { name, description, categoryId });
+      if (editingSubcategory) {
+        await axios.put(`http://localhost:4000/api/v1/categoryy/subcategories/${editingSubcategory._id}`, { name, description, categoryId });
+        setEditingSubcategory(null);
+        toast.success('Subcategory updated successfully');
+      } else {
+        await axios.post('http://localhost:4000/api/v1/categoryy/subcategories', { name, description, categoryId });
+        toast.success('Subcategory created successfully');
+      }
       setName('');
       setDescription('');
       setCategoryId('');
-      fetchSubcategories(); // Refresh the subcategory list after adding
-      console.log("successfully created");
+      fetchSubcategories(); // Refresh the subcategory list after adding/updating
+      console.log("Subcategory saved successfully");
     } catch (error) {
-      console.error('Failed to create subcategory', error);
+      console.error('Failed to save subcategory', error);
+    }
+  };
+
+  const handleEdit = (subcategory) => {
+    setName(subcategory.name);
+    setDescription(subcategory.description);
+    setCategoryId(subcategory.categoryId);
+    setEditingSubcategory(subcategory);
+  };
+
+  const handleDelete = async (subcategoryId) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/v1/categoryy/subcategories/${subcategoryId}`);
+      fetchSubcategories(); // Refresh the subcategory list after deleting
+      console.log("Subcategory deleted successfully");
+      toast.success('Subcategory deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete subcategory', error);
     }
   };
 
@@ -43,7 +78,8 @@ const SubcategoryForm = () => {
 
   return (
     <div className={`max-w-lg mx-auto p-6 rounded-lg shadow-md transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-green-500' : 'bg-white text-gray-900'}`}>
-      <h2 className="text-2xl font-semibold mb-4">Create Subcategory</h2>
+            <ToastContainer />
+      <h2 className="text-2xl font-semibold mb-4">{editingSubcategory ? 'Edit Subcategory' : 'Create Subcategory'}</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <input
@@ -83,14 +119,31 @@ const SubcategoryForm = () => {
           type="submit"
           className={`w-full p-3 rounded-md transition duration-200 ${darkMode ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
         >
-          Create Subcategory
+          {editingSubcategory ? 'Update Subcategory' : 'Create Subcategory'}
         </button>
       </form>
       <h3 className="text-xl font-semibold mt-6">Subcategories</h3>
       <ul className="mt-4 space-y-2">
         {subcategories.map((subcategory) => (
-          <li key={subcategory._id} className={`p-3 rounded-md shadow-sm ${darkMode ? 'bg-gray-800 text-green-500' : 'bg-gray-100 text-gray-900'}`}>
-            {subcategory.name}
+          <li key={subcategory._id} className={`p-3 rounded-md shadow-sm flex justify-between items-center ${darkMode ? 'bg-gray-800 text-green-500' : 'bg-gray-100 text-gray-900'}`}>
+            <div>
+              <h4 className="font-semibold">{subcategory.name}</h4>
+              <p className="text-sm">{subcategory.description}</p>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleEdit(subcategory)}
+                className={`p-2 rounded-md transition duration-200 ${darkMode ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-green-600 text-white hover:bg-green-700'}`}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(subcategory._id)}
+                className={`p-2 rounded-md transition duration-200 ${darkMode ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-red-600 text-white hover:bg-red-700'}`}
+              >
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>

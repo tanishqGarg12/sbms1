@@ -2,15 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
 
 const Sugeestion = () => {
-  const API_KEY = "AIzaSyBPFreKptIL6RWWdgHpUGAd6Zmb5fNh6HI"; // Make sure to secure your API key
+  const API_KEY = "AIzaSyBi01m3R0_RehfUQ4pDHvirXXyMz2KrMhs"; // Make sure to secure your API key
   const obj = {
     q: "apple fruit" // The user-purchased product
   };
   
   const [products, setProducts] = useState([]); // State to store the list of products
 
-  const callGeminiAPI = async () => {
+  const callGeminiAPI = async (retryCount = 0) => {
     try {
+      console.log('Calling Gemini API...');
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`,
         {
@@ -21,7 +22,7 @@ const Sugeestion = () => {
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Given that the user has purchased ${obj.q}, suggest 6 additional products that complement this purchase.just start giving produts no heading . Provide a short description of each recommended product below its name.`
+                text: `Given that the user has purchased ${obj.q}, suggest 6 additional products that complement this purchase. Just start giving products, no heading. Provide a short description of each recommended product below its name.`
               }]
             }],
           }),
@@ -29,11 +30,21 @@ const Sugeestion = () => {
       );
 
       if (!response.ok) {
+        if (response.status === 429 && retryCount < 5) {
+          // Retry with exponential backoff
+          const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff delay
+          console.warn(`Rate limited. Retrying in ${delay / 1000} seconds...`);
+          setTimeout(() => callGeminiAPI(retryCount + 1), delay);
+          return;
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json(); // Parse the JSON response
+      console.log('API response:', data); // Log the response for debugging
+
       const responseText = data.candidates[0].content.parts[0].text; // Extract the text part of the response
+      console.log('Response text:', responseText); // Log the response text for debugging
 
       // Assume responseText contains products separated by line breaks
       const parsedProducts = responseText.split("\n").filter(p => p.trim() !== "").map(item => {
@@ -56,7 +67,7 @@ const Sugeestion = () => {
 
   return (
     <div className={`p-6 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <h1 className="text-2xl font-bold mb-4">Siggestion from our AI</h1>
+      <h1 className="text-2xl font-bold mb-4">Suggestions from our AI</h1>
       <div className={`p-4 rounded-md shadow-md ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
         <h2 className="text-xl mb-4"></h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

@@ -50,7 +50,7 @@ const Stock = () => {
                 <th className="border px-4 py-2">Quantity</th>
                 <th className="border px-4 py-2">Purchased Price</th>
                 <th className="border px-4 py-2">Selling Price</th>
-                <th className="border px-4 py-2">Status</th>
+                {/* <th className="border px-4 py-2">Status</th> */}
                 {/* <th className="border px-4 py-2">Selling Price</th> */}
               </tr>
             </thead>
@@ -63,7 +63,7 @@ const Stock = () => {
                   <td className="border px-4 py-2">{item.quantity}</td>
                   <td className="border px-4 py-2">{item.purchasedPrice}</td>
                   <td className="border px-4 py-2">{item.sellingPrice}</td>
-                  <td className="border px-4 py-2 text-red-600 font-bold">SOLD</td>
+                  {/* <td className="border px-4 py-2 text-red-600 font-bold">SOLD</td> */}
                 </tr>
               ))}
             </tbody>

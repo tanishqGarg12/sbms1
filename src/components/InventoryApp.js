@@ -75,19 +75,35 @@ const InventoryApp = () => {
     setEditIndex(null);
   };
 
-  const addItem = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (itemName && itemPrice && itemQuantity && category && subcategory && unit) {
       try {
+        const formData = new FormData();
+        formData.append('name', itemName);
+        formData.append('price', itemPrice);
+        formData.append('purchasedprice', itemPricep);
+        formData.append('quantity', itemQuantity);
+        formData.append('category', category);
+        formData.append('subcategory', subcategory);
+        formData.append('unit', unit);
+        if (file) {
+          formData.append('file', file);
+        }
+
+        // Log formData entries
+        for (let [key, value] of formData.entries()) {
+          console.log(key, value);
+        }
+
         const response = editIndex !== null 
           ? await fetch(`http://localhost:4000/api/v1/inventory/inventory/${items[editIndex]._id}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep, quantity: itemQuantity, category, subcategory, unit, file: imagePreview })
+              body: formData
             })
           : await fetch('http://localhost:4000/api/v1/inventory/createinventory', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: itemName, price: itemPrice, purchasedprice: itemPricep, quantity: itemQuantity, category, subcategory, unit, file: imagePreview })
+              body: formData
             });
 
         const result = await response.json();
@@ -156,14 +172,14 @@ const InventoryApp = () => {
       <div className={`w-2/3 shadow-lg rounded-lg p-8 transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
         <h1 className={`text-3xl font-bold text-center transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Inventory Management</h1>
         
-        <div className="flex flex-col mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col mt-6 space-y-4" encType="multipart/form-data">
           <select
             value={category}
             onChange={(e) => {
               setCategory(e.target.value);
               setSubcategory('');
             }}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           >
             <option value="">Select Category</option>
             {Object.keys(categories).map((cat) => (
@@ -174,7 +190,7 @@ const InventoryApp = () => {
           <select
             value={subcategory}
             onChange={(e) => setSubcategory(e.target.value)}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
             disabled={!category}
           >
             <option value="">Select Subcategory</option>
@@ -186,7 +202,7 @@ const InventoryApp = () => {
           <select
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           >
             <option value="">Select Unit</option>
             {units.map((u) => (
@@ -199,12 +215,12 @@ const InventoryApp = () => {
             value={itemName}
             onChange={(e) => setItemName(e.target.value)}
             placeholder="Item Name"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           />
 
           <input
             type="file"
-            accept="image/*"
+            name="file"
             onChange={handleFileChange}
             className="w-full py-2 text-sm text-gray-700"
           />
@@ -218,26 +234,27 @@ const InventoryApp = () => {
             value={itemPrice}
             onChange={(e) => setItemPrice(e.target.value)}
             placeholder="Item Price"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           />
           <input
             type="number"
             value={itemPricep}
             onChange={(e) => setItemPricep(e.target.value)}
             placeholder="Item Purchased Price"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           />
           <input
             type="number"
             value={itemQuantity}
             onChange={(e) => setItemQuantity(e.target.value)}
             placeholder="Item Quantity"
-            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-colors duration-300 ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'border-gray-300'}`}
+            className={`border rounded-lg p-4 focus:outline-none focus:ring-2 ${darkMode ? 'bg-gray-700 border-gray-600 text-white focus:ring-green-500' : 'bg-white border-gray-300 text-gray-900 focus:ring-blue-500'}`}
           />
-          <button onClick={addItem} className={`text-white rounded-lg px-6 py-3 hover:opacity-80 transition w-full ${darkMode ? 'bg-blue-500' : 'bg-blue-600'}`}>
+          <button type="submit" className={`text-white rounded-lg px-6 py-3 hover:opacity-80 transition w-full ${darkMode ? 'bg-green-600' : 'bg-blue-600'}`}>
             {editIndex !== null ? 'Update Item' : 'Add Item'}
           </button>
-        </div>
+        </form>
+        
         <div className="mt-6">
           <h2 className={`text-xl font-semibold transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-700'}`}>Inventory List</h2>
           {items.length === 0 ? (
@@ -245,7 +262,7 @@ const InventoryApp = () => {
           ) : (
             <table className={`min-w-full border-collapse mt-4 transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
               <thead>
-                <tr className={`transition-colors duration-300 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'}`}>
+                <tr className={`transition-colors duration-300 ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'}`}>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Name</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Price</th>
                   <th className={`border p-3 text-left transition-colors duration-300 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>Purchased Price</th>

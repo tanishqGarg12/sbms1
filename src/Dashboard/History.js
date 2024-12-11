@@ -545,20 +545,20 @@ return (
 
       {/* Save and Generate PDF Buttons */}
       <div className="flex justify-between">
-        <button
+        {/* <button
           className="px-4 py-2 bg-green-500 text-white rounded"
           onClick={handleSaveInvoice}
         >
           Save Invoice
-        </button>
+        </button> */}
         <button
-          className="px-20 py-2 bg-yellow-500 text-white rounded"
+          className="px-20 py-2 bg-green-500 text-white rounded"
           onClick={handleCheckout}
         >
           BUY
         </button>
         <button
-          className="px-4 py-2 bg-red-500 text-white rounded"
+          className="px-4 py-2 bg-green-900 text-white rounded"
           onClick={handleGeneratePDF}
         >
           Generate PDF

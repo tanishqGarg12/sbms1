@@ -62,6 +62,7 @@ export default function App() {
               {/* <Route path="pay-success" element={<PaymentSuccess/>}/> */}
 
               {/* Authentication Routes */}
+              <Route path="all-inventory" element={<AllInventory/>} />
               <Route path="/login" element={<Login />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/Contact" element={<ContactForm />} />

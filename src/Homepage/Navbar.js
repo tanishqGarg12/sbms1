@@ -5,6 +5,7 @@ import { DarkModeContext } from '../DarkModeContext';
 import { Link, useNavigate } from 'react-router-dom';
 import Quick from './Assests/Quick.jpg';
 import { Link as ScroolLink } from 'react-scroll';
+import { FaSun, FaMoon } from 'react-icons/fa';
 
 const Navbar = () => {
     const dispatch = useDispatch();
@@ -70,14 +71,14 @@ const Navbar = () => {
                     </Link>
                 </li>
                 <li>
-                    <Link
-                        to="/about"
+                <ScroolLink
+                        to="pricing"
                         className={`hover:text-green-300 text-3xl font-semibold transition duration-300 ease-in-out ${
                             darkMode ? 'text-green-500' : 'text-white'
                         }`}
                     >
                         About
-                    </Link>
+                    </ScroolLink>
                 </li>
                 <li>
                     <Link
@@ -101,16 +102,21 @@ const Navbar = () => {
                 </li>
             </ul>
             <div className={`md:flex items-center space-x-4 ${isOpen ? 'block' : 'hidden'} md:block`}>
-                <button
-                    onClick={toggleDarkMode}
-                    className={`ml-4 p-3 w-56 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out ${
-                        darkMode
-                            ? 'bg-transparent border-4 border-white text-green-500 hover:bg-green-700'
-                            : 'bg-transparent border-4 border-white text-white hover:bg-green-600'
-                    }`}
-                >
-                    {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </button>
+            <button
+            onClick={toggleDarkMode}
+            className={`ml-4 p-3 w-56 rounded-lg shadow-lg focus:outline-none focus:ring-2 
+            focus:ring-blue-500 transition-all transform duration-500 ease-in-out 
+            hover:scale-105 flex items-center justify-center gap-2
+            ${darkMode 
+                ? 'bg-transparent border-4 border-white text-green-500 hover:bg-green-700'
+                : 'bg-transparent border-4 border-white text-white hover:bg-green-600'
+            }`}
+        >
+            <span className={`transition-transform duration-500 ${darkMode ? 'rotate-180' : 'rotate-0'}`}>
+                {darkMode ? <FaSun size={20} /> : <FaMoon size={20} />}
+            </span>
+            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+</button>
 
                 {isAuthenticated ? (
                     <>

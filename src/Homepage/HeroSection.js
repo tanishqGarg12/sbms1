@@ -53,7 +53,7 @@ const HeroSection = () => {
   return (
     <div
       className={`relative w-full h-auto overflow-hidden ${
-        darkMode ? "bg-transparent" : "bg-[#029c78]"
+        darkMode ? "bg-transparent border-b" : "bg-[#029c78]"
       }`}
     >
       <ParticlesBackground id="particles" />

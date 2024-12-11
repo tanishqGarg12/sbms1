@@ -7,6 +7,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import store, { persistor } from './Redux/store/store';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import Footer from './Homepage/Footer';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

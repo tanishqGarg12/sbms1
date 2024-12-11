@@ -59,11 +59,11 @@ const Signup = () => {
     };
 
     return (
-        <div className={`flex justify-center items-center min-h-screen border-white ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        <div className={`flex justify-center items-center min-h-screen ${darkMode ? 'bg-transparent' : 'bg-transparent'}`}>
             <ParticlesBackground id="particles" />
-            <div className="flex w-full max-w-6xl bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="flex w-full max-w-6xl rounded-lg shadow-lg overflow-hidden">
                 {/* Image Section */}
-                <div className={`hidden md:flex w-1/2 h-auto justify-center items-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+                <div className={`hidden md:flex w-1/2 h-auto justify-center items-center ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
                     <img
                         src="https://factech.co.in/fronts/images/billing-img/recurring-billing-management-system-real-estate.png"
                         alt="Signup Illustration"
@@ -81,7 +81,7 @@ const Signup = () => {
                                 placeholder="First Name"
                                 value={firstName}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                             />
                         </div>
                         <div className="mb-3">
@@ -90,7 +90,7 @@ const Signup = () => {
                                 placeholder="Last Name"
                                 value={lastName}
                                 onChange={(e) => setLastName(e.target.value)}
-                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                             />
                         </div>
                         <div className="mb-3">
@@ -99,7 +99,7 @@ const Signup = () => {
                                 placeholder="Username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                             />
                         </div>
                         <div className="mb-3">
@@ -108,7 +108,7 @@ const Signup = () => {
                                 placeholder="Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                                className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                             />
                         </div>
                     </div>
@@ -118,7 +118,7 @@ const Signup = () => {
                             placeholder="Phone"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                         />
                     </div>
                     <div className="mb-3 relative">
@@ -127,7 +127,7 @@ const Signup = () => {
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                         />
                         <span
                             className="absolute right-3 top-3 cursor-pointer text-blue-500"
@@ -142,7 +142,7 @@ const Signup = () => {
                             placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'border-gray-300'} hover:border-blue-400`}
+                            className={`w-full px-4 py-4 border rounded-md focus:outline-none focus:border-blue-500 transition duration-300 ease-in-out ${darkMode ? 'bg-gray-700 text-gray-300 border-gray-600' : 'bg-white border-gray-300 text-gray-900'} hover:border-blue-400`}
                         />
                         <span
                             className="absolute right-3 top-3 cursor-pointer text-blue-500"
