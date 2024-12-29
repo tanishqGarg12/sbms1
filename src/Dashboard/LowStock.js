@@ -20,7 +20,7 @@ const LowStock = () => {
   useEffect(() => {
     const fetchLowStockProducts = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/v1/inventory/getlowinventory');
+        const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getlowinventory');
         
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -38,7 +38,7 @@ const LowStock = () => {
 
   const deleteItem = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
+      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${id}`, {
         method: 'DELETE',
       });
 
@@ -58,7 +58,7 @@ const LowStock = () => {
 
   const editItem = async (id) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/inventory/inventory/${id}`, {
+      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ const Business = ({ items = [] }) => {
     useEffect(() => {
         const fetchNewItems = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/inventory/getnewitems');
+                const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getnewitems');
                 const data = await response.json();
                 // console.log(data)
                 setNewItems(data.data);
@@ -34,7 +34,7 @@ const Business = ({ items = [] }) => {
 
         const fetchPurchasedValue = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/inventory/getpurchasedprice');
+                const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getpurchasedprice');
                 const data = await response.json();
                 // console.log(data)
                 // console.log(data.data[0])
@@ -47,7 +47,7 @@ const Business = ({ items = [] }) => {
 
         const fetchTotalStock = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/inventory/getAllInventory');
+                const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getAllInventory');
                 const data = await response.json();
                 // console.log("ddxs"+data.length)
                 setTotalStock(data.length || 0);
@@ -57,7 +57,7 @@ const Business = ({ items = [] }) => {
         };
         const fetchTotal = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/v1/pay/gettotal');
+                const response = await fetch('https://backend-sbms.vercel.app/api/v1/pay/gettotal');
                 const data = await response.json();
                 // console.log(data)
                 setValue(data.totalAmount || 0);
@@ -70,7 +70,7 @@ const Business = ({ items = [] }) => {
           const fetchMonthlyPurchaseData = async () => {
             try {
               console.log("-------------------");
-              const response = await fetch('http://localhost:4000/api/v1/inventory/getmonthwise');
+              const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getmonthwise');
               if (!response.ok) {
                 throw new Error('Failed to fetch purchase data');
               }
@@ -94,7 +94,7 @@ const Business = ({ items = [] }) => {
 
           const fetchSalesData = async () => {
             try {
-              const response = await fetch('http://localhost:4000/api/v1/pay/allsell');
+              const response = await fetch('https://backend-sbms.vercel.app/api/v1/pay/allsell');
               if (!response.ok) {
                 throw new Error('Failed to fetch sales data');
               }

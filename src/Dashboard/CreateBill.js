@@ -27,8 +27,8 @@ const CreateBill = () => {
     const fetchUserPayments = async () => {
       try {
         const apiUrl = user.user.role === 'admin'
-          ? 'http://localhost:4000/api/v1/pay/getAllUserPayments'
-          : `http://localhost:4000/api/v1/pay/getspe/${user.user._id}`;
+          ? 'https://backend-sbms.vercel.app/api/v1/pay/getAllUserPayments'
+          : `https://backend-sbms.vercel.app/api/v1/pay/getspe/${user.user._id}`;
 
         const response = await fetch(apiUrl);
         if (!response.ok) {

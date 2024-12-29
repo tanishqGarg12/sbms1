@@ -9,7 +9,7 @@ const ForgotPassword = () => {
 
     const handleForgotPassword = async () => {
         try {
-            const res = await axios.post('http://localhost:4000/api/v1/auth/forgot-password', { email,text });
+            const res = await axios.post('https://backend-sbms.vercel.app/api/v1/auth/forgot-password', { email,text });
             console.log(res)
             toast.success(res.data.message);
         } catch (err) {
