@@ -28,7 +28,7 @@ const AllInventory = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await fetch('https://backend-sbms.vercel.app/api/v1/inventory/getallinventory');
+        const response = await fetch('https://backend-sbms.onrender.com/api/v1/inventory/getallinventory');
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -50,7 +50,7 @@ const AllInventory = () => {
 
   const deleteItem = async (id) => {
     try {
-      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${id}`, {
+      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
         method: 'DELETE',
       });
 
@@ -70,7 +70,7 @@ const AllInventory = () => {
 
   const editItem = async (id) => {
     try {
-      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${id}`, {
+      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ const AllInventory = () => {
 
   const addToCart = async (productId, quantity) => {
     try {
-      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/cart/add`, {
+      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

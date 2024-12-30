@@ -13,7 +13,7 @@ const CategoryForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://backend-sbms.vercel.app/api/v1/categoryy/categories');
+      const response = await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories', error);
@@ -25,11 +25,11 @@ const CategoryForm = () => {
     e.preventDefault();
     try {
       if (editingCategory) {
-        await axios.put(`https://backend-sbms.vercel.app/api/v1/categoryy/categories/${editingCategory._id}`, { name, description });
+        await axios.put(`https://backend-sbms.onrender.com/api/v1/categoryy/categories/${editingCategory._id}`, { name, description });
         setEditingCategory(null);
         toast.success('Category updated successfully');
       } else {
-        await axios.post('https://backend-sbms.vercel.app/api/v1/categoryy/categories', { name, description });
+        await axios.post('https://backend-sbms.onrender.com/api/v1/categoryy/categories', { name, description });
         toast.success('Category created successfully');
       }
       setName('');
@@ -49,7 +49,7 @@ const CategoryForm = () => {
 
   const handleDelete = async (categoryId) => {
     try {
-      await axios.delete(`https://backend-sbms.vercel.app/api/v1/categoryy/categories/${categoryId}`);
+      await axios.delete(`https://backend-sbms.onrender.com/api/v1/categoryy/categories/${categoryId}`);
       fetchCategories(); // Refresh the category list after deleting
       toast.success('Category deleted successfully');
     } catch (error) {

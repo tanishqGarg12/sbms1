@@ -9,7 +9,7 @@ const Stock = () => {
   useEffect(() => {
     const fetchInventory = async () => {
       try {
-        const response = await fetch("https://backend-sbms.vercel.app/api/v1/inventory/getallinventoryc");
+        const response = await fetch("https://backend-sbms.onrender.com/api/v1/inventory/getallinventoryc");
         if (!response.ok) {
           throw new Error("Failed to fetch inventory data");
         }

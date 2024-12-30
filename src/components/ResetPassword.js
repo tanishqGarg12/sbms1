@@ -11,7 +11,7 @@ const ResetPassword = () => {
 
     const handleResetPassword = async () => {
         try {
-            const res = await axios.post(`https://backend-sbms.vercel.app/api/v1/auth/reset-password/${token}`, { newPassword });
+            const res = await axios.post(`https://backend-sbms.onrender.com/api/v1/auth/reset-password/${token}`, { newPassword });
             toast.success(res.data.message);
             navigate('/login'); // Redirect to login after success
         } catch (err) {

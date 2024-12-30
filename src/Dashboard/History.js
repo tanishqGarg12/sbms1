@@ -35,7 +35,7 @@ function History() {
         if (searchQuery) {
             // Fetch search results if there is a search query
             if (token) {
-                axios.get(`https://backend-sbms.vercel.app/api/v1/inventory/search?query=${searchQuery}`, {
+                axios.get(`https://backend-sbms.onrender.com/api/v1/inventory/search?query=${searchQuery}`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
@@ -51,7 +51,7 @@ function History() {
             // If the search query is empty, reset search results and fetch all cart items
             setSearchResults([]); // Clear search results
             if (token) {
-                axios.get('https://backend-sbms.vercel.app/api/v1/cart', {
+                axios.get('https://backend-sbms.onrender.com/api/v1/cart', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`,
@@ -69,7 +69,7 @@ function History() {
 
     // Add item to the cart
     const addToCart = (productId, quantity) => {
-        fetch('https://backend-sbms.vercel.app/api/v1/cart/add', {
+        fetch('https://backend-sbms.onrender.com/api/v1/cart/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ function History() {
             discountRate
         };
 
-        axios.post('https://backend-sbms.vercel.app/api/v1/invoices', newInvoice, {
+        axios.post('https://backend-sbms.onrender.com/api/v1/invoices', newInvoice, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
@@ -142,7 +142,7 @@ function History() {
             // Assuming you have a way to retrieve the token, e.g., from local storage or context
             // const token = localStorage.getItem('token'); // Adjust this line based on how you're managing tokens
     
-            const response = await fetch(`https://backend-sbms.vercel.app/api/v1/cart/remove`, {
+            const response = await fetch(`https://backend-sbms.onrender.com/api/v1/cart/remove`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', // Set the content type to JSON
@@ -279,7 +279,7 @@ const handleCheckout = async () => {
     console.log("outside try"+amount)
     try {
         // Create an order on the server
-        const response = await fetch('https://backend-sbms.vercel.app/api/v1/pay/checkout', {
+        const response = await fetch('https://backend-sbms.onrender.com/api/v1/pay/checkout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -317,7 +317,7 @@ const handleCheckout = async () => {
                         console.log("Verifying payment...");
 
                         const verificationResponse = await fetch(
-                            'https://backend-sbms.vercel.app/api/v1/pay/paymentverification',
+                            'https://backend-sbms.onrender.com/api/v1/pay/paymentverification',
                             {
                                 method: 'POST',
                                 headers: {
@@ -346,7 +346,7 @@ const handleCheckout = async () => {
                             console.log("Payment verification complete");
 
                             // Clear cart from backend
-                            await fetch('https://backend-sbms.vercel.app/api/v1/cart/clear', {
+                            await fetch('https://backend-sbms.onrender.com/api/v1/cart/clear', {
                                 method: 'DELETE',
                                 headers: {
                                     'Content-Type': 'application/json',

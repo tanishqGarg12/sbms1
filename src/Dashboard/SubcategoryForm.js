@@ -14,7 +14,7 @@ const SubcategoryForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://backend-sbms.vercel.app/api/v1/categoryy/categories');
+      const response = await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories', error);
@@ -24,7 +24,7 @@ const SubcategoryForm = () => {
 
   const fetchSubcategories = async () => {
     try {
-      const response = await axios.get('https://backend-sbms.vercel.app/api/v1/categoryy/subcategories');
+      const response = await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/subcategories');
       setSubcategories(response.data);
 
     } catch (error) {
@@ -36,11 +36,11 @@ const SubcategoryForm = () => {
     e.preventDefault();
     try {
       if (editingSubcategory) {
-        await axios.put(`https://backend-sbms.vercel.app/api/v1/categoryy/subcategories/${editingSubcategory._id}`, { name, description, categoryId });
+        await axios.put(`https://backend-sbms.onrender.com/api/v1/categoryy/subcategories/${editingSubcategory._id}`, { name, description, categoryId });
         setEditingSubcategory(null);
         toast.success('Subcategory updated successfully');
       } else {
-        await axios.post('https://backend-sbms.vercel.app/api/v1/categoryy/subcategories', { name, description, categoryId });
+        await axios.post('https://backend-sbms.onrender.com/api/v1/categoryy/subcategories', { name, description, categoryId });
         toast.success('Subcategory created successfully');
       }
       setName('');
@@ -62,7 +62,7 @@ const SubcategoryForm = () => {
 
   const handleDelete = async (subcategoryId) => {
     try {
-      await axios.delete(`https://backend-sbms.vercel.app/api/v1/categoryy/subcategories/${subcategoryId}`);
+      await axios.delete(`https://backend-sbms.onrender.com/api/v1/categoryy/subcategories/${subcategoryId}`);
       fetchSubcategories(); // Refresh the subcategory list after deleting
       console.log("Subcategory deleted successfully");
       toast.success('Subcategory deleted successfully');

@@ -33,7 +33,7 @@ const Signup = () => {
         }
 
         try {
-            const response = await axios.post('https://backend-sbms.vercel.app/api/v1/auth/signup', {
+            const response = await axios.post('https://backend-sbms.onrender.com/api/v1/auth/signup', {
                 firstName,
                 lastName,
                 username,

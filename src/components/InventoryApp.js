@@ -36,8 +36,8 @@ const InventoryApp = () => {
 
   const fetchCategoriesAndSubcategories = async () => {
     try {
-      const categoryResponse = await axios.get('https://backend-sbms.vercel.app/api/v1/categoryy/categories');
-      const subcategoryResponse = await axios.get('https://backend-sbms.vercel.app/api/v1/categoryy/subcategories');
+      const categoryResponse = await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/categories');
+      const subcategoryResponse = await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/subcategories');
       
       const categoryData = {};
       
@@ -97,11 +97,11 @@ const InventoryApp = () => {
         }
 
         const response = editIndex !== null 
-          ? await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${items[editIndex]._id}`, {
+          ? await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${items[editIndex]._id}`, {
               method: 'PUT',
               body: formData
             })
-          : await fetch('https://backend-sbms.vercel.app/api/v1/inventory/createinventory', {
+          : await fetch('https://backend-sbms.onrender.com/api/v1/inventory/createinventory', {
               method: 'POST',
               body: formData
             });
@@ -136,7 +136,7 @@ const InventoryApp = () => {
 
   const deleteItem = async (id) => {
     try {
-      const response = await fetch(`https://backend-sbms.vercel.app/api/v1/inventory/inventory/${id}`, {
+      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
         method: 'DELETE',
       });
 
