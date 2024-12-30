@@ -4,7 +4,7 @@ import { DarkModeContext } from '../DarkModeContext';
 const Sugeestion = () => {
   const API_KEY = "AIzaSyBi01m3R0_RehfUQ4pDHvirXXyMz2KrMhs"; // Make sure to secure your API key
   const obj = {
-    q: "apple fruit" // The user-purchased product
+    q: "apple fruddit" // The user-purchased product
   };
   
   const [products, setProducts] = useState([]); // State to store the list of products
