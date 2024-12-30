@@ -4,7 +4,7 @@ import { LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT } from '../actionTypes.js/actionTypes
 // Action to login the user
 export const login = (email, password) => async (dispatch) => {
     try {
-        const response = await axios.post('http://localhost:4000/api/v1/auth/login', { email, password });
+        const response = await axios.post('https://backend-sbms.onrender.com/api/v1/auth/login', { email, password });
 
         if (response.status === 200) {
             // Assuming the response contains user data
