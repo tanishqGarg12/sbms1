@@ -14,7 +14,7 @@
     "@tsparticles/all": "^3.5.0",
     "@tsparticles/react": "^3.0.0",
     "axios": "^1.7.2",
-    "chart.js": "^4.4.4",
+    "chart.js": "^4.4.7",
     "fortawesome": "^0.0.1-security",
     "heroicons": "^2.1.5",
     "install": "^0.13.0",

@@ -126,6 +126,9 @@ const Business = ({ items = [] }) => {
         // fetchSalesData();
     }, []);
     console.log("edwscdw"+ newItems)
+    console.log('Sales Data:', salesData);
+console.log('Purchases Data:', purchasesData);
+
 
     // Sales chart configuration
     const salesChartData = {
