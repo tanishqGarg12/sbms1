@@ -151,7 +151,7 @@ const Signup = () => {
                             <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                         </span>
                     </div>
-                    {/* <div className="mb-4">
+                    <div className="mb-4">
                         <label className="flex items-center">
                             <input
                                 type="checkbox"
@@ -161,7 +161,7 @@ const Signup = () => {
                             />
                             <span className="text-sm">Register as Admin</span>
                         </label>
-                    </div> */}
+                    </div>
                     <button
                         onClick={handleSignup}
                         className={`w-full py-3 text-lg font-semibold rounded-md transition-colors ${darkMode ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-blue-500 text-white hover:bg-blue-400'}`}

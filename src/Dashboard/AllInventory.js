@@ -292,7 +292,7 @@ const AllInventory = () => {
               {groupedProducts[category].map((product) => (
                 <div key={product._id} className={`border rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}>
                  <img 
-                  src={product.file ? `http://localhost:4000${product.file}` : 'WWWW'} 
+                  src={product.file ? `https://backend-sbms.onrender.com${product.file}` : 'WWWW'} 
                    
                   className="w-full h-32 object-cover rounded-md mb-4" 
                 />
