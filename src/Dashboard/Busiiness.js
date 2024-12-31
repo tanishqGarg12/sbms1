@@ -26,7 +26,7 @@ const Business = ({ items = [] }) => {
                 const response = await fetch('https://backend-sbms.onrender.com/api/v1/inventory/getnewitems');
                 const data = await response.json();
                 // console.log(data)
-                setNewItems(data.data);
+                setNewItems(data.data||0);
             } catch (error) {
                 console.error('Error fetching new items:', error);
             }
@@ -82,7 +82,7 @@ const Business = ({ items = [] }) => {
                 // Get the 'totalPurchasedPrice' for each month
                 const monthlyData = data.data.map(item => item.totalPurchasedPrice);
                 console.log("Fetched data: ", monthlyData);
-                setPurchasesData(monthlyData); // Update the state with the fetched data
+                setPurchasesData(monthlyData||0); // Update the state with the fetched data
                 console.log(purchasesData);
               } else {
                 console.error('Invalid data structure');
@@ -106,7 +106,7 @@ const Business = ({ items = [] }) => {
                 // Get the 'totalSellingAmount' for each month
                 const monthlySalesData = data.data.map(item => item.totalSellingAmount);
                 console.log("Fetched sales data: ", monthlySalesData);
-                setSalesData(monthlySalesData); // Update the state with the fetched data
+                setSalesData(monthlySalesData||0); // Update the state with the fetched data
                 console.log(salesData);
               } else {
                 console.error('Invalid data structure');
