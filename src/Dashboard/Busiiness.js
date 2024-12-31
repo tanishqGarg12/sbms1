@@ -99,6 +99,7 @@ const Business = ({ items = [] }) => {
                 throw new Error('Failed to fetch sales data');
               }
               const data = await response.json();
+              console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
               console.log(data);
         
               // Check if the response has the expected format
@@ -123,7 +124,7 @@ const Business = ({ items = [] }) => {
         fetchTotalStock();
         fetchTotal();
         fetchMonthlyPurchaseData(); 
-        // fetchSalesData();
+        fetchSalesData();
     }, []);
     console.log("edwscdw"+ newItems)
     console.log('Sales Data:', salesData);
