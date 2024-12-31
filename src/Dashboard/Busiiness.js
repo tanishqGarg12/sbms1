@@ -78,15 +78,13 @@ const Business = ({ items = [] }) => {
               console.log(data);
           
               // Check if the response has the expected format
-              if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+            //   if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
                 // Get the 'totalPurchasedPrice' for each month
                 const monthlyData = data.data.map(item => item.totalPurchasedPrice);
                 console.log("Fetched data: ", monthlyData);
                 setPurchasesData(monthlyData||0); // Update the state with the fetched data
                 console.log(purchasesData);
-              } else {
-                console.error('Invalid data structure');
-              }
+              
             } catch (error) {
               console.error('Error fetching monthly purchase data:', error.message);
             }
@@ -103,15 +101,15 @@ const Business = ({ items = [] }) => {
               console.log(data);
         
               // Check if the response has the expected format
-              if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+            //   if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
                 // Get the 'totalSellingAmount' for each month
                 const monthlySalesData = data.data.map(item => item.totalSellingAmount);
                 console.log("Fetched sales data: ", monthlySalesData);
                 setSalesData(monthlySalesData||0); // Update the state with the fetched data
-                console.log(salesData);
-              } else {
-                console.error('Invalid data structure');
-              }
+                console.log("s"+salesData);
+            //   } else {
+            //     console.error('Invalid data structure');
+            //   }
             } catch (error) {
               console.error('Error fetching sales data:', error.message);
             }
