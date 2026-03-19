@@ -3,349 +3,193 @@ import { useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { DarkModeContext } from '../DarkModeContext';
+import { FaSearch, FaShoppingCart, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 
 const AllInventory = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    subcategory: '',
-    quantity: 0,
-    unit: '',
-    price: 0
-  });
+  const [formData, setFormData] = useState({ name: '', category: '', subcategory: '', quantity: 0, unit: '', price: 0 });
   const { user } = useSelector((state) => state.auth);
-  const token = user.token;
-  if(!user){
-    toast.error("please log in")
-  }
+  const token = user?.token;
   const { darkMode } = useContext(DarkModeContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    const fetchInventory = async () => {
+    (async () => {
       try {
-        const response = await fetch('https://backend-sbms.onrender.com/api/v1/inventory/getallinventory');
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        console.log(data)
-        setProducts(data || []);
-      } catch (error) {
-        console.error('Error fetching inventory:', error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInventory();
+        const res = await fetch('https://backend-sbms.onrender.com/api/v1/inventory/getallinventory');
+        if (!res.ok) throw new Error();
+        setProducts(await res.json() || []);
+      } catch { setProducts([]); }
+      finally { setLoading(false); }
+    })();
   }, []);
 
   const deleteItem = async (id) => {
     try {
-      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        const newItems = products.filter(item => item._id !== id);
-        setProducts(newItems);
-        toast.success('Item deleted successfully!');
-      } else {
-        toast.error(result.message || 'Failed to delete item.');
-      }
-    } catch (error) {
-      toast.error('An error occurred while deleting the item.');
-    }
+      const res = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, { method: 'DELETE' });
+      if (res.ok) { setProducts(products.filter(i => i._id !== id)); toast.success('Deleted!'); }
+      else toast.error('Failed to delete.');
+    } catch { toast.error('Error deleting item.'); }
   };
 
   const editItem = async (id) => {
     try {
-      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const res = await fetch(`https://backend-sbms.onrender.com/api/v1/inventory/inventory/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData),
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        const updatedItems = products.map(item =>
-          item._id === id ? { ...item, ...formData } : item
-        );
-        setProducts(updatedItems);
+      if (res.ok) {
+        setProducts(products.map(i => i._id === id ? { ...i, ...formData } : i));
         setEditingProduct(null);
-        setFormData({
-          name: '',
-          category: '',
-          subcategory: '',
-          quantity: 0,
-          unit: '',
-          price: 0
-        });
-        toast.success('Item updated successfully!');
-      } else {
-        toast.error(result.message || 'Failed to update item.');
-      }
-    } catch (error) {
-      toast.error('An error occurred while updating the item.');
-    }
+        setFormData({ name: '', category: '', subcategory: '', quantity: 0, unit: '', price: 0 });
+        toast.success('Updated!');
+      } else toast.error('Failed to update.');
+    } catch { toast.error('Error updating item.'); }
   };
 
-  const handleEditClick = (product) => {
-    setEditingProduct(product._id);
-    setFormData({
-      name: product.name,
-      category: product.category,
-      subcategory: product.subcategory,
-      quantity: product.quantity,
-      unit: product.unit,
-      price: product.price
-    });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    if (editingProduct) {
-      editItem(editingProduct);
-    }
-  };
-
-  const handleEditCancel = () => {
-    setEditingProduct(null);
-    setFormData({
-      name: '',
-      category: '',
-      subcategory: '',
-      quantity: 0,
-      unit: '',
-      price: 0
-    });
-  };
+  const handleEditClick = (p) => { setEditingProduct(p._id); setFormData({ name: p.name, category: p.category, subcategory: p.subcategory, quantity: p.quantity, unit: p.unit, price: p.price }); };
+  const handleEditChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleEditSubmit = (e) => { e.preventDefault(); if (editingProduct) editItem(editingProduct); };
+  const handleEditCancel = () => { setEditingProduct(null); setFormData({ name: '', category: '', subcategory: '', quantity: 0, unit: '', price: 0 }); };
 
   const addToCart = async (productId, quantity) => {
     try {
-      const response = await fetch(`https://backend-sbms.onrender.com/api/v1/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId, quantity, id: user.user._id }),
-        credentials: 'include',
+      const res = await fetch('https://backend-sbms.onrender.com/api/v1/cart/add', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ productId, quantity, id: user.user._id }), credentials: 'include',
       });
-
-      const result = await response.json();
-      toast.success('Item added to cart successfully!');
-
-      if (!response.ok) {
-        toast.error(result.message || 'Failed to add item to cart.');
-      }
-    } catch (error) {
-      toast.error('An error occurred while adding the item to the cart.');
-    }
+      if (res.ok) toast.success('Added to cart!'); else toast.error('Failed to add.');
+    } catch { toast.error('Error adding to cart.'); }
   };
 
   const handleQuantityChange = (productId, change, maxQuantity, isGrocery) => {
-    setQuantities((prevQuantities) => {
-      const increment = isGrocery ? 0.5 : 1;
-      const newQuantity = (prevQuantities[productId] || 1) + change * increment;
-      if (newQuantity < 0.5 || newQuantity > maxQuantity) return prevQuantities;
-      return { ...prevQuantities, [productId]: newQuantity };
+    setQuantities(prev => {
+      const inc = isGrocery ? 0.5 : 1;
+      const val = (prev[productId] || 1) + change * inc;
+      if (val < 0.5 || val > maxQuantity) return prev;
+      return { ...prev, [productId]: val };
     });
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.category.toLowerCase().includes(searchTerm.toLowerCase()));
+  const grouped = filtered.reduce((acc, p) => { (acc[p.category] = acc[p.category] || []).push(p); return acc; }, {});
+
+  const inputClass = `w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 ${
+    darkMode ? 'bg-gray-800 border-gray-700 text-white focus:ring-green-500' : 'bg-white border-gray-200 text-gray-900 focus:ring-[#029c78]'
+  }`;
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className={`animate-spin w-8 h-8 border-4 rounded-full border-t-transparent ${darkMode ? 'border-green-400' : 'border-[#029c78]'}`} />
+    </div>
   );
 
-  const groupedProducts = filteredProducts.reduce((acc, product) => {
-    if (!acc[product.category]) {
-      acc[product.category] = [];
-    }
-    acc[product.category].push(product);
-    return acc;
-  }, {});
-
-  if (loading) {
-    return <p>Loading inventory...</p>;
-  }
-
   return (
-    <div className={`container mx-auto p-4 transition-colors duration-300 ${darkMode ? 'bg-transparent text-green-500' : 'bg-transparent text-gray-900'}`}>
-      <h1 className="text-2xl font-bold mb-4 text-center">Inventory</h1>
-      <div className="flex items-center mb-4">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className={`border rounded-md p-2 w-full max-w-lg focus:outline-none ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-        />
-        <button className="ml-2 p-2 rounded bg-blue-500 text-white hover:bg-blue-600">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0l6 6" />
-          </svg>
-        </button>
+    <div className={darkMode ? 'text-gray-200' : 'text-gray-900'}>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Inventory</h1>
+        <div className="relative w-72">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+          <input type="text" placeholder="Search products..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            className={`${inputClass} pl-9`} />
+        </div>
       </div>
 
       {editingProduct && (
-        <form onSubmit={handleEditSubmit} className={`p-4 mb-4 rounded ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-          <h2 className="text-xl font-bold mb-2">Edit Product</h2>
-          <input
-            type="text"
-            name="name"
-            placeholder="Product Name"
-            value={formData.name}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <input
-            type="text"
-            name="category"
-            placeholder="Category"
-            value={formData.category}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <input
-            type="text"
-            name="subcategory"
-            placeholder="Subcategory"
-            value={formData.subcategory}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <input
-            type="number"
-            name="quantity"
-            placeholder="Quantity"
-            value={formData.quantity}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <input
-            type="text"
-            name="unit"
-            placeholder="Unit"
-            value={formData.unit}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <input
-            type="number"
-            name="price"
-            placeholder="Price"
-            value={formData.price}
-            onChange={handleEditChange}
-            className={`border rounded-md p-2 mb-2 w-full ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-            required
-          />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={handleEditCancel}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancel
-          </button>
+        <form onSubmit={handleEditSubmit} className={`p-5 mb-6 rounded-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'}`}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold">Edit Product</h2>
+            <button type="button" onClick={handleEditCancel} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {['name', 'category', 'subcategory', 'quantity', 'unit', 'price'].map(f => (
+              <input key={f} type={f === 'quantity' || f === 'price' ? 'number' : 'text'} name={f} placeholder={f.charAt(0).toUpperCase() + f.slice(1)}
+                value={formData[f]} onChange={handleEditChange} className={inputClass} required />
+            ))}
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button type="submit" className="px-5 py-2 rounded-lg text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">Save</button>
+            <button type="button" onClick={handleEditCancel} className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Cancel</button>
+          </div>
         </form>
       )}
 
-      {Object.keys(groupedProducts).length === 0 ? (
-        <p className="text-center">No inventory data available.</p>
+      {Object.keys(grouped).length === 0 ? (
+        <div className={`text-center py-16 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <p className="text-4xl mb-3">📦</p>
+          <p className={`font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>No inventory data available</p>
+        </div>
       ) : (
-        Object.keys(groupedProducts).map((category) => (
+        Object.keys(grouped).map(category => (
           <div key={category} className="mb-8">
-            <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-500' : 'text-gray-900'}`}>{category}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {groupedProducts[category].map((product) => (
-                <div key={product._id} className={`border rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-300'}`}>
-                 <img 
-                  src={product.file ? `https://backend-sbms.onrender.com${product.file}` : 'WWWW'} 
-                   
-                  className="w-full h-32 object-cover rounded-md mb-4" 
-                />
-                <h2 className="text-lg font-semibold">{product.name}</h2>
-                <p className="text-green-600 font-bold">₹{Number(product.price).toFixed(2)}</p>
-                <p className="text-green-500">Quantity: {product.quantity} {product.unit}</p>
-                <p className="text-gray-600">Category: {product.category}</p>
-                <p className="text-gray-600">Subcategory: {product.subcategory}</p>
-
-                  <div className="flex mt-4">
-                    <button
-                      onClick={() => handleQuantityChange(product._id, -1, product.quantity, category === 'grocery')}
-                      className="bg-green-700 text-white px-2 py-1 rounded mr-2 hover:bg-red-600"
-                      disabled={quantities[product._id] <= (category === 'Grocery' ? 0.5 : 1)}
-                    >
-                      -
-                    </button>
-                    <span className="text-lg">{quantities[product._id] || 1}</span>
-                    <button
-                      onClick={() => handleQuantityChange(product._id, 1, product.quantity, category === 'grocery')}
-                      className=  "bg-green-400 text-white px-2 py-1 rounded ml-2 hover:bg-yellow-500"
-                      disabled={quantities[product._id] >= product.quantity}
-                    >
-                      +
-                    </button>
+            <h2 className={`text-lg font-bold mb-3 ${darkMode ? 'text-green-400' : 'text-gray-800'}`}>{category}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {grouped[category].map(product => {
+                const lowStock = product.quantity <= 5;
+                return (
+                <div key={product._id} className={`group rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                  darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100 shadow-md'
+                }`}>
+                  {/* Image with overlay */}
+                  <div className="relative h-44 overflow-hidden">
+                    <img src={product.file ? `https://backend-sbms.onrender.com${product.file}` : 'https://via.placeholder.com/300x180?text=No+Image'}
+                      alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex gap-1.5">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-sm ${
+                        darkMode ? 'bg-gray-900/70 text-green-400' : 'bg-white/80 text-[#029c78]'
+                      }`}>{product.subcategory}</span>
+                    </div>
+                    {lowStock && (
+                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/90 text-white backdrop-blur-sm">Low Stock</span>
+                    )}
+                    {/* Price on image */}
+                    <div className="absolute bottom-3 left-3">
+                      <p className="text-white text-xl font-bold drop-shadow-lg">₹{Number(product.price).toFixed(2)}</p>
+                    </div>
                   </div>
 
-                  <div className="mt-2">
-                    <button
-                      onClick={() => addToCart(product._id, quantities[product._id] || 1)}
-                      className="bg-green-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-600"
-                    >
-                      Add to Cart
-                    </button>
-                    {user.user.role === 'admin' && (
-                      <>
-                        <button
-                          onClick={() => handleEditClick(product)}
-                          className="mt-2 ml-4 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                        >
-                          Edit
+                  <div className="p-4">
+                    <h3 className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>{product.name}</h3>
+                    <div className="flex items-center gap-3 mt-2">
+                      <div className={`flex items-center gap-1.5 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        <span className={`w-2 h-2 rounded-full ${lowStock ? 'bg-red-500' : 'bg-green-500'}`} />
+                        {product.quantity} {product.unit} in stock
+                      </div>
+                    </div>
+
+                    {/* Quantity + Add to Cart */}
+                    <div className={`flex items-center gap-2 mt-4 pt-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                      <div className={`flex items-center rounded-xl overflow-hidden ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                        <button onClick={() => handleQuantityChange(product._id, -1, product.quantity, category.toLowerCase() === 'grocery')}
+                          className={`w-8 h-9 flex items-center justify-center text-sm font-bold transition ${darkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}>−</button>
+                        <span className="w-8 text-center text-sm font-bold">{quantities[product._id] || 1}</span>
+                        <button onClick={() => handleQuantityChange(product._id, 1, product.quantity, category.toLowerCase() === 'grocery')}
+                          className={`w-8 h-9 flex items-center justify-center text-sm font-bold transition ${darkMode ? 'hover:bg-gray-600 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}>+</button>
+                      </div>
+                      <button onClick={() => addToCart(product._id, quantities[product._id] || 1)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold bg-[#029c78] text-white hover:bg-[#028a6b] transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20">
+                        <FaShoppingCart size={11} /> Add to Cart
+                      </button>
+                    </div>
+
+                    {user?.user?.role === 'admin' && (
+                      <div className="flex gap-2 mt-3">
+                        <button onClick={() => handleEditClick(product)} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition ${darkMode ? 'bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'}`}>
+                          <FaEdit size={11} /> Edit
                         </button>
-                        <button
-                          onClick={() => deleteItem(product._id)}
-                          className="mt-2 ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                        >
-                          Delete
+                        <button onClick={() => deleteItem(product._id)} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition ${darkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}>
+                          <FaTrash size={11} /> Delete
                         </button>
-                      </>
+                      </div>
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))

@@ -1,99 +1,92 @@
 import React, { useContext, useState } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
-import { FaHandsHelping, FaProjectDiagram, FaTrophy, FaUsers, FaCloud, FaComments } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const InfoCard = () => {
     const { darkMode } = useContext(DarkModeContext);
-    const [activeIndex, setActiveIndex] = useState(null); // Fixed typo here
+    const [activeIndex, setActiveIndex] = useState(null);
 
     const faqs = [
-        {
-            question: "What is Smart Billing Management System (SBMS)?",
-            answer: "SBMS is a comprehensive invoicing solution designed to help businesses streamline their billing process, manage invoices efficiently, and track payments effortlessly."
-        },
-        {
-            question: "How does SBMS simplify invoicing?",
-            answer: "SBMS automates the invoicing process, allowing users to create, send, and track invoices in real time. This reduces manual errors and saves time."
-        },
-        {
-            question: "Can I customize my invoices?",
-            answer: "Yes! SBMS allows users to customize invoice templates, including adding logos, changing colors, and adjusting layouts to match your brand."
-        },
-        {
-            question: "Is there a mobile app available?",
-            answer: "Yes, our SBMS mobile app allows you to manage your invoicing on the go, enabling you to create and send invoices from your smartphone or tablet."
-        },
-        {
-            question: "What payment methods are supported?",
-            answer: "SBMS supports various payment methods"
-        },
+        { question: "What is Smart Billing Management System (SBMS)?", answer: "SBMS is a comprehensive invoicing solution designed to help businesses streamline their billing process, manage invoices efficiently, and track payments effortlessly." },
+        { question: "How does SBMS simplify invoicing?", answer: "SBMS automates the invoicing process, allowing users to create, send, and track invoices in real time. This reduces manual errors and saves time." },
+        { question: "Can I customize my invoices?", answer: "Yes! SBMS allows users to customize invoice templates, including adding logos, changing colors, and adjusting layouts to match your brand." },
+        { question: "Is there a mobile app available?", answer: "Yes, our SBMS mobile app allows you to manage your invoicing on the go, enabling you to create and send invoices from your smartphone or tablet." },
+        { question: "What payment methods are supported?", answer: "SBMS supports various payment methods including credit cards, bank transfers, UPI, and digital wallets." },
     ];
 
-    const toggleFAQ = index => {
-        setActiveIndex(activeIndex === index ? null : index);
-    };
-
     return (
-        <div className={`max-w-screen-xl mx-auto my-10 p-8 rounded-lg shadow-lg transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'} flex flex-wrap gap-6`}>
-            <div className="w-1/4 aspect-square bg-black rounded-lg relative text-center text-white flex flex-col">
-                <span className="absolute top-2 left-2 bg-yellow-500 text-sm px-2 py-1 rounded">New</span>
-                <h3 className="text-2xl font-bold mt-10">We've Added New Templates</h3>
-                <p className="mt-2">Track your entire project start to finish with beautiful views.</p>
-                <a href="#" className="mt-4 w-32 ml-24 inline-block bg-white hover:bg-blue-800 text-black py-2 px-4 rounded">Download Now</a>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+                <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800' : 'bg-gray-900'} text-white relative overflow-hidden`}>
+                    <span className="absolute top-3 left-3 bg-yellow-500 text-xs font-bold px-2 py-0.5 rounded text-gray-900">New</span>
+                    <h3 className="text-xl font-bold mt-6">We've Added New Templates</h3>
+                    <p className="mt-2 text-sm text-gray-300">Track your entire project start to finish with beautiful views.</p>
+                    <button className="mt-4 bg-white text-gray-900 text-sm font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition">Download Now</button>
+                </div>
+                <div className={`rounded-2xl p-6 text-white ${darkMode ? 'bg-slate-700' : 'bg-slate-600'}`}>
+                    <div className="text-3xl mb-3">📊</div>
+                    <h3 className="text-xl font-bold">Greeting Cards</h3>
+                    <p className="mt-2 text-sm text-gray-200">Effortlessly track time and billing with our smart tools.</p>
+                </div>
+                <div className="rounded-2xl p-6 text-white bg-amber-600">
+                    <div className="text-3xl mb-3">📈</div>
+                    <h3 className="text-xl font-bold">Revenue Tracking</h3>
+                    <p className="mt-2 text-sm text-amber-100">Monitor your revenue streams in real-time.</p>
+                </div>
             </div>
-            <div className="w-1/3 md:w-1/4 p-4 bg-slate-600 rounded-lg text-center text-white ml-28 ">
-                <div className="text-5xl mb-2"><FaProjectDiagram /></div>
-                <h3 className="text-2xl font-bold">Greeting Cards</h3>
-                <p className="mt-2">Effortlessly track time and billing.</p>
-                <p className="mt-2">Effortlessly track time and billing.</p>
-                <p className="mt-2">Effortlessly track time and billing.</p>
+
+            {/* Heading */}
+            <div className="text-center mb-12">
+                <h2 className={`text-4xl md:text-6xl font-extrabold ${darkMode ? 'text-green-400' : 'text-gray-900'}`}>Invoicing</h2>
+                <p className={`text-lg md:text-xl mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Invoicing Solution For All</p>
             </div>
-            <div className="w-1/3 md:w-1/4 p-4 bg-yellow-600 rounded-lg text-center text-white ml-28 ">
-                <div className="text-5xl mb-2"><FaProjectDiagram /></div>
-                <h3 className="text-2xl font-bold">Greeting Cards</h3>
-                <p className="mt-2">Effortlessly track time and billing.</p>
-                <p className="mt-2">Effortlessly track time and billing.</p>
-                <p className="mt-2">Effortlessly track time and billing.</p>
-            </div>
-            
-            <div className="mt-8 ">
-                <h3 className="font-extrabold text-8xl ml-64">Invoicing</h3>
-                <h3 className="font-extrabold text-4xl ml-64 mt-2">Invoicing Solution For All</h3>
-                <div className="mt-12">
-                    <h2 className="font-extrabold text-5xl mb-6">Frequently Asked Questions (FAQ)</h2>
+
+            {/* FAQ */}
+            <div className="max-w-3xl mx-auto">
+                <h3 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Frequently Asked Questions
+                </h3>
+                <div className="space-y-3">
                     {faqs.map((faq, index) => (
-                        <div key={index} className="mb-4 border-b">
-                            <h4 
-                                className="font-bold text-2xl cursor-pointer py-2" 
-                                onClick={() => toggleFAQ(index)}
+                        <div
+                            key={index}
+                            className={`rounded-xl overflow-hidden transition-all duration-300 ${
+                                darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'
+                            }`}
+                        >
+                            <button
+                                className={`w-full flex items-center justify-between p-5 text-left font-semibold ${
+                                    darkMode ? 'text-gray-100' : 'text-gray-800'
+                                }`}
+                                onClick={() => setActiveIndex(activeIndex === index ? null : index)}
                             >
-                                {faq.question}
-                            </h4>
-                            {activeIndex === index && (
-                                <p className="mt-2">{faq.answer}</p>
-                            )}
+                                <span>{faq.question}</span>
+                                {activeIndex === index ? <FaChevronUp className="flex-shrink-0 ml-2" /> : <FaChevronDown className="flex-shrink-0 ml-2" />}
+                            </button>
+                            <div className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-40 pb-5 px-5' : 'max-h-0'}`}>
+                                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{faq.answer}</p>
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
-            <div className="w-full md:w-1/2 p-4 bg-[#029c78] rounded-lg text-center text-white">
-                <h3 className="text-4xl font-bold">40%</h3>
-                <p className="mt-2">Weekly Wallet Usage</p>
-            </div>
-            <div className='flex space-x-5'>
 
-            <div className="w-full md:w-1/2 p-4 bg-white rounded-lg text-center text-black border-2">
-                <div className="text-5xl mb-2"><FaHandsHelping /></div>
-                <h3 className="text-3xl font-bold">$23,830</h3>
-                <p>Total Revenue <span className="text-green-300 ml-2">+9.2%</span></p>
-            </div>
-          
-            <div className="w-full md:w-1/2 p-4 bg-pink-500 rounded-lg text-center text-white">
-                <img className="w-16 h-16 mx-auto rounded-full mb-2" src="https://saasplate.themepreview.xyz/invoice-app/wp-content/uploads/sites/6/2022/10/Image.png" alt="Samuel" />
-                <h3 className="text-2xl font-bold">Samuel</h3>
-                <p>@samuel</p>
-                <span className="bg-pink-300 px-3 py-1 rounded-full mt-2 inline-block">Investment</span>
-            </div>
+            {/* Bottom Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16">
+                <div className={`rounded-2xl p-6 text-center ${darkMode ? 'bg-green-500/10 border border-green-500/30' : 'bg-[#029c78]'} text-white`}>
+                    <h3 className="text-3xl font-bold">40%</h3>
+                    <p className="mt-1 text-sm opacity-80">Weekly Wallet Usage</p>
+                </div>
+                <div className={`rounded-2xl p-6 text-center ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
+                    <h3 className={`text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-gray-900'}`}>$23,830</h3>
+                    <p className={`mt-1 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Revenue <span className="text-green-500 ml-1">+9.2%</span></p>
+                </div>
+                <div className="rounded-2xl p-6 text-center bg-pink-500 text-white">
+                    <img className="w-12 h-12 mx-auto rounded-full mb-2" src="https://saasplate.themepreview.xyz/invoice-app/wp-content/uploads/sites/6/2022/10/Image.png" alt="Samuel" />
+                    <h3 className="text-lg font-bold">Samuel</h3>
+                    <span className="bg-pink-300/40 px-3 py-0.5 rounded-full text-xs mt-1 inline-block">Investment</span>
+                </div>
             </div>
         </div>
     );

@@ -1,32 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import Main from './Dashboard/Main';
-import { Outlet, useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { DarkModeContext } from './DarkModeContext';
 
 const Layout = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const { darkMode } = useContext(DarkModeContext);
 
   useEffect(() => {
-    if (!user) {
-      toast.error('You need to login first'); // Ensure this is being called
-      navigate('/login');
-    }
+    if (!user) { toast.error('You need to login first'); navigate('/login'); }
   }, [user, navigate]);
+
+  if (!user) return null;
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} /> {/* Ensure this is correctly placed */}
-      {user ? (
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <Main className="sidebar" style={{ position: 'fixed', width: '250px', height: 'auto' }} />
-          <main style={{ marginLeft: '250px', padding: '1rem', width: 'calc(100% - 250px)' }}>
-            <Outlet /> {/* This will render the nested routes */}
-          </main>
-        </div>
-      ) : null}
+      <ToastContainer position="top-right" autoClose={3000} />
+      <div className="flex pt-[72px]">
+        <Main />
+        <main className={`flex-1 ml-60 min-h-screen p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 };

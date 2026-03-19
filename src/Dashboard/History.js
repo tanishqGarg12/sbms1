@@ -1,567 +1,286 @@
-import React, { useState, useEffect,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import jsPDF from 'jspdf';
-import { useSelector } from 'react-redux'; 
+import { useSelector } from 'react-redux';
 import 'jspdf-autotable';
 import { useNavigate } from 'react-router-dom';
 import { DarkModeContext } from '../DarkModeContext';
+import { FaSearch, FaTrash, FaFileDownload, FaCreditCard, FaMinus, FaPlus } from 'react-icons/fa';
+
 function History() {
-    const { darkMode } = useContext(DarkModeContext);
-    const [senderId, setSenderId] = useState(uuidv4());
-    const [senderName, setSenderName] = useState('');
-    const [senderContact, setSenderContact] = useState('');
-    const [recipientName, setRecipientName] = useState('');
-    const [recipientContact, setRecipientContact] = useState('');
-    const [services, setServices] = useState([]);
-    const [taxRate, setTaxRate] = useState(0.07);
-    const [discountRate, setDiscountRate] = useState(0.05);
-    const [cartItems, setCartItems] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const navigate=useNavigate();
+  const { darkMode } = useContext(DarkModeContext);
+  const [senderId, setSenderId] = useState(uuidv4());
+  const [senderName, setSenderName] = useState('');
+  const [senderContact, setSenderContact] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [recipientContact, setRecipientContact] = useState('');
+  const [services, setServices] = useState([]);
+  const [taxRate, setTaxRate] = useState(0.07);
+  const [discountRate, setDiscountRate] = useState(0.05);
+  const [cartItems, setCartItems] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const token = user?.token;
+  const id = user?.user?._id;
 
-    const { user } = useSelector((state) => state.auth);
-    const token = user?.token;
-    const id=user?.user?._id;
-    console.log(token)
-    console.log(user)
-    console.log("user id is"+id)
-
-    // Fetch inventory items based on search query
-    useEffect(() => {
-        if (searchQuery) {
-            // Fetch search results if there is a search query
-            if (token) {
-                axios.get(`https://backend-sbms.onrender.com/api/v1/inventory/search?query=${searchQuery}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    const items = response.data.results || [];
-                    setSearchResults(items); // Store search results separately
-                })
-                .catch(error => console.error('Error fetching inventory items:', error));
-            }
-        } else {
-            // If the search query is empty, reset search results and fetch all cart items
-            setSearchResults([]); // Clear search results
-            if (token) {
-                axios.get('https://backend-sbms.onrender.com/api/v1/cart', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    const items = response.data.items || [];
-                    setCartItems(items); // Store cart items separately
-                })
-                .catch(error => console.error('Error fetching cart items:', error));
-            }
-        }
-    }, [searchQuery, token]);
-    
-
-    // Add item to the cart
-    const addToCart = (productId, quantity) => {
-        fetch('https://backend-sbms.onrender.com/api/v1/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ productId, quantity, id })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to add item to cart');
-            }
-            return response.json();
-        })
-        .then(() => {
-            toast.success('Item added to cart successfully!');
-        })
-        .catch(error => {
-            toast.error('Item already added.');
-            console.error('Error adding item to cart:', error);
-        });
-    };
-
-    
-
-    const handleServiceChange = (index, field, value) => {
-        const updatedServices = [...services];
-        updatedServices[index][field] = value;
-        setServices(updatedServices);
-    };
-
-    const handleAddService = () => {
-        setServices([...services, { name: '', quantity: 0, price: 0 }]);
-    };
-
-    const handleSaveInvoice = () => {
-        const newInvoice = {
-            senderId,
-            senderName,
-            senderContact,
-            recipientName,
-            recipientContact,
-            services,
-            taxRate,
-            discountRate
-        };
-
-        axios.post('https://backend-sbms.onrender.com/api/v1/invoices', newInvoice, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            }
-        })
-        .then(response => {
-            toast.success('Invoice saved successfully!');
-            setSenderId(uuidv4());
-            setSenderName('');
-            setSenderContact('');
-            setRecipientName('');
-            setRecipientContact('');
-            setServices([]);
-            setTaxRate(0.07);
-            setDiscountRate(0.05);
-        })
-        .catch(error => {
-            toast.error('Failed to save invoice.');
-        });
-    };
-    const deleteItem = async (id) => {
-        try {
-            // Assuming you have a way to retrieve the token, e.g., from local storage or context
-            // const token = localStorage.getItem('token'); // Adjust this line based on how you're managing tokens
-    
-            const response = await fetch(`https://backend-sbms.onrender.com/api/v1/cart/remove`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json', // Set the content type to JSON
-                    'Authorization': `Bearer ${token}`, // Pass the token in the headers
-                },
-                body: JSON.stringify({ id }), // Pass the ID in the body
-            });
-            console.log("===========================ssss")
-
-            console.log("toek from the produt is"+token)
-            console.log("===========================")
-            console.log("id of product is"+id);
-            console.log(id)
-    
-            const result = await response.json();
-            console.log(result);
-           
-            if (response.ok) {
-                const newItems = cartItems.filter(item => item._id !== id);
-                setCartItems(newItems);
-                toast.success('Item deleted successfully!');
-            } else {
-                console.log(result.message);
-                toast.error(result.message || 'Failed to delete item.');
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error('An error occurred while deleting the item.');
-        }
-    };
-    
-// Manage quantity for each product locally in the frontend
-const [quantities, setQuantities] = useState({});
-
-const handleQuantityChange = (productId, change,x) => {
-  setQuantities((prevQuantities) => ({
-    ...prevQuantities,
-    [productId]: Math.max(0, (prevQuantities[productId] || x) + change),
-  }));
-  console.log(quantities)
-};
-    
-
-
-const handleGeneratePDF = () => {
-    const doc = new jsPDF();
-    
-    doc.setFillColor(52, 58, 64); // Dark color for title bar
-    doc.rect(0, 30, 210, 15, 'F'); // Full-width background for title
-    doc.setFontSize(24);
-    doc.setTextColor(255, 255, 255);
-    doc.text('Invoice', 105, 40, { align: 'center' });
-
-    // Add sender and recipient details with labels
-    doc.setFontSize(12);
-    doc.setTextColor(60, 60, 60);
-    doc.text(`Sender:`, 14, 55);
-    doc.setTextColor(0, 0, 0);
-    doc.text(senderName, 35, 55);
-    
-    doc.setTextColor(60, 60, 60);
-    doc.text(`Recipient:`, 14, 65);
-    doc.setTextColor(0, 0, 0);
-    doc.text(recipientName, 35, 65);
-
-    // Invoice summary section with a bordered box for subtotal, tax, discount, and total
-    doc.setFillColor(240, 240, 240);
-    doc.roundedRect(14, 75, 180, 20, 3, 3, 'F');
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 20, 85);
-    doc.text(`Tax: ₹${tax.toFixed(2)}`, 70, 85);
-    doc.text(`Discount: ₹${discount.toFixed(2)}`, 120, 85);
-    
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 0, 128); // Darker color for total
-    doc.text(`Total: ₹${total.toFixed(2)}`, 160, 85);
-    doc.setFont('helvetica', 'normal');
-
-    // Prepare table data with styled header and rows
-    const tableData = cartItems.map(service => [
-        service.name,
-        service.quantity,
-        `₹${service.price.toFixed(2)}`,
-        `₹${(service.quantity * service.price).toFixed(2)}`
-    ]);
-
-    doc.autoTable({
-        head: [['Service Name', 'Quantity', 'Price', 'Amount']],
-        body: tableData,
-        startY: 100,
-        headStyles: {
-            fillColor: [52, 58, 64],
-            textColor: [255, 255, 255],
-            fontSize: 12,
-            halign: 'center'
-        },
-        bodyStyles: { textColor: [0, 0, 0], fontSize: 11 },
-        styles: { cellPadding: 5, halign: 'center', lineColor: [200, 200, 200], lineWidth: 0.5 },
-        alternateRowStyles: { fillColor: [245, 245, 245] }
-    });
-
-    // Footer with thank you message and page number
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Page ${i} of ${pageCount}`, 200, 290, { align: 'right' });
-        
-        // Thank you message only on the last page
-        if (i === pageCount) {
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text('Thank you for your business!', 14, 280);
-            doc.setTextColor(60, 60, 60);
-            doc.text('Please make the payment by the due date.', 14, 285);
-        }
+  useEffect(() => {
+    if (searchQuery) {
+      if (token) {
+        axios.get(`https://backend-sbms.onrender.com/api/v1/inventory/search?query=${searchQuery}`, {
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        }).then(r => setSearchResults(r.data.results || [])).catch(() => {});
+      }
+    } else {
+      setSearchResults([]);
+      if (token) {
+        axios.get('https://backend-sbms.onrender.com/api/v1/cart', {
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        }).then(r => setCartItems(r.data.items || [])).catch(() => {});
+      }
     }
+  }, [searchQuery, token]);
 
-    // Save the generated PDF
-    doc.save('invoice.pdf');
-};
+  const addToCart = (productId, quantity) => {
+    fetch('https://backend-sbms.onrender.com/api/v1/cart/add', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ productId, quantity, id })
+    }).then(r => { if (!r.ok) throw new Error(); toast.success('Added to cart!'); })
+      .catch(() => toast.error('Item already added.'));
+  };
 
+  const handleServiceChange = (index, field, value) => { const u = [...services]; u[index][field] = value; setServices(u); };
+  const handleAddService = () => setServices([...services, { name: '', quantity: 0, price: 0 }]);
 
+  const handleSaveInvoice = () => {
+    axios.post('https://backend-sbms.onrender.com/api/v1/invoices', {
+      senderId, senderName, senderContact, recipientName, recipientContact, services, taxRate, discountRate
+    }, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } })
+      .then(() => { toast.success('Invoice saved!'); setSenderId(uuidv4()); setSenderName(''); setSenderContact(''); setRecipientName(''); setRecipientContact(''); setServices([]); })
+      .catch(() => toast.error('Failed to save invoice.'));
+  };
 
-
-const subtotal = cartItems.reduce((acc, service) => acc + service.quantity * service.price, 0);
-const tax = subtotal * taxRate; // Assuming taxRate is already defined
-const discount = subtotal * discountRate; // Assuming discountRate is already defined
-const total = parseInt( subtotal + tax - discount);
-const handleCheckout = async () => {
-    const amount = total*100; // Use the subtotal for the payment amount
-    console.log("outside try"+amount)
+  const deleteItem = async (itemId) => {
     try {
-        // Create an order on the server
-        const response = await fetch('https://backend-sbms.onrender.com/api/v1/pay/checkout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },  
-            body: JSON.stringify({
-                amount,
-                currency: 'INR',
-            }),
-        });
-        console.log(response)
-        
-        const data = await response.json();
-        console.log(data)
-        const { order } = data;
-        console.log("inside try2")
+      const res = await fetch('https://backend-sbms.onrender.com/api/v1/cart/remove', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ id: itemId }),
+      });
+      if (res.ok) { setCartItems(cartItems.filter(i => i._id !== itemId)); toast.success('Removed!'); }
+      else toast.error('Failed to remove.');
+    } catch { toast.error('Error removing item.'); }
+  };
 
-        // Initialize Razorpay payment
-        const options = {
-            key: 'rzp_test_XaigqT7nptLPme', // Replace with your Razorpay API key
-            amount: order.amount, // Amount in paise
-            currency: order.currency,
-            name: 'sbms', // Your company or website name
-            description: 'Invoice Payment', // A brief description
-            order_id: order.id, // The Razorpay order ID created on the server
-            handler: async function (response) {
-                console.log("Razorpay Response: ", response);
+  const handleQuantityChange = (productId, change, x) => {
+    setQuantities(prev => ({ ...prev, [productId]: Math.max(0, (prev[productId] || x) + change) }));
+  };
 
-                const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+  const subtotal = cartItems.reduce((acc, s) => acc + (quantities[s._id] || s.quantity) * s.price, 0);
+  const tax = subtotal * taxRate;
+  const discount = subtotal * discountRate;
+  const total = parseInt(subtotal + tax - discount);
 
-                if (razorpay_payment_id && razorpay_order_id && razorpay_signature) {
-                    toast.success('Payment successful!');
+  const handleGeneratePDF = () => {
+    const doc = new jsPDF();
+    doc.setFillColor(2, 156, 120);
+    doc.rect(0, 20, 210, 18, 'F');
+    doc.setFontSize(22); doc.setTextColor(255, 255, 255);
+    doc.text('Invoice', 105, 33, { align: 'center' });
+    doc.setFontSize(11); doc.setTextColor(80, 80, 80);
+    doc.text(`From: ${senderName}`, 14, 50);
+    doc.text(`To: ${recipientName}`, 14, 58);
+    doc.setFillColor(245, 245, 245);
+    doc.roundedRect(14, 65, 180, 18, 3, 3, 'F');
+    doc.setFontSize(10); doc.setTextColor(0, 0, 0);
+    doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 20, 76);
+    doc.text(`Tax: ₹${tax.toFixed(2)}`, 70, 76);
+    doc.text(`Discount: ₹${discount.toFixed(2)}`, 115, 76);
+    doc.setFont('helvetica', 'bold'); doc.text(`Total: ₹${total.toFixed(2)}`, 160, 76);
+    doc.setFont('helvetica', 'normal');
+    doc.autoTable({
+      head: [['Item', 'Qty', 'Price', 'Amount']],
+      body: cartItems.map(s => [s.name, quantities[s._id] || s.quantity, `₹${s.price.toFixed(2)}`, `₹${((quantities[s._id] || s.quantity) * s.price).toFixed(2)}`]),
+      startY: 90,
+      headStyles: { fillColor: [2, 156, 120], textColor: [255, 255, 255], fontSize: 10 },
+      bodyStyles: { fontSize: 10 },
+      styles: { cellPadding: 4, halign: 'center' },
+      alternateRowStyles: { fillColor: [248, 248, 248] }
+    });
+    doc.setFontSize(9); doc.setTextColor(120, 120, 120);
+    doc.text('Thank you for your business!', 14, doc.internal.pageSize.height - 15);
+    doc.save('invoice.pdf');
+  };
 
-                    // Send payment details to your server for verification using fetch
-                    try {
-                        console.log("Verifying payment...");
+  const handleCheckout = async () => {
+    const amount = total * 100;
+    try {
+      const res = await fetch('https://backend-sbms.onrender.com/api/v1/pay/checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, currency: 'INR' }),
+      });
+      const { order } = await res.json();
+      const options = {
+        key: 'rzp_test_XaigqT7nptLPme', amount: order.amount, currency: order.currency,
+        name: 'SBMS', description: 'Invoice Payment', order_id: order.id,
+        handler: async function (response) {
+          const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+          if (razorpay_payment_id && razorpay_order_id && razorpay_signature) {
+            toast.success('Payment successful!');
+            const vRes = await fetch('https://backend-sbms.onrender.com/api/v1/pay/paymentverification', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ razorpay_order_id, razorpay_payment_id, razorpay_signature, id, amount }),
+            });
+            const vData = await vRes.json();
+            if (vData.success) {
+              handleGeneratePDF(); navigate("pay-success");
+              await fetch('https://backend-sbms.onrender.com/api/v1/cart/clear', {
+                method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+              });
+              setCartItems([]);
+            } else toast.error('Verification failed!');
+          }
+        },
+        prefill: { name: senderName || 'Customer', email: 'customer@example.com', contact: '9999999999' },
+        theme: { color: '#029c78' },
+      };
+      setCartItems([]);
+      new window.Razorpay(options).open();
+    } catch { toast.error('Payment failed. Please try again.'); }
+  };
 
-                        const verificationResponse = await fetch(
-                            'https://backend-sbms.onrender.com/api/v1/pay/paymentverification',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    razorpay_order_id,
-                                    razorpay_payment_id,
-                                    razorpay_signature,
-                                    id, // Ensure 'id' is properly defined or passed
-                                    amount
-                                }),
-                            }
-                        );
+  const inputClass = `w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
+    darkMode ? 'bg-gray-800 border-gray-700 text-white focus:ring-green-500 placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-900 focus:ring-[#029c78] placeholder-gray-400'
+  }`;
+  const cardClass = `p-6 rounded-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'}`;
+  const thClass = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`;
+  const tdClass = `px-4 py-3 text-sm`;
 
-                        const verificationData = await verificationResponse.json();
-                        console.log('Payment verification response:', verificationData);
-
-                        if (verificationData.success) {
-                            // Verification passed, now call the checkout logic
-                            console.log("Verification successful, proceeding to next step");
-
-                            // Call your next steps (e.g., generating PDF, navigating, clearing cart)
-                            handleGeneratePDF();
-                            navigate("pay-success");
-                            console.log("Payment verification complete");
-
-                            // Clear cart from backend
-                            await fetch('https://backend-sbms.onrender.com/api/v1/cart/clear', {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    // Include any authentication token if necessary
-                                    'Authorization': `Bearer ${token}`,
-                                }
-                            });
-
-                            // After clearing the cart on the backend, clear it from the frontend state
-                            setCartItems([]);
-                            console.log("Cart items cleared:", cartItems);
-                        } else {
-                            toast.error('Payment verification failed!');
-                        }
-                    } catch (error) {
-                        console.error('Error verifying payment:', error);
-                        toast.error('Payment verification failed!');
-                    }
-                } else {
-                    console.error('Payment failed or incomplete response.');
-                    toast.error('Payment failed or incomplete response.');
-                }
-            },
-            prefill: {
-                name: 'Customer Name', // Prefilled customer name
-                email: 'customer@example.com', // Prefilled customer email
-                contact: '9999999999', // Prefilled customer contact number
-            },
-            notes: {
-                address: 'Customer Address', // Any additional notes you want to send
-            },
-            theme: {
-                color: '#F37254', // Customize your Razorpay payment popup's color
-            },
-        };
-
-        console.log("Opening Razorpay payment popup...");
-        setCartItems([]); // Clear cart items before opening the Razorpay window
-        console.log("Cart items cleared:", cartItems); // Ensure cart items are cleared
-        const razorpay = new window.Razorpay(options);
-        razorpay.open();    
-    } catch (error) {
-        console.log("inside error")
-        console.error('Payment Error:', error);
-        toast.error('Payment failed. Please try again.');
-    }
-};
-
-
-
-return (
-    <div className={`p-6 max-w-6xl mx-auto shadow-md rounded-lg transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      <h1 className="text-3xl font-bold mb-6 text-center">Invoice</h1>
-
+  return (
+    <div className={`max-w-5xl mx-auto ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+      <h1 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Create Invoice</h1>
       <ToastContainer />
 
-      {/* Sender Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className={`p-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
-          <h2 className="text-xl font-semibold mb-4">Sender Information</h2>
-          <input
-            type="text"
-            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
-            value={senderName}
-            onChange={(e) => setSenderName(e.target.value)}
-            placeholder="Your Name or Company Name"
-          />
-          <input
-            type="text"
-            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
-            value={senderContact}
-            onChange={(e) => setSenderContact(e.target.value)}
-            placeholder="Your Contact Information"
-          />
-          <p><strong>Sender ID:</strong> {senderId}</p>
-        </div>
-
-        {/* Recipient Information */}
-        <div className={`p-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
-          <h2 className="text-xl font-semibold mb-4">Recipient Information</h2>
-          <input
-            type="text"
-            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value)}
-            placeholder="Client Name"
-          />
-          <input
-            type="text"
-            className={`w-full p-2 mb-2 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
-            value={recipientContact}
-            onChange={(e) => setRecipientContact(e.target.value)}
-            placeholder="Client Contact Information"
-          />
-        </div>
-      </div>
-
-      {/* Cart Items Search */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Search Inventory Items</h2>
-        <input
-          type="text"
-          className={`w-full p-2 mb-4 border rounded ${darkMode ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-gray-900'}`}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by item name..."
-        />
-      </div>
-
-      {/* Cart Items */}
-      {searchResults.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Search Results</h2>
-          <div>
-            <div className={`grid grid-cols-4 gap-4 font-semibold p-2 rounded-md mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-              <div>Name</div>
-              <div>Quantity</div>
-              <div>Price</div>
-              <div>Total</div>
-            </div>
-
-            {searchResults.map((item, index) => (
-              <div
-                key={index}
-                className={`grid grid-cols-4 gap-4 p-2 border rounded mb-4 cursor-pointer ${darkMode ? 'border-gray-600 bg-gray-800 hover:bg-gray-700' : 'border-gray-300 bg-gray-50 hover:bg-gray-200'}`}
-                onClick={() => addToCart(item._id, 1)}
-              >
-                <div>{item.name}</div>
-                <div>{item.quantity}</div>
-                <div>₹{item.price.toFixed(2)}</div>
-                <div>₹{(item.quantity * item.price).toFixed(2)}</div>
-              </div>
-            ))}
+      {/* Sender & Recipient */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className={cardClass}>
+          <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Sender</h2>
+          <div className="space-y-3">
+            <input className={inputClass} value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="Your Name / Company" />
+            <input className={inputClass} value={senderContact} onChange={(e) => setSenderContact(e.target.value)} placeholder="Contact Info" />
+            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>ID: {senderId.slice(0, 8)}...</p>
           </div>
         </div>
-      )}
+        <div className={cardClass}>
+          <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Recipient</h2>
+          <div className="space-y-3">
+            <input className={inputClass} value={recipientName} onChange={(e) => setRecipientName(e.target.value)} placeholder="Client Name" />
+            <input className={inputClass} value={recipientContact} onChange={(e) => setRecipientContact(e.target.value)} placeholder="Client Contact" />
+          </div>
+        </div>
+      </div>
 
-      {/* Cart Items Section */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Cart Items</h2>
-        {cartItems.length === 0 ? (
-          <p>No items found</p>
-        ) : (
-          <div>
-            <div className={`grid grid-cols-4 gap-4 font-semibold p-2 rounded-md mb-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-              <div>Name</div>
-              <div>Quantity</div>
-              <div>Price</div>
-              <div>Total</div>
-            </div>
-            {cartItems.map((item, index) => (
-              <div
-                key={item.id}
-                className={`grid grid-cols-4 gap-4 p-2 border rounded mb-4 ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}
-              >
-                <div>{item.name}</div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleQuantityChange(item._id, -1, item.quantity)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-l hover:bg-red-600"
-                  >
-                    -
-                  </button>
-                  <span className={`px-4 py-1 border ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-200 border-gray-300 text-gray-900'}`}>
-                    {quantities[item._id] || item.quantity}
-                  </span>
-                  <button
-                    onClick={() => handleQuantityChange(item._id, 1, item.quantity)}
-                    className="bg-green-500 text-white px-3 py-1 rounded-r hover:bg-green-600"
-                  >
-                    +
-                  </button>
-                </div>
-                <div>₹{item.price.toFixed(2)}</div>
-                <div>₹{((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</div>
-                <button
-                  onClick={() => deleteItem(item._id)}
-                  className="bg-red-500 text-white px-2 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+      {/* Search */}
+      <div className={`${cardClass} mb-6`}>
+        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Search Inventory</h2>
+        <div className="relative">
+          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+          <input className={`${inputClass} pl-10`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by item name..." />
+        </div>
+
+        {searchResults.length > 0 && (
+          <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <table className="w-full">
+              <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <tr><th className={thClass}>Name</th><th className={thClass}>Qty</th><th className={thClass}>Price</th><th className={thClass}>Action</th></tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {searchResults.map((item, i) => (
+                  <tr key={i} className={`transition cursor-pointer ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
+                    <td className={`${tdClass} font-medium`}>{item.name}</td>
+                    <td className={tdClass}>{item.quantity}</td>
+                    <td className={tdClass}>₹{item.price.toFixed(2)}</td>
+                    <td className={tdClass}>
+                      <button onClick={() => addToCart(item._id, 1)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">+ Add</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
 
-      {/* Invoice Summary */}
-      <div className={`p-4 border rounded mb-6 ${darkMode ? 'border-gray-600 bg-gray-800' : 'border-gray-300 bg-gray-50'}`}>
-        <h2 className="text-xl font-semibold mb-4">Invoice Summary</h2>
-        <p><strong>Subtotal:</strong> ₹{subtotal.toFixed(2)}</p>
-        <p><strong>Tax:</strong> ₹{tax.toFixed(2)}</p>
-        <p><strong>Discount:</strong> ₹{discount.toFixed(2)}</p>
-        <p><strong>Total:</strong> ₹{total.toFixed(2)}</p>
+      {/* Cart */}
+      <div className={`${cardClass} mb-6`}>
+        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Cart Items ({cartItems.length})</h2>
+        {cartItems.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-3xl mb-2">🛒</p>
+            <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>No items in cart</p>
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+            <table className="w-full">
+              <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                <tr><th className={thClass}>Item</th><th className={thClass}>Quantity</th><th className={thClass}>Price</th><th className={thClass}>Total</th><th className={thClass}></th></tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {cartItems.map(item => (
+                  <tr key={item._id} className={`transition ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
+                    <td className={`${tdClass} font-medium`}>{item.name}</td>
+                    <td className={tdClass}>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleQuantityChange(item._id, -1, item.quantity)}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+                          <FaMinus size={9} />
+                        </button>
+                        <span className="w-8 text-center text-sm font-semibold">{quantities[item._id] || item.quantity}</span>
+                        <button onClick={() => handleQuantityChange(item._id, 1, item.quantity)}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+                          <FaPlus size={9} />
+                        </button>
+                      </div>
+                    </td>
+                    <td className={tdClass}>₹{item.price.toFixed(2)}</td>
+                    <td className={`${tdClass} font-semibold text-[#029c78]`}>₹{((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</td>
+                    <td className={tdClass}>
+                      <button onClick={() => deleteItem(item._id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"><FaTrash size={12} /></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Save and Generate PDF Buttons */}
-      <div className="flex justify-between">
-        {/* <button
-          className="px-4 py-2 bg-green-500 text-white rounded"
-          onClick={handleSaveInvoice}
-        >
-          Save Invoice
-        </button> */}
-        <button
-          className="px-20 py-2 bg-green-500 text-white rounded"
-          onClick={handleCheckout}
-        >
-          BUY
+      {/* Summary */}
+      <div className={`${cardClass} mb-6`}>
+        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Summary</h2>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm"><span className="opacity-60">Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className="opacity-60">Tax (7%)</span><span>₹{tax.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className="opacity-60">Discount (5%)</span><span className="text-green-500">-₹{discount.toFixed(2)}</span></div>
+          <div className={`flex justify-between pt-3 mt-3 border-t text-lg font-bold ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <span>Total</span><span className="text-[#029c78]">₹{total.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <button onClick={handleCheckout} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">
+          <FaCreditCard size={14} /> Pay & Checkout
         </button>
-        <button
-          className="px-4 py-2 bg-green-900 text-white rounded"
-          onClick={handleGeneratePDF}
-        >
-          Generate PDF
+        <button onClick={handleGeneratePDF} className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
+          darkMode ? 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+        }`}>
+          <FaFileDownload size={14} /> PDF
         </button>
       </div>
     </div>

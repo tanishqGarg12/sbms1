@@ -3,83 +3,66 @@ import { useSelector } from 'react-redux';
 import { DarkModeContext } from '../DarkModeContext';
 
 const CreateBill = () => {
-  const formatDate = (dateString) => {
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const { user } = useSelector((state) => state.auth); // Get the user from Redux store
-  console.log("------")
-  console.log(user.user.role)
+  const { user } = useSelector((state) => state.auth);
   const [userPayments, setUserPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const { darkMode } = useContext(DarkModeContext);
 
+  const formatDate = (d) => new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
   useEffect(() => {
-    // Fetch user payments from the backend
-    const fetchUserPayments = async () => {
+    (async () => {
       try {
-        const apiUrl = user.user.role === 'admin'
+        const url = user?.user?.role === 'admin'
           ? 'https://backend-sbms.onrender.com/api/v1/pay/getAllUserPayments'
-          : `https://backend-sbms.onrender.com/api/v1/pay/getspe/${user.user._id}`;
+          : `https://backend-sbms.onrender.com/api/v1/pay/getspe/${user?.user?._id}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setUserPayments(data.userPayments || []);
+      } catch { setUserPayments([]); }
+      finally { setLoading(false); }
+    })();
+  }, [user]);
 
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUserPayments(data.userPayments);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching user payments:", error);
-        setLoading(false);
-      }
-    };
+  const thClass = `px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`;
+  const tdClass = `px-5 py-4 text-sm ${darkMode ? 'border-gray-700' : 'border-gray-100'}`;
 
-    fetchUserPayments();
-  }, [user.user.role, user.user._id]);
-
-  if (loading) {
-    return <div className="text-center text-lg">Loading...</div>;
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className={`animate-spin w-8 h-8 border-4 rounded-full border-t-transparent ${darkMode ? 'border-green-400' : 'border-[#029c78]'}`} />
+    </div>
+  );
 
   return (
-    <div className={`container mx-auto my-8 p-4 transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-green-500' : 'bg-white text-gray-900'}`}>
-      <h1 className="text-2xl font-bold mb-4 text-center">User Payments</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className={`${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
-              <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">Email</th>
-              <th className="px-4 py-2 border">Amount (₹)</th>
-              <th className="px-4 py-2 border">Date and Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userPayments.length > 0 ? (
-              userPayments.map((payment, index) => (
-                <tr key={index} className={`hover:${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <td className="px-4 py-2 border">{payment.user.firstName} {payment.user.lastName}</td>
-                  <td className="px-4 py-2 border">{payment.user.email}</td>
-                  <td className="px-4 py-2 border">{payment.amount}</td>
-                  <td className="px-4 py-2 border">{formatDate(payment.date)}</td>
-                </tr>
-              ))
-            ) : (
+    <div className={darkMode ? 'text-gray-200' : 'text-gray-900'}>
+      <h1 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Payment History</h1>
+
+      <div className={`rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'}`}>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className={darkMode ? 'bg-gray-800' : 'bg-gray-50'}>
               <tr>
-                <td colSpan="4" className="text-center py-4">No payments found.</td>
+                <th className={thClass}>Name</th>
+                <th className={thClass}>Email</th>
+                <th className={thClass}>Amount</th>
+                <th className={thClass}>Date</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {userPayments.length > 0 ? userPayments.map((p, i) => (
+                <tr key={i} className={`transition ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
+                  <td className={`${tdClass} font-medium`}>{p.user?.firstName} {p.user?.lastName}</td>
+                  <td className={`${tdClass} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{p.user?.email}</td>
+                  <td className={`${tdClass} font-semibold text-[#029c78]`}>₹{p.amount}</td>
+                  <td className={`${tdClass} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{formatDate(p.date)}</td>
+                </tr>
+              )) : (
+                <tr><td colSpan="4" className="text-center py-12 text-gray-500">No payments found</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

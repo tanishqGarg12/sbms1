@@ -1,125 +1,62 @@
-import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaHome, FaHistory, FaFileInvoiceDollar, FaBoxOpen, FaCog } from 'react-icons/fa';
+import React, { useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { FaHome, FaHistory, FaFileInvoiceDollar, FaBoxOpen, FaCog, FaPlus, FaExclamationTriangle, FaLayerGroup, FaTags } from 'react-icons/fa';
 import { DarkModeContext } from '../DarkModeContext';
-import { useSelector } from 'react-redux'; // Assuming you're using Redux for authentication
+import { useSelector } from 'react-redux';
 
 const Main = () => {
-    const { darkMode } = useContext(DarkModeContext);
-    const [activeLink, setActiveLink] = useState('/'); // Default active link
-    const { user } = useSelector((state) => state.auth); // Get the user from Redux store
-    console.log({user})
-    // console.log(user.role)
+  const { darkMode } = useContext(DarkModeContext);
+  const location = useLocation();
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = user?.user?.role === 'admin';
 
-    const handleLinkClick = (path) => {
-        setActiveLink(path); // Set the clicked link as active
-    };
-
-    return (    
-        <div className={`sidebar transition-colors fixed h-screen mt-10 duration-300 ${darkMode ? ' text-white' : 'bg-[#029c78] text-gray-800'}`} style={{ width: '250px',  position: 'absolute', top: 85, left: 0 , }}>
-               <h2 className={`text-center text-2xl font-extrabold mb-4 ${darkMode ? 'text-[#00FF00]' : 'text-[#05120f]'}`}>
-      Dashboard
-    </h2>
-            <ul className="mt-4">
-                {/* Conditionally render Business Overview, Stock Details, and Settings for admins only */}
-                {user.user?.role === 'admin' && (
-                    <>
-                        <li>
-                            <Link 
-                                to="/dashboard/business" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/business' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/business')}
-                            >
-                                <FaHome className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">Business Overview</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to="/dashboard/addinventory" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/business' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/addinventory')}
-                            >
-                                <FaHome className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">add stock</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to="/dashboard/stock-details" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/stock-details' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/stock-details')}
-                            >
-                                <FaBoxOpen className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">Stock Details</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to="/dashboard/create-category" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/create-category')}
-                            >
-                                <FaCog className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">Create Category</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link 
-                                to="/dashboard/create_sub-category" 
-                                className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/settings' ? 'border-l-4 border-orange-500' : ''}`}
-                                onClick={() => handleLinkClick('/dashboard/create_sub-category')}
-                            >
-                                <FaCog className="mr-2 text-xl" />
-                                <span className="text-lg font-semibold">Add Subcategories</span>
-                            </Link>
-                        </li>
-                    </>
-                )}
-                {/* These menu items will be shown to all users */}
-                <li>
-                    <Link 
-                        to="/dashboard/all-inventory" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/all-inventory' ? 'border-l-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/dashboard/all-inventory')}
-                    >
-                        <FaBoxOpen className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">All Inventory</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        to="/dashboard/low-inventory" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/low-inventory' ? 'border-l-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/dashboard/low-inventory')}
-                    >
-                        <FaFileInvoiceDollar className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Low Inventory</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        to="/dashboard/history" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/history' ? 'border-l-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/dashboard/history')}
-                    >
-                        <FaHistory className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">Create Bill</span>
-                    </Link>
-                </li>
-                <li>
-                    <Link 
-                        to="/dashboard/create-bill" 
-                        className={`flex items-center ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} p-4 rounded transition-colors duration-300 ${activeLink === '/dashboard/create-bill' ? 'border-l-4 border-orange-500' : ''}`}
-                        onClick={() => handleLinkClick('/dashboard/create-bill')}
-                    >
-                        <FaFileInvoiceDollar className="mr-2 text-xl" />
-                        <span className="text-lg font-semibold">History</span>
-                    </Link>
-                </li>
-            </ul>
-        </div>
+  const NavLink = ({ to, icon: Icon, label }) => {
+    const active = location.pathname === to;
+    return (
+      <Link to={to} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+        active
+          ? darkMode ? 'bg-green-500/20 text-green-400' : 'bg-[#029c78]/10 text-[#029c78]'
+          : darkMode ? 'text-gray-400 hover:bg-gray-800 hover:text-gray-200' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+      }`}>
+        <Icon className={`text-base ${active ? (darkMode ? 'text-green-400' : 'text-[#029c78]') : ''}`} />
+        {label}
+      </Link>
     );
+  };
+
+  const SectionLabel = ({ children }) => (
+    <p className={`px-4 pt-5 pb-1 text-[10px] font-bold uppercase tracking-widest ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>{children}</p>
+  );
+
+  return (
+    <aside className={`fixed top-[72px] left-0 w-60 h-[calc(100vh-72px)] overflow-y-auto border-r transition-colors duration-300 ${
+      darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+    }`}>
+      <div className="p-4 space-y-1">
+        <SectionLabel>Overview</SectionLabel>
+        {isAdmin && <NavLink to="/dashboard/business" icon={FaHome} label="Business Overview" />}
+        <NavLink to="/dashboard/all-inventory" icon={FaBoxOpen} label="All Inventory" />
+        <NavLink to="/dashboard/low-inventory" icon={FaExclamationTriangle} label="Low Stock" />
+
+        {isAdmin && (
+          <>
+            <SectionLabel>Manage</SectionLabel>
+            <NavLink to="/dashboard/addinventory" icon={FaPlus} label="Add Stock" />
+            <NavLink to="/dashboard/stock-details" icon={FaLayerGroup} label="Stock Details" />
+            <NavLink to="/dashboard/create-category" icon={FaTags} label="Categories" />
+            <NavLink to="/dashboard/create_sub-category" icon={FaTags} label="Subcategories" />
+          </>
+        )}
+
+        <SectionLabel>Billing</SectionLabel>
+        <NavLink to="/dashboard/history" icon={FaFileInvoiceDollar} label="Create Bill" />
+        <NavLink to="/dashboard/create-bill" icon={FaHistory} label="History" />
+
+        <SectionLabel>Account</SectionLabel>
+        <NavLink to="/dashboard/settings" icon={FaCog} label="Settings" />
+      </div>
+    </aside>
+  );
 };
 
 export default Main;
