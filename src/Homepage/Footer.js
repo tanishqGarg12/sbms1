@@ -17,7 +17,7 @@ const Footer = () => {
                         <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Quick Links</h4>
                         <ul className="space-y-2">
                             {['Dashboard', 'Inventory', 'Bills', 'Reports'].map((item) => (
-                                <li key={item}><a href="#" className="text-sm hover:text-green-400 transition">{item}</a></li>
+                                <li key={item}><a href="/" className="text-sm hover:text-green-400 transition">{item}</a></li>
                             ))}
                         </ul>
                     </div>
@@ -43,9 +43,9 @@ const Footer = () => {
                     <p className="text-xs">&copy; {new Date().getFullYear()} Smart Bill. All rights reserved.</p>
                     <div className="flex space-x-3">
                         {[FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn].map((Icon, i) => (
-                            <a key={i} href="#" className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition text-gray-400 hover:text-white">
+                            <button key={i} className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-500 transition text-gray-400 hover:text-white">
                                 <Icon size={14} />
-                            </a>
+                            </button>
                         ))}
                     </div>
                 </div>

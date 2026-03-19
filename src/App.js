@@ -7,7 +7,6 @@ import AboutUs from "./Homepage/AboutUs"
 import About from "./Homepage/About"
 import InfoCard from './Homepage/InfoCard';
 import Organizers from './Homepage/Organizers';
-import Partners from './Homepage/Partners';
 import Footer from './Homepage/Footer';
 // import AboutUs from './Homepage/About';
 import DonutChartSection from './Homepage/DonutChartSection';
@@ -18,7 +17,7 @@ import CreateBill from './Dashboard/CreateBill';
 import Setting from './Dashboard/Setting';
 import Stock from './Dashboard/Stock';
 import Busiiness from './Dashboard/Busiiness';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import Login from './components/login';
 import ForgotPassword from './components/ForgotPassword';
 import PaymentSuccess from "./components/PaymentSuccess"
@@ -27,7 +26,6 @@ import Signup from './components/Signup';
 import InventoryApp from './components/InventoryApp';
 import AllInventory from './Dashboard/AllInventory';
 import LowStock from './Dashboard/LowStock';
-import FeedbackForm from './Dashboard/FeedbackForm';
 import CategoryForm from './Dashboard/CategoryForm';
 import SubcategoryForm from './Dashboard/SubcategoryForm';
 import Green from './Homepage/Green';

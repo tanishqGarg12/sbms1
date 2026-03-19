@@ -61,7 +61,8 @@ const Sugeestion = () => {
 
   useEffect(() => {
     callGeminiAPI(); // Call the API when the component mounts
-  }, []); // Empty dependency array to run once when the component mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const { darkMode } = useContext(DarkModeContext);
 
@@ -69,7 +70,7 @@ const Sugeestion = () => {
     <div className={`p-6 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
       <h1 className="text-2xl font-bold mb-4">Suggestions from our AI</h1>
       <div className={`p-4 rounded-md shadow-md ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
-        <h2 className="text-xl mb-4"></h2>
+        <h2 className="text-xl mb-4">Product Recommendations</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {products.length > 0 ? (
             products.map((product, index) => (

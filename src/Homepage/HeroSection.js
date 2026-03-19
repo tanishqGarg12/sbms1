@@ -19,7 +19,8 @@ const HeroSection = () => {
       { threshold: 0.5 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => { if (sectionRef.current) observer.unobserve(sectionRef.current); };
+    const ref = sectionRef.current;
+    return () => { if (ref) observer.unobserve(ref); };
   }, []);
 
   const textColor = darkMode ? "text-green-400" : "text-white";

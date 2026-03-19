@@ -17,9 +17,9 @@ function History() {
   const [senderContact, setSenderContact] = useState('');
   const [recipientName, setRecipientName] = useState('');
   const [recipientContact, setRecipientContact] = useState('');
-  const [services, setServices] = useState([]);
-  const [taxRate, setTaxRate] = useState(0.07);
-  const [discountRate, setDiscountRate] = useState(0.05);
+  const [services, setServices] = useState([]); // eslint-disable-line no-unused-vars
+  const [taxRate] = useState(0.07);
+  const [discountRate] = useState(0.05);
   const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -54,9 +54,11 @@ function History() {
       .catch(() => toast.error('Item already added.'));
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleServiceChange = (index, field, value) => { const u = [...services]; u[index][field] = value; setServices(u); };
+  // eslint-disable-next-line no-unused-vars
   const handleAddService = () => setServices([...services, { name: '', quantity: 0, price: 0 }]);
-
+  // eslint-disable-next-line no-unused-vars
   const handleSaveInvoice = () => {
     axios.post('https://backend-sbms.onrender.com/api/v1/invoices', {
       senderId, senderName, senderContact, recipientName, recipientContact, services, taxRate, discountRate

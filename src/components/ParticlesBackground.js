@@ -6,7 +6,7 @@ import { DarkModeContext } from "../DarkModeContext";
 
 const ParticlesBackground = ({ id }) => {
     const { darkMode } = useContext(DarkModeContext);
-    const [init, setInit] = useState(false);
+    const [, setInit] = useState(false);
 
     useEffect(() => {
         initParticlesEngine(async (engine) => {
