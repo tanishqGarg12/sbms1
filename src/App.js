@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import { Analytics } from '@vercel/analytics/react';
 import ParticlesBackground from './components/ParticlesBackground';
 import Navbar from './Homepage/Navbar';
 import HeroSection from './Homepage/HeroSection';
@@ -87,6 +88,7 @@ export default function App() {
           </div>
         </div>
       {/* </Router> */}
+      <Analytics />
     </DarkModeProvider>
   );
 }
