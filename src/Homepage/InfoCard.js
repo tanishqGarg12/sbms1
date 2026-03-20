@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
-import { FaChevronDown, FaMinus, FaPlus } from 'react-icons/fa';
+import { FaMinus, FaPlus } from 'react-icons/fa';
 
 const InfoCard = () => {
     const { darkMode } = useContext(DarkModeContext);
