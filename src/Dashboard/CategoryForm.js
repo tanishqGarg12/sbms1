@@ -11,6 +11,7 @@ const CategoryForm = () => {
   const [categories, setCategories] = useState([]);
   const [editingCategory, setEditingCategory] = useState(null);
   const { darkMode } = useContext(DarkModeContext);
+  const [loading, setLoading] = useState(false);
 
   const fetchCategories = async () => {
     try { setCategories((await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/categories')).data); }
@@ -19,6 +20,7 @@ const CategoryForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       if (editingCategory) {
         await axios.put(`https://backend-sbms.onrender.com/api/v1/categoryy/categories/${editingCategory._id}`, { name, description });
@@ -28,7 +30,7 @@ const CategoryForm = () => {
         toast.success('Created!');
       }
       setName(''); setDescription(''); fetchCategories();
-    } catch { toast.error('Failed to save'); }
+    } catch { toast.error('Failed to save'); } finally { setLoading(false); }
   };
 
   const handleEdit = (c) => { setName(c.name); setDescription(c.description); setEditingCategory(c); };
@@ -56,8 +58,8 @@ const CategoryForm = () => {
           <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} rows="3" className={`${inputClass} resize-none`} />
         </div>
         <div className="flex gap-2 mt-4">
-          <button type="submit" className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">
-            {editingCategory ? 'Update' : 'Create'}
+          <button type="submit" disabled={loading} className={`px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            {loading ? 'Saving...' : editingCategory ? 'Update' : 'Create'}
           </button>
           {editingCategory && (
             <button type="button" onClick={() => { setEditingCategory(null); setName(''); setDescription(''); }}

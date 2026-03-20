@@ -8,6 +8,14 @@ import { DarkModeContext } from "../DarkModeContext";
 import { Link } from "react-router-dom";
 import { FaUser, FaEnvelope, FaPhone, FaLock, FaUserTag } from "react-icons/fa";
 
+const InputField = ({ icon: Icon, type = "text", placeholder, value, onChange, onKeyDown, inputBase, iconClass, children }) => (
+  <div className="relative">
+    <Icon className={iconClass} />
+    <input type={type} placeholder={placeholder} value={value} onChange={onChange} onKeyDown={onKeyDown} className={inputBase} />
+    {children}
+  </div>
+);
+
 const Signup = () => {
   const { darkMode } = useContext(DarkModeContext);
   const [form, setForm] = useState({ firstName: "", lastName: "", username: "", email: "", phone: "", password: "", confirmPassword: "" });
@@ -43,14 +51,6 @@ const Signup = () => {
 
   const iconClass = `absolute left-4 top-1/2 -translate-y-1/2 text-sm ${darkMode ? "text-gray-500" : "text-gray-400"}`;
 
-  const InputField = ({ icon: Icon, type = "text", placeholder, value, onChange, children }) => (
-    <div className="relative">
-      <Icon className={iconClass} />
-      <input type={type} placeholder={placeholder} value={value} onChange={onChange} onKeyDown={handleKeyDown} className={inputBase} />
-      {children}
-    </div>
-  );
-
   return (
     <div className={`min-h-screen flex items-center justify-center px-4 pt-24 pb-12 ${darkMode ? "bg-transparent" : "bg-gray-50"}`}>
       <div className={`w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex ${darkMode ? "bg-gray-900" : "bg-white"}`}>
@@ -71,20 +71,20 @@ const Signup = () => {
           <p className={`text-sm mt-1 mb-6 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Fill in your details to get started</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <InputField icon={FaUser} placeholder="First Name" value={form.firstName} onChange={update("firstName")} />
-            <InputField icon={FaUser} placeholder="Last Name" value={form.lastName} onChange={update("lastName")} />
-            <InputField icon={FaUserTag} placeholder="Username" value={form.username} onChange={update("username")} />
-            <InputField icon={FaEnvelope} type="email" placeholder="Email" value={form.email} onChange={update("email")} />
+            <InputField icon={FaUser} placeholder="First Name" value={form.firstName} onChange={update("firstName")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass} />
+            <InputField icon={FaUser} placeholder="Last Name" value={form.lastName} onChange={update("lastName")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass} />
+            <InputField icon={FaUserTag} placeholder="Username" value={form.username} onChange={update("username")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass} />
+            <InputField icon={FaEnvelope} type="email" placeholder="Email" value={form.email} onChange={update("email")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass} />
           </div>
 
           <div className="space-y-3 mt-3">
-            <InputField icon={FaPhone} type="tel" placeholder="Phone" value={form.phone} onChange={update("phone")} />
-            <InputField icon={FaLock} type={showPassword ? "text" : "password"} placeholder="Password" value={form.password} onChange={update("password")}>
+            <InputField icon={FaPhone} type="tel" placeholder="Phone" value={form.phone} onChange={update("phone")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass} />
+            <InputField icon={FaLock} type={showPassword ? "text" : "password"} placeholder="Password" value={form.password} onChange={update("password")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass}>
               <button type="button" onClick={() => setShowPassword(!showPassword)} className={`absolute right-4 top-1/2 -translate-y-1/2 ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} size="sm" />
               </button>
             </InputField>
-            <InputField icon={FaLock} type={showConfirm ? "text" : "password"} placeholder="Confirm Password" value={form.confirmPassword} onChange={update("confirmPassword")}>
+            <InputField icon={FaLock} type={showConfirm ? "text" : "password"} placeholder="Confirm Password" value={form.confirmPassword} onChange={update("confirmPassword")} onKeyDown={handleKeyDown} inputBase={inputBase} iconClass={iconClass}>
               <button type="button" onClick={() => setShowConfirm(!showConfirm)} className={`absolute right-4 top-1/2 -translate-y-1/2 ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
                 <FontAwesomeIcon icon={showConfirm ? faEyeSlash : faEye} size="sm" />
               </button>

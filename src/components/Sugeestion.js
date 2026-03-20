@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
 
 const Sugeestion = () => {
-  const API_KEY = "AIzaSyBi01m3R0_RehfUQ4pDHvirXXyMz2KrMhs"; // Make sure to secure your API key
+  const API_KEY = "AIzaSyA9uLcJOW-0Uao7xOUU_bmsSNX9udCfkck";
   const obj = {
     q: "apple fruddit" // The user-purchased product
   };

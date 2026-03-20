@@ -13,6 +13,7 @@ const SubcategoryForm = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [editingSubcategory, setEditingSubcategory] = useState(null);
   const { darkMode } = useContext(DarkModeContext);
+  const [loading, setLoading] = useState(false);
 
   const fetchCategories = async () => {
     try { setCategories((await axios.get('https://backend-sbms.onrender.com/api/v1/categoryy/categories')).data); }
@@ -25,6 +26,7 @@ const SubcategoryForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       if (editingSubcategory) {
         await axios.put(`https://backend-sbms.onrender.com/api/v1/categoryy/subcategories/${editingSubcategory._id}`, { name, description, categoryId });
@@ -34,7 +36,7 @@ const SubcategoryForm = () => {
         toast.success('Created!');
       }
       setName(''); setDescription(''); setCategoryId(''); fetchSubcategories();
-    } catch { toast.error('Failed to save'); }
+    } catch { toast.error('Failed to save'); } finally { setLoading(false); }
   };
 
   const handleEdit = (s) => { setName(s.name); setDescription(s.description); setCategoryId(s.categoryId); setEditingSubcategory(s); };
@@ -66,8 +68,8 @@ const SubcategoryForm = () => {
           </select>
         </div>
         <div className="flex gap-2 mt-4">
-          <button type="submit" className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">
-            {editingSubcategory ? 'Update' : 'Create'}
+          <button type="submit" disabled={loading} className={`px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            {loading ? 'Saving...' : editingSubcategory ? 'Update' : 'Create'}
           </button>
           {editingSubcategory && (
             <button type="button" onClick={() => { setEditingSubcategory(null); setName(''); setDescription(''); setCategoryId(''); }}

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { DarkModeContext } from '../DarkModeContext';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaChevronDown, FaMinus, FaPlus } from 'react-icons/fa';
 
 const InfoCard = () => {
     const { darkMode } = useContext(DarkModeContext);
@@ -12,7 +12,11 @@ const InfoCard = () => {
         { question: "Can I customize my invoices?", answer: "Yes! SBMS allows users to customize invoice templates, including adding logos, changing colors, and adjusting layouts to match your brand." },
         { question: "Is there a mobile app available?", answer: "Yes, our SBMS mobile app allows you to manage your invoicing on the go, enabling you to create and send invoices from your smartphone or tablet." },
         { question: "What payment methods are supported?", answer: "SBMS supports various payment methods including credit cards, bank transfers, UPI, and digital wallets." },
+        { question: "Is my data secure?", answer: "Absolutely. We use industry-standard encryption and security protocols to ensure your billing data and customer information remain safe and private." },
+        { question: "Can I export my invoices?", answer: "Yes, you can export invoices in PDF, CSV, and Excel formats for easy sharing and record-keeping." },
     ];
+
+    const toggle = (i) => setActiveIndex(activeIndex === i ? null : i);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -44,31 +48,76 @@ const InfoCard = () => {
 
             {/* FAQ */}
             <div className="max-w-3xl mx-auto">
-                <h3 className={`text-2xl md:text-3xl font-bold mb-8 text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Frequently Asked Questions
-                </h3>
+                <div className="text-center mb-10">
+                    <span className={`inline-block text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-3 ${darkMode ? 'bg-green-500/10 text-green-400' : 'bg-[#029c78]/10 text-[#029c78]'}`}>
+                        FAQ
+                    </span>
+                    <h3 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        Frequently Asked Questions
+                    </h3>
+                    <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        Everything you need to know about SBMS
+                    </p>
+                </div>
+
                 <div className="space-y-3">
-                    {faqs.map((faq, index) => (
-                        <div
-                            key={index}
-                            className={`rounded-xl overflow-hidden transition-all duration-300 ${
-                                darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'
-                            }`}
-                        >
-                            <button
-                                className={`w-full flex items-center justify-between p-5 text-left font-semibold ${
-                                    darkMode ? 'text-gray-100' : 'text-gray-800'
+                    {faqs.map((faq, index) => {
+                        const isActive = activeIndex === index;
+                        return (
+                            <div
+                                key={index}
+                                className={`rounded-xl overflow-hidden transition-all duration-300 ${
+                                    isActive
+                                        ? darkMode
+                                            ? 'bg-gray-800 border border-green-500/40 shadow-lg shadow-green-500/5'
+                                            : 'bg-white border border-[#029c78]/30 shadow-lg shadow-[#029c78]/5'
+                                        : darkMode
+                                            ? 'bg-gray-800/60 border border-gray-700 hover:border-gray-600'
+                                            : 'bg-white border border-gray-200 hover:border-gray-300 shadow-sm'
                                 }`}
-                                onClick={() => setActiveIndex(activeIndex === index ? null : index)}
                             >
-                                <span>{faq.question}</span>
-                                {activeIndex === index ? <FaChevronUp className="flex-shrink-0 ml-2" /> : <FaChevronDown className="flex-shrink-0 ml-2" />}
-                            </button>
-                            <div className={`overflow-hidden transition-all duration-300 ${activeIndex === index ? 'max-h-40 pb-5 px-5' : 'max-h-0'}`}>
-                                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{faq.answer}</p>
+                                <button
+                                    className="w-full flex items-center justify-between p-5 text-left gap-4"
+                                    onClick={() => toggle(index)}
+                                    aria-expanded={isActive}
+                                >
+                                    <div className="flex items-center gap-3.5 min-w-0">
+                                        <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center transition-colors ${
+                                            isActive
+                                                ? darkMode ? 'bg-green-500 text-gray-900' : 'bg-[#029c78] text-white'
+                                                : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                                        }`}>
+                                            {index + 1}
+                                        </span>
+                                        <span className={`font-semibold text-sm ${
+                                            isActive
+                                                ? darkMode ? 'text-green-400' : 'text-[#029c78]'
+                                                : darkMode ? 'text-gray-100' : 'text-gray-800'
+                                        }`}>
+                                            {faq.question}
+                                        </span>
+                                    </div>
+                                    <span className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                                        isActive
+                                            ? darkMode ? 'bg-green-500/20 text-green-400 rotate-0' : 'bg-[#029c78]/10 text-[#029c78] rotate-0'
+                                            : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'
+                                    }`}>
+                                        {isActive ? <FaMinus size={10} /> : <FaPlus size={10} />}
+                                    </span>
+                                </button>
+                                <div
+                                    className="grid transition-all duration-300 ease-in-out"
+                                    style={{ gridTemplateRows: isActive ? '1fr' : '0fr' }}
+                                >
+                                    <div className="overflow-hidden">
+                                        <p className={`px-5 pb-5 pl-[3.75rem] text-sm leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                            {faq.answer}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

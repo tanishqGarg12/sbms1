@@ -1,4 +1,3 @@
-// ParticlesBackground.jsx
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { useEffect, useMemo, useState, useContext } from "react";
 import { loadSlim } from "@tsparticles/slim";
@@ -11,73 +10,32 @@ const ParticlesBackground = ({ id }) => {
     useEffect(() => {
         initParticlesEngine(async (engine) => {
             await loadSlim(engine);
-        }).then(() => {
-            setInit(true);
-        });
+        }).then(() => setInit(true));
     }, []);
-
-    const particlesLoaded = (container) => {
-        console.log(container);
-    };
 
     const options = useMemo(
         () => ({
-            background: {
-                color: {
-                    value: darkMode ? "#000000" : "#ffffff", 
-                },
-            },
+            fullScreen: { enable: true, zIndex: -1 },
+            background: { color: { value: "transparent" } },
             fpsLimit: 120,
             particles: {
-                number: {
-                    value: 160,
-                    density: {
-                        enable: true,
-                        value_area: 1500,
-                    },
-                },
-                color: {
-                    value: darkMode ? "#ffffff" : "#000000", // Particle color for contrast
-                },
-                line_linked: {
-                    enable: false,
-                    opacity: 0.03,
-                },
-                move: {
-                    enable: true,
-                    direction: "right",
-                    speed: 0.9,
-                },
-                size: {
-                    value: darkMode ? 1 : 1.75, 
-                },
-                opacity: {
-                    anim: {
-                        enable: true,
-                        speed: 1,
-                        opacity_min: 0.5,
-                    },
-                },
+                number: { value: 30, density: { enable: true, value_area: 1500 } },
+                color: { value: darkMode ? "#ffffff" : "#000000" },
+                line_linked: { enable: false },
+                move: { enable: true, direction: "right", speed: 0.5 },
+                size: { value: darkMode ? 1 : 1.5 },
+                opacity: { value: 0.3, anim: { enable: true, speed: 0.5, opacity_min: 0.1 } },
             },
             interactivity: {
-                events: {
-                    onclick: {
-                        enable: true,
-                        mode: "push",
-                    },
-                },
-                modes: {
-                    push: {
-                        particles_nb: 1,
-                    },
-                },
+                events: { onclick: { enable: true, mode: "push" } },
+                modes: { push: { particles_nb: 1 } },
             },
             retina_detect: true,
         }),
         [darkMode]
     );
 
-    return <Particles id={id} init={particlesLoaded} options={options} />;
+    return <Particles id={id} options={options} />;
 };
 
 export default ParticlesBackground;

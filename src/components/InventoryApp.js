@@ -19,6 +19,7 @@ const InventoryApp = () => {
   const [file, setFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [categories, setCategories] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
     const f = e.target.files[0];
@@ -51,6 +52,7 @@ const InventoryApp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!itemName || !itemPrice || !itemQuantity || !category || !subcategory || !unit) { toast.error('Please fill in all fields!'); return; }
+    setLoading(true);
     try {
       const fd = new FormData();
       fd.append('name', itemName); fd.append('price', itemPrice); fd.append('purchasedprice', itemPricep);
@@ -65,7 +67,7 @@ const InventoryApp = () => {
         if (editIndex !== null) { setItems(items.map((item, i) => i === editIndex ? { ...result, _id: item._id } : item)); toast.success('Updated!'); }
         else { setItems([...items, result]); toast.success('Added!'); }
       } else toast.error(result.message || 'Failed to save.');
-    } catch { toast.error('Error saving item.'); }
+    } catch { toast.error('Error saving item.'); } finally { setLoading(false); }
     resetForm();
   };
 
@@ -161,8 +163,8 @@ const InventoryApp = () => {
         )}
 
         <div className="flex gap-3 mt-6">
-          <button type="submit" className="px-8 py-3 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">
-            {editIndex !== null ? 'Update Item' : 'Add Item'}
+          <button type="submit" disabled={loading} className={`px-8 py-3 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+            {loading ? 'Saving...' : editIndex !== null ? 'Update Item' : 'Add Item'}
           </button>
           {editIndex !== null && (
             <button type="button" onClick={resetForm} className={`px-6 py-3 rounded-xl text-sm font-semibold transition ${
