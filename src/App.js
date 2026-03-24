@@ -9,7 +9,6 @@ import About from "./Homepage/About"
 import InfoCard from './Homepage/InfoCard';
 import Organizers from './Homepage/Organizers';
 import Footer from './Homepage/Footer';
-// import AboutUs from './Homepage/About';
 import DonutChartSection from './Homepage/DonutChartSection';
 import { DarkModeProvider } from './DarkModeContext';
 import Layout from './Layout';
@@ -33,61 +32,51 @@ import Green from './Homepage/Green';
 import PricingPlans from './Homepage/PricingPlans';
 import ContactForm from './Homepage/ContactForm';
 
-
 export default function App() {
   return (
     <DarkModeProvider>
-      {/* <Router> */}
-        <div className='relative w-full h-screen'>
-          <ParticlesBackground id="particles" />
-          <div className='relative z-10'>
-            <Navbar />
-            <Routes>
-              {/* Homepage Routes */}
-              <Route path="/" element={
-                <>
-                {/* <FeedbackForm/> */}
-                  <HeroSection />
-                  <About />
-                  <PricingPlans/>
-                  <Organizers />
-                  <Green/>
-                  <DonutChartSection/>
-                  <InfoCard />
-                  {/* <Partners /> */}
-                  <Footer />
-                </>
-              } />
-              {/* <Route path="pay-success" element={<PaymentSuccess/>}/> */}
+      <div className='relative w-full min-h-screen'>
+        <ParticlesBackground id="particles" />
+        <div className='relative z-10'>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={
+              <>
+                <HeroSection />
+                <About />
+                <DonutChartSection />
+                <PricingPlans />
+                <Organizers />
+                <Green />
+                <InfoCard />
+                <Footer />
+              </>
+            } />
 
-              {/* Authentication Routes */}
-              <Route path="all-inventory" element={<AllInventory/>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/Contact" element={<ContactForm />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
-              <Route path="/signup" element={<Signup />} />
+            <Route path="all-inventory" element={<AllInventory />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/Contact" element={<ContactForm />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/signup" element={<Signup />} />
 
-              {/* Dashboard Routes with common layout */}
-              <Route path="/dashboard" element={<Layout />}>
-                <Route index path="history" element={<History />} />
-                {/* <Route path='Bussiness' element={<Busiiness}/> */}
-                <Route path="addinventory" element={<InventoryApp />} />
-                <Route path="business" element={<Busiiness />} />
-                <Route path="create-bill" element={<CreateBill />} />
-                <Route path="stock-details" element={<Stock />} />
-                <Route path="all-inventory" element={<AllInventory/>} />
-                <Route path="low-inventory" element={<LowStock/>} />
-                <Route path="settings" element={<Setting />} />
-                <Route path="history/pay-success" element={<PaymentSuccess/>}/>
-                <Route path="create-category" element={<CategoryForm/>} />
-                <Route path="create_sub-category" element={<SubcategoryForm/>} />
-              </Route>
-            </Routes>
-          </div>
+            <Route path="/dashboard" element={<Layout />}>
+              <Route index path="history" element={<History />} />
+              <Route path="addinventory" element={<InventoryApp />} />
+              <Route path="business" element={<Busiiness />} />
+              <Route path="create-bill" element={<CreateBill />} />
+              <Route path="stock-details" element={<Stock />} />
+              <Route path="all-inventory" element={<AllInventory />} />
+              <Route path="low-inventory" element={<LowStock />} />
+              <Route path="settings" element={<Setting />} />
+              <Route path="history/pay-success" element={<PaymentSuccess />} />
+              <Route path="create-category" element={<CategoryForm />} />
+              <Route path="create_sub-category" element={<SubcategoryForm />} />
+            </Route>
+          </Routes>
         </div>
-      {/* </Router> */}
+      </div>
       <Analytics />
     </DarkModeProvider>
   );

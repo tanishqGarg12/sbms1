@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaHistory, FaFileInvoiceDollar, FaBoxOpen, FaCog, FaPlus, FaExclamationTriangle, FaLayerGroup, FaTags } from 'react-icons/fa';
+import { FaHome, FaFileInvoiceDollar, FaBoxOpen, FaCog, FaPlus, FaExclamationTriangle, FaLayerGroup, FaTags, FaHistory, FaChevronRight } from 'react-icons/fa';
 import { DarkModeContext } from '../DarkModeContext';
 import { useSelector } from 'react-redux';
 
@@ -13,26 +13,27 @@ const Main = () => {
   const NavLink = ({ to, icon: Icon, label }) => {
     const active = location.pathname === to;
     return (
-      <Link to={to} className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+      <Link to={to} className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
         active
-          ? darkMode ? 'bg-green-500/20 text-green-400' : 'bg-[#029c78]/10 text-[#029c78]'
-          : darkMode ? 'text-gray-400 hover:bg-gray-800 hover:text-gray-200' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          ? darkMode ? 'bg-brand-500/10 text-brand-400' : 'bg-brand-50 text-brand-600'
+          : darkMode ? 'text-gray-500 hover:text-gray-300 hover:bg-white/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
       }`}>
-        <Icon className={`text-base ${active ? (darkMode ? 'text-green-400' : 'text-[#029c78]') : ''}`} />
-        {label}
+        <Icon size={15} className={active ? (darkMode ? 'text-brand-400' : 'text-brand-500') : ''} />
+        <span className="flex-1">{label}</span>
+        {active && <FaChevronRight size={8} className="opacity-40" />}
       </Link>
     );
   };
 
   const SectionLabel = ({ children }) => (
-    <p className={`px-4 pt-5 pb-1 text-[10px] font-bold uppercase tracking-widest ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}>{children}</p>
+    <p className={`px-3 pt-6 pb-2 text-[10px] font-bold uppercase tracking-[0.15em] ${darkMode ? 'text-gray-700' : 'text-gray-300'}`}>{children}</p>
   );
 
   return (
-    <aside className={`fixed top-[72px] left-0 w-60 h-[calc(100vh-72px)] overflow-y-auto border-r transition-colors duration-300 ${
-      darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+    <aside className={`fixed top-[72px] left-0 w-60 h-[calc(100vh-72px)] overflow-y-auto transition-colors duration-300 ${
+      darkMode ? 'bg-gray-950 border-r border-gray-800/50' : 'bg-white border-r border-gray-100'
     }`}>
-      <div className="p-4 space-y-1">
+      <div className="p-3 space-y-0.5">
         <SectionLabel>Overview</SectionLabel>
         {isAdmin && <NavLink to="/dashboard/business" icon={FaHome} label="Business Overview" />}
         <NavLink to="/dashboard/all-inventory" icon={FaBoxOpen} label="All Inventory" />

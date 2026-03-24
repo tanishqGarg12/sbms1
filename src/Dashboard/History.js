@@ -155,30 +155,29 @@ function History() {
     } catch { toast.error('Payment failed. Please try again.'); }
   };
 
-  const inputClass = `w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 transition ${
-    darkMode ? 'bg-gray-800 border-gray-700 text-white focus:ring-green-500 placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-900 focus:ring-[#029c78] placeholder-gray-400'
+  const inputClass = `w-full px-4 py-3.5 rounded-2xl border text-sm focus:outline-none focus:ring-2 transition ${
+    darkMode ? 'bg-gray-800/50 border-gray-700 text-white focus:ring-brand-500 placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-900 focus:ring-brand-500 placeholder-gray-400'
   }`;
-  const cardClass = `p-6 rounded-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'}`;
-  const thClass = `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-500'}`;
-  const tdClass = `px-4 py-3 text-sm`;
+  const card = `p-6 rounded-2xl ${darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-100 shadow-sm'}`;
+  const thClass = `px-4 py-3.5 text-left text-[10px] font-bold uppercase tracking-widest ${darkMode ? 'text-gray-600' : 'text-gray-300'}`;
+  const tdClass = `px-4 py-3.5 text-sm`;
 
   return (
     <div className={`max-w-5xl mx-auto ${darkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-      <h1 className={`text-2xl font-bold mb-6 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Create Invoice</h1>
+      <h1 className={`text-2xl font-black mb-8 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Create Invoice</h1>
       <ToastContainer />
 
-      {/* Sender & Recipient */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className={cardClass}>
-          <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Sender</h2>
+        <div className={card}>
+          <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>Sender</h2>
           <div className="space-y-3">
             <input className={inputClass} value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="Your Name / Company" />
             <input className={inputClass} value={senderContact} onChange={(e) => setSenderContact(e.target.value)} placeholder="Contact Info" />
-            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>ID: {senderId.slice(0, 8)}...</p>
+            <p className={`text-xs ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>ID: {senderId.slice(0, 8)}...</p>
           </div>
         </div>
-        <div className={cardClass}>
-          <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Recipient</h2>
+        <div className={card}>
+          <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>Recipient</h2>
           <div className="space-y-3">
             <input className={inputClass} value={recipientName} onChange={(e) => setRecipientName(e.target.value)} placeholder="Client Name" />
             <input className={inputClass} value={recipientContact} onChange={(e) => setRecipientContact(e.target.value)} placeholder="Client Contact" />
@@ -186,28 +185,26 @@ function History() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className={`${cardClass} mb-6`}>
-        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Search Inventory</h2>
+      <div className={`${card} mb-6`}>
+        <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>Search Inventory</h2>
         <div className="relative">
           <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
           <input className={`${inputClass} pl-10`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by item name..." />
         </div>
-
         {searchResults.length > 0 && (
-          <div className="mt-4 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className={`mt-4 overflow-hidden rounded-2xl border ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
             <table className="w-full">
-              <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+              <thead className={darkMode ? 'bg-gray-800/50' : 'bg-gray-50/50'}>
                 <tr><th className={thClass}>Name</th><th className={thClass}>Qty</th><th className={thClass}>Price</th><th className={thClass}>Action</th></tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tbody className={`divide-y ${darkMode ? 'divide-gray-800' : 'divide-gray-50'}`}>
                 {searchResults.map((item, i) => (
-                  <tr key={i} className={`transition cursor-pointer ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
-                    <td className={`${tdClass} font-medium`}>{item.name}</td>
+                  <tr key={i} className={`transition ${darkMode ? 'hover:bg-white/[0.02]' : 'hover:bg-gray-50/50'}`}>
+                    <td className={`${tdClass} font-semibold`}>{item.name}</td>
                     <td className={tdClass}>{item.quantity}</td>
                     <td className={tdClass}>₹{item.price.toFixed(2)}</td>
                     <td className={tdClass}>
-                      <button onClick={() => addToCart(item._id, 1)} className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">+ Add</button>
+                      <button onClick={() => addToCart(item._id, 1)} className="px-4 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white hover:bg-brand-400 transition">+ Add</button>
                     </td>
                   </tr>
                 ))}
@@ -217,41 +214,40 @@ function History() {
         )}
       </div>
 
-      {/* Cart */}
-      <div className={`${cardClass} mb-6`}>
-        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Cart Items ({cartItems.length})</h2>
+      <div className={`${card} mb-6`}>
+        <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>Cart ({cartItems.length})</h2>
         {cartItems.length === 0 ? (
-          <div className="text-center py-10">
-            <p className="text-3xl mb-2">🛒</p>
-            <p className={`text-sm ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>No items in cart</p>
+          <div className="text-center py-12">
+            <p className="text-4xl mb-3">🛒</p>
+            <p className={`text-sm ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>No items in cart</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className={`overflow-hidden rounded-2xl border ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
             <table className="w-full">
-              <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+              <thead className={darkMode ? 'bg-gray-800/50' : 'bg-gray-50/50'}>
                 <tr><th className={thClass}>Item</th><th className={thClass}>Quantity</th><th className={thClass}>Price</th><th className={thClass}>Total</th><th className={thClass}></th></tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <tbody className={`divide-y ${darkMode ? 'divide-gray-800' : 'divide-gray-50'}`}>
                 {cartItems.map(item => (
-                  <tr key={item._id} className={`transition ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
-                    <td className={`${tdClass} font-medium`}>{item.name}</td>
+                  <tr key={item._id} className={`transition ${darkMode ? 'hover:bg-white/[0.02]' : 'hover:bg-gray-50/50'}`}>
+                    <td className={`${tdClass} font-semibold`}>{item.name}</td>
                     <td className={tdClass}>
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleQuantityChange(item._id, -1, item.quantity)}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
-                          <FaMinus size={9} />
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+                          <FaMinus size={8} />
                         </button>
-                        <span className="w-8 text-center text-sm font-semibold">{quantities[item._id] || item.quantity}</span>
+                        <span className="w-8 text-center text-sm font-bold">{quantities[item._id] || item.quantity}</span>
                         <button onClick={() => handleQuantityChange(item._id, 1, item.quantity)}
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
-                          <FaPlus size={9} />
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+                          <FaPlus size={8} />
                         </button>
                       </div>
                     </td>
                     <td className={tdClass}>₹{item.price.toFixed(2)}</td>
-                    <td className={`${tdClass} font-semibold text-[#029c78]`}>₹{((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</td>
+                    <td className={`${tdClass} font-bold text-brand-500`}>₹{((quantities[item._id] || item.quantity) * item.price).toFixed(2)}</td>
                     <td className={tdClass}>
-                      <button onClick={() => deleteItem(item._id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"><FaTrash size={12} /></button>
+                      <button onClick={() => deleteItem(item._id)} className="p-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"><FaTrash size={11} /></button>
                     </td>
                   </tr>
                 ))}
@@ -261,26 +257,24 @@ function History() {
         )}
       </div>
 
-      {/* Summary */}
-      <div className={`${cardClass} mb-6`}>
-        <h2 className="text-sm font-bold uppercase tracking-wide mb-4 opacity-60">Summary</h2>
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm"><span className="opacity-60">Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="opacity-60">Tax (7%)</span><span>₹{tax.toFixed(2)}</span></div>
-          <div className="flex justify-between text-sm"><span className="opacity-60">Discount (5%)</span><span className="text-green-500">-₹{discount.toFixed(2)}</span></div>
-          <div className={`flex justify-between pt-3 mt-3 border-t text-lg font-bold ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-            <span>Total</span><span className="text-[#029c78]">₹{total.toFixed(2)}</span>
+      <div className={`${card} mb-6`}>
+        <h2 className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}>Summary</h2>
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm"><span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>Tax (7%)</span><span>₹{tax.toFixed(2)}</span></div>
+          <div className="flex justify-between text-sm"><span className={darkMode ? 'text-gray-500' : 'text-gray-400'}>Discount (5%)</span><span className="text-green-500">-₹{discount.toFixed(2)}</span></div>
+          <div className={`flex justify-between pt-4 mt-4 border-t text-lg font-black ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
+            <span>Total</span><span className="text-brand-500">₹{total.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3">
-        <button onClick={handleCheckout} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">
+        <button onClick={handleCheckout} className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold bg-brand-500 text-white hover:bg-brand-400 transition shadow-lg shadow-brand-500/20">
           <FaCreditCard size={14} /> Pay & Checkout
         </button>
-        <button onClick={handleGeneratePDF} className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition ${
-          darkMode ? 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+        <button onClick={handleGeneratePDF} className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-bold transition ${
+          darkMode ? 'bg-gray-900 border border-gray-800 text-gray-300 hover:bg-gray-800' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
         }`}>
           <FaFileDownload size={14} /> PDF
         </button>

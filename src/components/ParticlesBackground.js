@@ -5,7 +5,7 @@ import { DarkModeContext } from "../DarkModeContext";
 
 const ParticlesBackground = ({ id }) => {
     const { darkMode } = useContext(DarkModeContext);
-    const [, setInit] = useState(false);
+    const [init, setInit] = useState(false);
 
     useEffect(() => {
         initParticlesEngine(async (engine) => {
@@ -15,7 +15,7 @@ const ParticlesBackground = ({ id }) => {
 
     const options = useMemo(
         () => ({
-            fullScreen: { enable: true, zIndex: -1 },
+            fullScreen: { enable: false },
             background: { color: { value: "transparent" } },
             fpsLimit: 120,
             particles: {
@@ -26,16 +26,19 @@ const ParticlesBackground = ({ id }) => {
                 size: { value: darkMode ? 1 : 1.5 },
                 opacity: { value: 0.3, anim: { enable: true, speed: 0.5, opacity_min: 0.1 } },
             },
-            interactivity: {
-                events: { onclick: { enable: true, mode: "push" } },
-                modes: { push: { particles_nb: 1 } },
-            },
+            interactivity: { events: { onclick: { enable: false }, onhover: { enable: false } } },
             retina_detect: true,
         }),
         [darkMode]
     );
 
-    return <Particles id={id} options={options} />;
+    if (!init) return null;
+
+    return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' }}>
+            <Particles id={id} options={options} style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
+        </div>
+    );
 };
 
 export default ParticlesBackground;

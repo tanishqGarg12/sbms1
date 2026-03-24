@@ -22,7 +22,9 @@ const Layout = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="flex pt-[72px]">
         <Main />
-        <main className={`flex-1 ml-60 min-h-screen p-6 transition-colors duration-300 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <main className={`flex-1 ml-60 min-h-screen p-8 transition-colors duration-300 ${
+          darkMode ? 'bg-gray-950' : 'bg-gray-50'
+        }`}>
           <Outlet />
         </main>
       </div>

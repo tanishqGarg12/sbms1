@@ -2,24 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  scroll-behavior: smooth;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* { scroll-behavior: smooth; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(2,156,120,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(2,156,120,0.5); }
+
+/* Glass effect utility */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.glass-light {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #029c78 0%, #43c690 50%, #79ddb2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mesh gradient backgrounds */
+.mesh-gradient {
+  background:
+    radial-gradient(at 20% 80%, rgba(2,156,120,0.15) 0%, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(67,198,144,0.1) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(121,221,178,0.05) 0%, transparent 50%);
+}
+.mesh-gradient-dark {
+  background:
+    radial-gradient(at 20% 80%, rgba(2,156,120,0.08) 0%, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(67,198,144,0.05) 0%, transparent 50%);
+}
+
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.animate-fadeIn { animation: fadeIn 0.6s ease-out both; }
+.animate-slideUp { animation: slideUp 0.6s ease-out both; }
 
-.animate-fadeIn {
-  animation: fadeIn 0.8s ease-out both;
+/* Hover card lift */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
 }
 
-.animate-slideUp {
-  animation: slideUp 0.8s ease-out both;
+/* Slick overrides */
+.slick-dots li button:before { color: #029c78 !important; }
+.slick-dots li.slick-active button:before { color: #029c78 !important; }
+
+/* Particles must not block clicks */
+#tsparticles,
+#tsparticles canvas,
+#particles,
+#particles canvas {
+  pointer-events: none !important;
 }

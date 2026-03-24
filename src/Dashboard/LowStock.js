@@ -49,27 +49,27 @@ const LowStock = () => {
   const handleEditSubmit = (e) => { e.preventDefault(); if (editingProduct) editItem(editingProduct); };
   const handleEditCancel = () => { setEditingProduct(null); setFormData({ name: '', category: '', subcategory: '', quantity: 0, unit: '', price: 0 }); };
 
-  const inputClass = `w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 ${
-    darkMode ? 'bg-gray-800 border-gray-700 text-white focus:ring-green-500' : 'bg-white border-gray-200 text-gray-900 focus:ring-[#029c78]'
+  const inputClass = `w-full px-4 py-3 rounded-2xl border text-sm focus:outline-none focus:ring-2 ${
+    darkMode ? 'bg-gray-800/50 border-gray-700 text-white focus:ring-brand-500' : 'bg-gray-50 border-gray-200 text-gray-900 focus:ring-brand-500'
   }`;
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className={`animate-spin w-8 h-8 border-4 rounded-full border-t-transparent ${darkMode ? 'border-green-400' : 'border-[#029c78]'}`} />
+      <div className={`animate-spin w-8 h-8 border-[3px] rounded-full border-t-transparent ${darkMode ? 'border-brand-400' : 'border-brand-500'}`} />
     </div>
   );
 
   return (
     <div className={darkMode ? 'text-gray-200' : 'text-gray-900'}>
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Low Stock</h1>
-        <span className="text-xs px-2.5 py-1 rounded-full font-semibold bg-red-500/10 text-red-500">{lowStockProducts.length} items</span>
+      <div className="flex items-center gap-3 mb-8">
+        <h1 className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-gray-900'}`}>Low Stock</h1>
+        <span className="text-xs px-3 py-1 rounded-full font-bold bg-red-500/10 text-red-500">{lowStockProducts.length} items</span>
       </div>
 
       {editingProduct && (
-        <form onSubmit={handleEditSubmit} className={`p-5 mb-6 rounded-xl ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200 shadow-sm'}`}>
+        <form onSubmit={handleEditSubmit} className={`p-6 mb-6 rounded-2xl ${darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-100 shadow-sm'}`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">Edit Product</h2>
+            <h2 className="text-lg font-black">Edit Product</h2>
             <button type="button" onClick={handleEditCancel} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -79,44 +79,44 @@ const LowStock = () => {
             ))}
           </div>
           <div className="flex gap-2 mt-4">
-            <button type="submit" className="px-5 py-2 rounded-lg text-sm font-semibold bg-[#029c78] text-white hover:bg-[#028a6b] transition">Save</button>
-            <button type="button" onClick={handleEditCancel} className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>Cancel</button>
+            <button type="submit" className="px-6 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white hover:bg-brand-400 transition shadow-lg shadow-brand-500/20">Save</button>
+            <button type="button" onClick={handleEditCancel} className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition ${darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>Cancel</button>
           </div>
         </form>
       )}
 
       {lowStockProducts.length === 0 ? (
-        <div className={`text-center py-16 rounded-xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
-          <p className="text-4xl mb-3">✅</p>
-          <p className={`font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>All stock levels are healthy</p>
+        <div className={`text-center py-20 rounded-3xl ${darkMode ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-100'}`}>
+          <p className="text-5xl mb-4">✅</p>
+          <p className={`font-semibold ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>All stock levels are healthy</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {lowStockProducts.map(product => (
-            <div key={product._id} className={`rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg ${
-              darkMode ? 'bg-gray-800 border border-red-500/30' : 'bg-white border border-red-200 shadow-sm'
+            <div key={product._id} className={`rounded-2xl overflow-hidden card-hover ${
+              darkMode ? 'bg-gray-900 border border-red-500/20' : 'bg-white border border-red-100 shadow-sm'
             }`}>
               <img src={product.file || 'https://via.placeholder.com/300x150?text=No+Image'} alt={product.name} className="w-full h-36 object-cover" />
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <FaExclamationTriangle className="text-red-500 text-xs" />
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-red-500">Low Stock</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">Low Stock</span>
                 </div>
-                <h3 className="font-semibold">{product.name}</h3>
-                <p className="text-[#029c78] font-bold text-lg mt-1">₹{Number(product.price).toFixed(2)}</p>
-                <p className="text-orange-500 text-sm mt-1">In Stock: {product.quantity}</p>
+                <h3 className="font-bold text-sm">{product.name}</h3>
+                <p className="text-brand-500 font-black text-lg mt-1">₹{Number(product.price).toFixed(2)}</p>
+                <p className="text-orange-500 text-xs font-semibold mt-1">Only {product.quantity} left</p>
 
                 {user?.user?.role === 'admin' ? (
-                  <div className="flex gap-2 mt-3">
-                    <button onClick={() => handleEditClick(product)} className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-medium transition ${darkMode ? 'bg-gray-700 text-yellow-400 hover:bg-gray-600' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'}`}>
-                      <FaEdit size={11} /> Edit
-                    </button>
-                    <button onClick={() => deleteItem(product._id)} className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-medium transition ${darkMode ? 'bg-gray-700 text-red-400 hover:bg-gray-600' : 'bg-red-50 text-red-600 hover:bg-red-100'}`}>
-                      <FaTrash size={11} /> Delete
-                    </button>
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={() => handleEditClick(product)} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition ${
+                      darkMode ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+                    }`}><FaEdit size={10} /> Edit</button>
+                    <button onClick={() => deleteItem(product._id)} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition ${
+                      darkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-600 hover:bg-red-100'
+                    }`}><FaTrash size={10} /> Delete</button>
                   </div>
                 ) : (
-                  <p className="text-xs text-red-500 mt-3">⚠ Stock running low</p>
+                  <p className="text-xs text-red-500 font-semibold mt-3">⚠ Stock running low</p>
                 )}
               </div>
             </div>
