@@ -24,10 +24,21 @@ function History() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [stockMap, setStockMap] = useState({});
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const token = user?.token;
   const id = user?.user?._id;
+
+  useEffect(() => {
+    fetch('https://backend-sbms.onrender.com/api/v1/inventory/getallinventory')
+      .then(r => r.json())
+      .then(data => {
+        const map = {};
+        (data || []).forEach(p => { map[p._id] = p.quantity; });
+        setStockMap(map);
+      }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (searchQuery) {
@@ -101,32 +112,100 @@ function History() {
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
-    doc.setFillColor(2, 156, 120);
-    doc.rect(0, 20, 210, 18, 'F');
-    doc.setFontSize(22); doc.setTextColor(255, 255, 255);
-    doc.text('Invoice', 105, 33, { align: 'center' });
-    doc.setFontSize(11); doc.setTextColor(80, 80, 80);
-    doc.text(`From: ${senderName}`, 14, 50);
-    doc.text(`To: ${recipientName}`, 14, 58);
-    doc.setFillColor(245, 245, 245);
-    doc.roundedRect(14, 65, 180, 18, 3, 3, 'F');
-    doc.setFontSize(10); doc.setTextColor(0, 0, 0);
-    doc.text(`Subtotal: ₹${subtotal.toFixed(2)}`, 20, 76);
-    doc.text(`Tax: ₹${tax.toFixed(2)}`, 70, 76);
-    doc.text(`Discount: ₹${discount.toFixed(2)}`, 115, 76);
-    doc.setFont('helvetica', 'bold'); doc.text(`Total: ₹${total.toFixed(2)}`, 160, 76);
-    doc.setFont('helvetica', 'normal');
+    const w = doc.internal.pageSize.width;
+    const h = doc.internal.pageSize.height;
+    const brand = [2, 156, 120];
+    const dark = [30, 30, 30];
+    const gray = [120, 120, 120];
+    const light = [245, 247, 250];
+    const today = new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Header bar
+    doc.setFillColor(...brand);
+    doc.rect(0, 0, w, 4, 'F');
+
+    // Company name & Invoice title
+    doc.setFontSize(24); doc.setFont('helvetica', 'bold'); doc.setTextColor(...dark);
+    doc.text('SBMS', 20, 28);
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gray);
+    doc.text('Smart Business Management System', 20, 35);
+
+    doc.setFontSize(28); doc.setFont('helvetica', 'bold'); doc.setTextColor(...brand);
+    doc.text('INVOICE', w - 20, 28, { align: 'right' });
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gray);
+    doc.text(`Date: ${today}`, w - 20, 36, { align: 'right' });
+    doc.text(`Invoice #: ${senderId.slice(0, 8).toUpperCase()}`, w - 20, 42, { align: 'right' });
+
+    // Divider
+    doc.setDrawColor(230, 230, 230); doc.setLineWidth(0.5);
+    doc.line(20, 50, w - 20, 50);
+
+    // From / To section
+    const colW = (w - 40) / 2;
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...brand);
+    doc.text('BILLED FROM', 20, 62);
+    doc.text('BILLED TO', 20 + colW + 10, 62);
+
+    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...dark);
+    doc.text(senderName || 'Your Company', 20, 70);
+    doc.text(recipientName || 'Client Name', 20 + colW + 10, 70);
+
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gray);
+    doc.text(senderContact || 'Contact info', 20, 77);
+    doc.text(recipientContact || 'Contact info', 20 + colW + 10, 77);
+
+    // Items table
     doc.autoTable({
-      head: [['Item', 'Qty', 'Price', 'Amount']],
-      body: cartItems.map(s => [s.name, quantities[s._id] || s.quantity, `₹${s.price.toFixed(2)}`, `₹${((quantities[s._id] || s.quantity) * s.price).toFixed(2)}`]),
+      head: [['#', 'Item', 'Qty', 'Unit Price', 'Amount']],
+      body: cartItems.map((s, i) => {
+        const qty = quantities[s._id] || s.quantity;
+        return [i + 1, s.name, qty, `₹${s.price.toFixed(2)}`, `₹${(qty * s.price).toFixed(2)}`];
+      }),
       startY: 90,
-      headStyles: { fillColor: [2, 156, 120], textColor: [255, 255, 255], fontSize: 10 },
-      bodyStyles: { fontSize: 10 },
-      styles: { cellPadding: 4, halign: 'center' },
-      alternateRowStyles: { fillColor: [248, 248, 248] }
+      margin: { left: 20, right: 20 },
+      headStyles: { fillColor: brand, textColor: [255, 255, 255], fontSize: 9, fontStyle: 'bold', cellPadding: 5 },
+      bodyStyles: { fontSize: 9, cellPadding: 5, textColor: dark },
+      columnStyles: { 0: { halign: 'center', cellWidth: 12 }, 2: { halign: 'center' }, 3: { halign: 'right' }, 4: { halign: 'right', fontStyle: 'bold' } },
+      alternateRowStyles: { fillColor: light },
+      styles: { lineWidth: 0 },
     });
-    doc.setFontSize(9); doc.setTextColor(120, 120, 120);
-    doc.text('Thank you for your business!', 14, doc.internal.pageSize.height - 15);
+
+    // Summary section
+    const finalY = doc.lastAutoTable.finalY + 10;
+    const summaryX = w - 90;
+
+    doc.setDrawColor(230, 230, 230); doc.setLineWidth(0.3);
+
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gray);
+    doc.text('Subtotal', summaryX, finalY);
+    doc.text(`₹${subtotal.toFixed(2)}`, w - 20, finalY, { align: 'right' });
+
+    doc.text('Tax (7%)', summaryX, finalY + 8);
+    doc.text(`₹${tax.toFixed(2)}`, w - 20, finalY + 8, { align: 'right' });
+
+    doc.text('Discount (5%)', summaryX, finalY + 16);
+    doc.setTextColor(2, 156, 120);
+    doc.text(`-₹${discount.toFixed(2)}`, w - 20, finalY + 16, { align: 'right' });
+
+    doc.line(summaryX, finalY + 21, w - 20, finalY + 21);
+
+    doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...dark);
+    doc.text('Total', summaryX, finalY + 30);
+    doc.setTextColor(...brand);
+    doc.text(`₹${total.toFixed(2)}`, w - 20, finalY + 30, { align: 'right' });
+
+    // Footer
+    doc.setFillColor(...light);
+    doc.roundedRect(20, h - 40, w - 40, 22, 3, 3, 'F');
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...gray);
+    doc.text('Thank you for your business!', w / 2, h - 27, { align: 'center' });
+    doc.setFontSize(7);
+    doc.text('This is a computer-generated invoice from SBMS.', w / 2, h - 21, { align: 'center' });
+
+    // Bottom bar
+    doc.setFillColor(...brand);
+    doc.rect(0, h - 4, w, 4, 'F');
+
     doc.save('invoice.pdf');
   };
 
@@ -247,12 +326,12 @@ function History() {
                     <td className={`${tdClass} font-semibold`}>{item.name}</td>
                     <td className={tdClass}>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => handleQuantityChange(item._id, -1, item.quantity, item.maxQuantity)}
+                        <button onClick={() => handleQuantityChange(item._id, -1, item.quantity, stockMap[item.productId || item._id])}
                           className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
                           <FaMinus size={8} />
                         </button>
                         <span className="w-8 text-center text-sm font-bold">{quantities[item._id] || item.quantity}</span>
-                        <button onClick={() => handleQuantityChange(item._id, 1, item.quantity, item.maxQuantity)}
+                        <button onClick={() => handleQuantityChange(item._id, 1, item.quantity, stockMap[item.productId || item._id])}
                           className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
                           <FaPlus size={8} />
                         </button>

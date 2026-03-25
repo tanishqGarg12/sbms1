@@ -62,15 +62,15 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
 
             <Route path="/dashboard" element={<Layout />}>
-              <Route index path="history" element={<History />} />
+              <Route index path="history" element={<CreateBill />} />
               <Route path="addinventory" element={<InventoryApp />} />
               <Route path="business" element={<Busiiness />} />
-              <Route path="create-bill" element={<CreateBill />} />
+              <Route path="create-bill" element={<History />} />
               <Route path="stock-details" element={<Stock />} />
               <Route path="all-inventory" element={<AllInventory />} />
               <Route path="low-inventory" element={<LowStock />} />
               <Route path="settings" element={<Setting />} />
-              <Route path="history/pay-success" element={<PaymentSuccess />} />
+              <Route path="create-bill/pay-success" element={<PaymentSuccess />} />
               <Route path="create-category" element={<CategoryForm />} />
               <Route path="create_sub-category" element={<SubcategoryForm />} />
             </Route>
