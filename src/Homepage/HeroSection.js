@@ -7,7 +7,6 @@ import { Link as ScrollLink } from "react-scroll";
 
 const HeroSection = () => {
   const [startCount, setStartCount] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
   const sectionRef = useRef(null);
   const { darkMode } = useContext(DarkModeContext);
   const navigate = useNavigate();
