@@ -46,11 +46,19 @@ function History() {
     }
   }, [searchQuery, token]);
 
+  const refreshCart = () => {
+    if (token) {
+      axios.get('https://backend-sbms.onrender.com/api/v1/cart', {
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      }).then(r => setCartItems(r.data.items || [])).catch(() => {});
+    }
+  };
+
   const addToCart = (productId, quantity) => {
     fetch('https://backend-sbms.onrender.com/api/v1/cart/add', {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ productId, quantity, id })
-    }).then(r => { if (!r.ok) throw new Error(); toast.success('Added to cart!'); })
+    }).then(r => { if (!r.ok) throw new Error(); toast.success('Added to cart!'); refreshCart(); })
       .catch(() => toast.error('Item already added.'));
   };
 
@@ -78,14 +86,18 @@ function History() {
     } catch { toast.error('Error removing item.'); }
   };
 
-  const handleQuantityChange = (productId, change, x) => {
-    setQuantities(prev => ({ ...prev, [productId]: Math.max(0, (prev[productId] || x) + change) }));
+  const handleQuantityChange = (productId, change, x, maxQty) => {
+    setQuantities(prev => {
+      const val = (prev[productId] || x) + change;
+      if (val < 1 || (maxQty !== undefined && val > maxQty)) return prev;
+      return { ...prev, [productId]: val };
+    });
   };
 
   const subtotal = cartItems.reduce((acc, s) => acc + (quantities[s._id] || s.quantity) * s.price, 0);
   const tax = subtotal * taxRate;
   const discount = subtotal * discountRate;
-  const total = parseInt(subtotal + tax - discount);
+  const total = Math.round((subtotal + tax - discount) * 100) / 100;
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
@@ -150,7 +162,6 @@ function History() {
         prefill: { name: senderName || 'Customer', email: 'customer@example.com', contact: '9999999999' },
         theme: { color: '#029c78' },
       };
-      setCartItems([]);
       new window.Razorpay(options).open();
     } catch { toast.error('Payment failed. Please try again.'); }
   };
@@ -204,7 +215,10 @@ function History() {
                     <td className={tdClass}>{item.quantity}</td>
                     <td className={tdClass}>₹{item.price.toFixed(2)}</td>
                     <td className={tdClass}>
-                      <button onClick={() => addToCart(item._id, 1)} className="px-4 py-1.5 rounded-xl text-xs font-bold bg-brand-500 text-white hover:bg-brand-400 transition">+ Add</button>
+                      <button onClick={() => addToCart(item._id, 1)} disabled={item.quantity === 0}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${item.quantity === 0 ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-brand-500 text-white hover:bg-brand-400'}`}>
+                        {item.quantity === 0 ? 'Out of Stock' : '+ Add'}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -233,12 +247,12 @@ function History() {
                     <td className={`${tdClass} font-semibold`}>{item.name}</td>
                     <td className={tdClass}>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => handleQuantityChange(item._id, -1, item.quantity)}
+                        <button onClick={() => handleQuantityChange(item._id, -1, item.quantity, item.maxQuantity)}
                           className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
                           <FaMinus size={8} />
                         </button>
                         <span className="w-8 text-center text-sm font-bold">{quantities[item._id] || item.quantity}</span>
-                        <button onClick={() => handleQuantityChange(item._id, 1, item.quantity)}
+                        <button onClick={() => handleQuantityChange(item._id, 1, item.quantity, item.maxQuantity)}
                           className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${darkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
                           <FaPlus size={8} />
                         </button>

@@ -50,7 +50,10 @@ const AllInventory = () => {
   };
 
   const handleEditClick = (p) => { setEditingProduct(p._id); setFormData({ name: p.name, category: p.category, subcategory: p.subcategory, quantity: p.quantity, unit: p.unit, price: p.price }); };
-  const handleEditChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: name === 'quantity' || name === 'price' ? Number(value) : value });
+  };
   const handleEditSubmit = (e) => { e.preventDefault(); if (editingProduct) editItem(editingProduct); };
   const handleEditCancel = () => { setEditingProduct(null); setFormData({ name: '', category: '', subcategory: '', quantity: 0, unit: '', price: 0 }); };
 

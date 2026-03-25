@@ -50,8 +50,8 @@ const Main = () => {
         )}
 
         <SectionLabel>Billing</SectionLabel>
-        <NavLink to="/dashboard/history" icon={FaFileInvoiceDollar} label="Create Bill" />
-        <NavLink to="/dashboard/create-bill" icon={FaHistory} label="History" />
+        <NavLink to="/dashboard/history" icon={FaHistory} label="History" />
+        <NavLink to="/dashboard/create-bill" icon={FaFileInvoiceDollar} label="Create Bill" />
 
         <SectionLabel>Account</SectionLabel>
         <NavLink to="/dashboard/settings" icon={FaCog} label="Settings" />
