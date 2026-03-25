@@ -67,8 +67,9 @@ const AllInventory = () => {
   const handleQuantityChange = (productId, change, maxQuantity, isGrocery) => {
     setQuantities(prev => {
       const inc = isGrocery ? 0.5 : 1;
-      const val = (prev[productId] || 1) + change * inc;
-      if (val < 0.5 || val > maxQuantity) return prev;
+      const min = isGrocery ? 0.5 : 1;
+      const val = (prev[productId] || min) + change * inc;
+      if (val < min || val > maxQuantity) return prev;
       return { ...prev, [productId]: val };
     });
   };
@@ -162,7 +163,7 @@ const AllInventory = () => {
                       </div>
 
                       <div className={`flex items-center gap-2 mt-4 pt-4 border-t ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
-                        <div className={`flex items-center rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                        <div className={`flex items-center rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-gray-100'} ${product.quantity === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
                           <button onClick={() => handleQuantityChange(product._id, -1, product.quantity, category.toLowerCase() === 'grocery')}
                             className={`w-8 h-9 flex items-center justify-center text-sm font-bold transition ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-500'}`}>−</button>
                           <span className="w-7 text-center text-xs font-bold">{quantities[product._id] || 1}</span>
@@ -170,8 +171,13 @@ const AllInventory = () => {
                             className={`w-8 h-9 flex items-center justify-center text-sm font-bold transition ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-200 text-gray-500'}`}>+</button>
                         </div>
                         <button onClick={() => addToCart(product._id, quantities[product._id] || 1)}
-                          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white hover:bg-brand-400 transition-all shadow-sm hover:shadow-lg hover:shadow-brand-500/20">
-                          <FaShoppingCart size={10} /> Add
+                          disabled={product.quantity === 0}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                            product.quantity === 0
+                              ? 'bg-gray-400 text-white cursor-not-allowed'
+                              : 'bg-brand-500 text-white hover:bg-brand-400 hover:shadow-lg hover:shadow-brand-500/20'
+                          }`}>
+                          <FaShoppingCart size={10} /> {product.quantity === 0 ? 'Out of Stock' : 'Add'}
                         </button>
                       </div>
 
